@@ -2,3 +2,5 @@ vcpkg/
 build/
 out
 .vs
+.idea
+cmake-build-debug
