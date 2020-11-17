@@ -1,6 +1,8 @@
+#define TINYOBJLOADER_IMPLEMENTATION
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
+#include <tiny_obj_loader.h>
 
 #include "utils/shader_reader.h"
 
@@ -16,34 +18,59 @@ float vertices[] = {
      0.0f,  0.5f, 0.0f
 };  
 
-unsigned int VBO, VAO;
+unsigned int VBO, VAO, IBO;
 
 // Shaders
 std::unique_ptr<Shader> triangleShader;
 
-void drawTriangle()
+// Pirate
+tinyobj::attrib_t attrib;
+std::vector<tinyobj::shape_t> shapes;
+std::vector<tinyobj::material_t> materials;
+
+void loadPirate()
 {
-    // Load Vertex shader
-    // std::ifstream fileStream(filePath, std::ios::in);
-    // const char* vs_ptr = readShaderSource("shaders/triangle.vs").c_str();
-    
-    // unsigned int vertexShader;
-    // vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    // glShaderSource(vertexShader, 1, &vs_ptr, NULL);
-    // glCompileShader(vertexShader);
+    std::string inputfile = "models/pirate.obj";
+
+    std::string warn;
+    std::string err;
+
+    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, inputfile.c_str(), "models");
+
+    if (!warn.empty()) {
+    std::cout << warn << std::endl;
+    }
+
+    if (!err.empty()) {
+    std::cerr << err << std::endl;
+    }
+
+    if (!ret) {
+        exit(1);
+    }
 }
 
 void initScene()
 {
+    loadPirate();
     // https://learnopengl.com/code_viewer_gh.php?code=src/1.getting_started/7.4.camera_class/camera_class.cpp
     triangleShader = std::make_unique<Shader>("shaders/triangle.vs", "shaders/triangle.fs");
-
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
+    glGenBuffers(1, &IBO);
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 
+                 sizeof(tinyobj::real_t) * attrib.vertices.size(), 
+                 attrib.vertices.data(), 
+                 GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 
+        sizeof(tinyobj::index_t) * shapes[0].mesh.indices.size(),
+        shapes[0].mesh.indices.data(),
+        GL_STATIC_DRAW);
 
     // position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -113,7 +140,7 @@ int main() {
 
         // Triangle
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_QUADS, (int) attrib.vertices.size(), GL_UNSIGNED_INT, nullptr);
 
         // Swap
         glfwSwapBuffers(window);
