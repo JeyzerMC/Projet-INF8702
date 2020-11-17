@@ -2,6 +2,56 @@
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
 
+#include "utils/shader_reader.h"
+
+void processInput(GLFWwindow *window)
+{
+    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+}
+
+float vertices[] = {
+    -0.5f, -0.5f, 0.0f,
+     0.5f, -0.5f, 0.0f,
+     0.0f,  0.5f, 0.0f
+};  
+
+unsigned int VBO, VAO;
+
+// Shaders
+std::unique_ptr<Shader> triangleShader;
+
+void drawTriangle()
+{
+    // Load Vertex shader
+    // std::ifstream fileStream(filePath, std::ios::in);
+    // const char* vs_ptr = readShaderSource("shaders/triangle.vs").c_str();
+    
+    // unsigned int vertexShader;
+    // vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    // glShaderSource(vertexShader, 1, &vs_ptr, NULL);
+    // glCompileShader(vertexShader);
+}
+
+void initScene()
+{
+    // https://learnopengl.com/code_viewer_gh.php?code=src/1.getting_started/7.4.camera_class/camera_class.cpp
+    triangleShader = std::make_unique<Shader>("shaders/triangle.vs", "shaders/triangle.fs");
+
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    triangleShader->use();
+}
+
 int main() {
     spdlog::set_level(spdlog::level::debug);
 
@@ -52,9 +102,20 @@ int main() {
     glGetIntegerv(GL_MAX_VARYING_FLOATS, &maxVaryingFloats);
     spdlog::debug("GL_MAX_VARYING_FLOATS = {}", maxVaryingFloats);
 
+    initScene();
+
     while (!glfwWindowShouldClose(window))
     {
+        // Input and clear
+        processInput(window);
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        // Triangle
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
+        // Swap
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

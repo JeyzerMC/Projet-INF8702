@@ -7,13 +7,13 @@ project(scene-sous-marine)
 
 
 set(HEADER_FILES
+        utils/shader_reader.h
 )
 set(SOURCE_FILES
         main.cpp
 )
 
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
-
 
 find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
@@ -27,6 +27,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE glm)
 find_package(spdlog REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
 
+find_package(tinyobjloader CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE tinyobjloader::tinyobjloader)
+
+
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 if(MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
