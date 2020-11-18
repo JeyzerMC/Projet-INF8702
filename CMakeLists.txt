@@ -7,7 +7,10 @@ project(scene-sous-marine)
 
 
 set(HEADER_FILES
-        utils/shader_reader.h
+        utils/camera.h
+        utils/scene.h
+        utils/shader.h
+        utils/stb_image.h
 )
 set(SOURCE_FILES
         main.cpp

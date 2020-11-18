@@ -4,7 +4,7 @@
 #include <spdlog/spdlog.h>
 #include <tiny_obj_loader.h>
 
-#include "utils/shader_reader.h"
+#include "utils/shader.h"
 
 void processInput(GLFWwindow *window)
 {
@@ -35,7 +35,7 @@ void loadPirate()
     std::string warn;
     std::string err;
 
-    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, inputfile.c_str(), "models");
+    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, inputfile.c_str(), "models", true);
 
     if (!warn.empty()) {
     std::cout << warn << std::endl;
@@ -140,7 +140,7 @@ int main() {
 
         // Triangle
         glBindVertexArray(VAO);
-        glDrawElements(GL_QUADS, (int) attrib.vertices.size(), GL_UNSIGNED_INT, nullptr);
+        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
 
         // Swap
         glfwSwapBuffers(window);
