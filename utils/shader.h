@@ -3,6 +3,7 @@
 
 
 // TODO: CITER SOURCE: https://learnopengl.com/code_viewer_gh.php?code=includes/learnopengl/shader.h
+#include <glad/glad.h>
 #include <glm/glm.hpp>
 
 #include <string>

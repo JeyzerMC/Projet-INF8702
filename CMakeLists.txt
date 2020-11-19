@@ -5,12 +5,9 @@ set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems/
 
 project(scene-sous-marine)
 
-
 set(HEADER_FILES
         utils/camera.h
-        utils/scene.h
         utils/shader.h
-        utils/stb_image.h
 )
 set(SOURCE_FILES
         main.cpp
@@ -33,11 +30,17 @@ target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
 find_package(tinyobjloader CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE tinyobjloader::tinyobjloader)
 
+find_path(STB_INCLUDE_DIRS "stb.h")
+target_include_directories(${PROJECT_NAME} PRIVATE ${STB_INCLUDE_DIRS})
+
+find_package(glad CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE glad::glad)
+
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 if(MSVC)
-  target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+  target_compile_options(${PROJECT_NAME} PRIVATE /W4)
 else()
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Werror)
 endif()
