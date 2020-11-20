@@ -8,7 +8,7 @@
 
 2. Install dependencies
     ```
-   $ ./vcpkg/vcpkg install glew glfw3 glm spdlog
+   $ ./vcpkg/vcpkg install glew glfw3 glm spdlog tinyobjloader stb glad
    ```
 
 3. Build the project using `cmake` (or open it in your IDE if it supports cmake)
