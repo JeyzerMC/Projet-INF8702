@@ -2,10 +2,13 @@
 #include <GLFW/glfw3.h>
 #include <stb_image.h>
 
+#include <spdlog/spdlog.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "src/model.h"
 #include "utils/shader.h"
 #include "utils/camera.h"
 
@@ -15,6 +18,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
+void debug_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -30,6 +34,8 @@ bool firstMouse = true;
 double deltaTime = 0.0f;	// time between current frame and last frame
 double lastFrame = 0.0f;
 
+bool debug = true;
+
 int main()
 {
     // glfw: initialize and configure
@@ -38,6 +44,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, debug ? GL_TRUE : GL_FALSE);
 
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -48,7 +55,7 @@ int main()
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
     {
-        std::cout << "Failed to create GLFW window" << std::endl;
+        spdlog::critical("Failed to create GLFW window");
         glfwTerminate();
         return -1;
     }
@@ -64,9 +71,10 @@ int main()
     // ---------------------------------------
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        std::cout << "Failed to initialize GLAD" << std::endl;
+        spdlog::critical("Failed to initialize GLAD");
         return -1;
     }
+    spdlog::info("Using Opengl {}.{}", GLVersion.major, GLVersion.minor);
 
     // configure global opengl state
     // -----------------------------
@@ -146,6 +154,9 @@ int main()
     // position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    // Load our custom model
+    auto pirate_model = Model::loadFromFile("models/pirate.obj", "models");
 
     // TODO: ADD BACK TEXTURES
     // // texture coord attribute
@@ -262,6 +273,11 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
+        // render our custom model
+        ourShader.setMat4("model", glm::identity<glm::mat4>());
+        glBindVertexArray(pirate_model.vao);
+        glDrawElements(GL_TRIANGLES, pirate_model.element_count, GL_UNSIGNED_INT, nullptr);
+
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
@@ -283,9 +299,9 @@ int main()
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
-
+    }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -335,4 +351,42 @@ void mouse_callback(GLFWwindow*, double xpos, double ypos)
 void scroll_callback(GLFWwindow*, double, double yoffset)
 {
     camera.ProcessMouseScroll(yoffset);
+}
+
+void debug_message_callback(
+        GLenum,
+        GLenum,
+        GLuint,
+        GLenum severity,
+        GLsizei gl_message_length,
+        const GLchar *gl_message,
+        const void *) {
+
+    spdlog::level::level_enum level;
+    switch (severity) {
+        case GL_DEBUG_SEVERITY_NOTIFICATION:
+            level = spdlog::level::debug;
+            break;
+        case GL_DEBUG_SEVERITY_LOW:
+            level = spdlog::level::info;
+            break;
+        case GL_DEBUG_SEVERITY_MEDIUM:
+            level = spdlog::level::warn;
+            break;
+        case GL_DEBUG_SEVERITY_HIGH:
+            level = spdlog::level::err;
+            break;
+        default:
+            level = spdlog::level::err;
+    }
+
+    std::string message;
+    if (gl_message_length < 0) {
+        message = std::string(gl_message);
+    }
+    else {
+        message = std::string(gl_message, gl_message_length);
+    }
+
+    spdlog::log(level, message);
 }

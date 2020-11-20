@@ -8,18 +8,17 @@ project(scene-sous-marine)
 set(HEADER_FILES
         utils/camera.h
         utils/shader.h
+        src/model.h
 )
 set(SOURCE_FILES
         main.cpp
+        src/model.cpp
 )
 
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
 
 find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
-
-find_package(GLEW REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE GLEW::GLEW)
 
 find_package(glm REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE glm)
