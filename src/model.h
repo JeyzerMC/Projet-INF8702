@@ -21,7 +21,7 @@ public:
     Model(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices);
     ~Model();
 
-    static Model loadFromFile(const std::string& file_path, const std::string& material_dir);
+    static Model load_from_file(const std::string& file_path, const std::string& material_dir);
 
     GLuint vao;
     GLuint vbo;

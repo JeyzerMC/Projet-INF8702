@@ -9,10 +9,13 @@ set(HEADER_FILES
         utils/camera.h
         utils/shader.h
         src/model.h
+        src/texture.h
 )
 set(SOURCE_FILES
         main.cpp
         src/model.cpp
+        src/texture.cpp
+        src/stb_impl.cpp
 )
 
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})

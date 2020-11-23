@@ -41,7 +41,7 @@ Model::~Model() {
 
 
 
-Model Model::loadFromFile(const std::string &file_path, const std::string& material_dir) {
+Model Model::load_from_file(const std::string &file_path, const std::string& material_dir) {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;

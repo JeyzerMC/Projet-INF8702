@@ -1,6 +1,5 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <stb_image.h>
 
 #include <spdlog/spdlog.h>
 
@@ -9,6 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "src/model.h"
+#include "src/texture.h"
 #include "utils/shader.h"
 #include "utils/camera.h"
 
@@ -156,7 +156,8 @@ int main()
     glEnableVertexAttribArray(0);
 
     // Load our custom model
-    auto pirate_model = Model::loadFromFile("models/pirate.obj", "models");
+    auto pirate_model = Model::load_from_file("models/pirate.obj", "models");
+    auto water_normal = Texture::load_from_file("textures/water_height/0001.png");
 
     // TODO: ADD BACK TEXTURES
     // // texture coord attribute
@@ -258,6 +259,8 @@ int main()
         // camera/view transformation
         glm::mat4 view = camera.GetViewMatrix();
         ourShader.setMat4("view", view);
+        // Bind textures
+        glBindTexture(GL_TEXTURE_2D, water_normal.texture);
 
         // render boxes
         glBindVertexArray(VAO);
