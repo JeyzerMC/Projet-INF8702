@@ -10,7 +10,8 @@
         "xlocale": "cpp",
         "xlocinfo": "cpp",
         "memory": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "regex": "cpp"
     },
     "cmake.debugConfig": {
         "cwd": "${workspaceFolder}"

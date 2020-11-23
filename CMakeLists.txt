@@ -10,12 +10,14 @@ set(HEADER_FILES
         utils/shader.h
         src/model.h
         src/texture.h
+        src/cube.h
 )
 set(SOURCE_FILES
         main.cpp
         src/model.cpp
         src/texture.cpp
         src/stb_impl.cpp
+        src/cube.cpp
 )
 
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})

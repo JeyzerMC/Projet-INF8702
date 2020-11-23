@@ -20,6 +20,7 @@ class Model {
 public:
     Model(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices);
     ~Model();
+    void render();
 
     static Model load_from_file(const std::string& file_path, const std::string& material_dir);
 

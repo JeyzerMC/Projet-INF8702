@@ -33,10 +33,17 @@ Model::Model(const std::vector<Vertex> &vertices, const std::vector<unsigned int
 
 
 
-Model::~Model() {
+Model::~Model() 
+{
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &ibo);
+}
+
+void Model::render() 
+{
+    glBindVertexArray(vao);
+    glDrawElements(GL_TRIANGLES, element_count, GL_UNSIGNED_INT, nullptr);
 }
 
 
