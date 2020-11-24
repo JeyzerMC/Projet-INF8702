@@ -29,8 +29,10 @@ Model::Model(const std::vector<Vertex> &vertices, const std::vector<unsigned int
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, position));
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, color));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, normal));
     glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, color));
+    glEnableVertexAttribArray(2);
 }
 
 
@@ -94,12 +96,30 @@ Model Model::load_from_file(const std::string &file_path, const std::string& mat
         spdlog::warn("Model `{}` contains {} shapes, but the loader can only load one shape. Only the first shape will be loaded.", file_path, shapes.size());
     }
 
+    // Indices for IBO
     std::vector<unsigned> indices;
     indices.resize(shapes[0].mesh.indices.size());
     std::transform(shapes[0].mesh.indices.begin(), shapes[0].mesh.indices.end(), indices.begin(), [](tinyobj::index_t i) {
         return i.vertex_index;
     });
 
+    // Vertex normal
+    std::vector<unsigned> normals;
+    normals.resize(shapes[0].mesh.indices.size());
+    std::transform(shapes[0].mesh.indices.begin(), shapes[0].mesh.indices.end(), normals.begin(), [](tinyobj::index_t i) {
+        return i.normal_index;
+    });
+
+    for (size_t i = 0; i < normals.size(); ++i) {
+        auto idp = indices[i];
+        auto idn = normals[i];
+
+        vertices[idp].normal[0] = attrib.normals[idn + 0];
+        vertices[idp].normal[1] = attrib.normals[idn + 1];
+        vertices[idp].normal[2] = attrib.normals[idn + 2];
+    }
+
+    // Vertex color
     for (size_t i = 0; i < shapes[0].mesh.material_ids.size(); ++i) {
         auto mat = materials[shapes[0].mesh.material_ids[i]].diffuse;
         for (unsigned j = 0; j < 3; ++j) {
