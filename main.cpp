@@ -142,6 +142,8 @@ int main()
         baseShader.setMat4("view", view);
         // Bind textures
         glBindTexture(GL_TEXTURE_2D, water_normals.sampleTexture(glfwGetTime()).texture);
+        // Our water normal map covers a 5 x 5 m area
+        baseShader.setVec2("waterNormalsMapSize", 5, 5);
 
         // render boxes
 

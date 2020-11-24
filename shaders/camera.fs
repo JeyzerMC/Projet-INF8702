@@ -9,6 +9,7 @@ in vec3 vertColor;
 // uniform sampler2D texture1;
 // uniform sampler2D texture2;
 uniform sampler2D waterNormalMap;
+uniform vec2 waterNormalsMapSize;
 
 const float waterRefracitonIndex = 1.333;
 
@@ -49,6 +50,15 @@ void toonShading()
 
 }
 
+float getCaustics() {
+    vec3 normal = normalize(texture(waterNormalMap, worldPosition.xz/waterNormalsMapSize).rgb);
+    vec3 refractedRay = vec3(0, 0, 1);
+    vec3 incidentRay = refract(refractedRay, -normal, waterRefracitonIndex);
+    float cosAngle = dot(incidentRay, vec3(0, 0, 1));
+    float light = exp(-100 * (cosAngle - 1) * (cosAngle - 1));
+    return light;
+}
+
 void main()
 {
     // BEFORE:
@@ -56,12 +66,7 @@ void main()
 	// FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);
 
     // CAUSTICS: 
-     vec3 normal = normalize(texture(waterNormalMap, worldPosition.xz/4).rgb);
-     vec3 refractedRay = vec3(0, 0, 1);
-     vec3 incidentRay = refract(refractedRay, -normal, waterRefracitonIndex);
-     float cosAngle = dot(incidentRay, vec3(0, 0, 1));
-     float light = exp(-100 * (cosAngle - 1) * (cosAngle - 1));
 
     // fragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f) * light;
-    fragColor = vec4(vertColor.xyz, 1.0f) + light;
+    fragColor = vec4(vertColor.xyz, 1.0f) + getCaustics();
 }
