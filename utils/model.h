@@ -13,6 +13,7 @@
 #include "mesh.h"
 #include "shader.h"
 
+#include <algorithm>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -177,6 +178,7 @@ private:
         {
             aiString str;
             mat->GetTexture(type, i, &str);
+            fix_string(str);
             // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
             bool skip = false;
             for(unsigned int j = 0; j < textures_loaded.size(); j++)
@@ -200,10 +202,24 @@ private:
         }
         return textures;
     }
+
+    // See https://github.com/assimp/assimp/issues/2754
+    inline void fix_string(aiString& string_to_fix) {
+        if (string_to_fix.data[string_to_fix.length] != '\0') {
+            auto start = string_to_fix.data + string_to_fix.length;
+            auto end = string_to_fix.data + MAXLEN;
+            auto it = std::find(start, end, '\0');
+            if (it == end) {
+                return;
+            }
+            auto valid_start = it - string_to_fix.length;
+            auto valid_end = it + 1;
+            std::copy(valid_start, valid_end, string_to_fix.data);
+        }
+    }
 };
 
-
-unsigned int TextureFromFile(const char *path, const string &directory, bool gamma)
+unsigned int TextureFromFile(const char *path, const string &directory, bool /*gamma*/)
 {
     string filename = string(path);
     filename = directory + '/' + filename;

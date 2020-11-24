@@ -75,7 +75,10 @@ float getCaustics() {
     vec3 incidentRay = refract(refractedRay, -normal, waterRefracitonIndex);
     float cosAngle = dot(incidentRay, vec3(0, 0, 1));
     float light = exp(-100 * (cosAngle - 1) * (cosAngle - 1));
-    return light;
+
+    float diff = dot(normalize(vertNormal), vec3(0, 0, 1));
+
+    return light * diff;
 }
 
 void main()

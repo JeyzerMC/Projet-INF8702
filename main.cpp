@@ -103,7 +103,7 @@ int main()
     // build and compile our shader zprogram
     // ------------------------------------
     Shader baseShader("shaders/camera.vs", "shaders/camera.fs");
-    Model bp_model("models/backpack.obj");
+    Model bp_model("models/Backpack.obj");
 
     // Load our custom model
     // auto pirate_model = Model::load_from_file("models/pirate.obj", "models");
