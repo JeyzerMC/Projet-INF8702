@@ -9,7 +9,7 @@
 
 #include <spdlog/spdlog.h>
 
-AnimatedTexture::AnimatedTexture(std::vector<Texture> textures, float framerate, float phase)
+AnimatedTexture::AnimatedTexture(std::vector<arno::Texture> textures, float framerate, float phase)
     : period(static_cast<float>(textures.size()) * 1.0f / framerate)
     , phase(phase)
     , textures(std::move(textures))
@@ -19,7 +19,7 @@ AnimatedTexture::AnimatedTexture(std::vector<Texture> textures, float framerate,
     }
 }
 
-Texture &AnimatedTexture::sampleTexture(double time) {
+arno::Texture &AnimatedTexture::sampleTexture(double time) {
     double phasedTime = time - (double) phase;
     double timeInPeriod = fmod(phasedTime, period);
     float normalizedTime = static_cast<float>(timeInPeriod) / period;

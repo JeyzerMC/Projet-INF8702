@@ -10,14 +10,12 @@ set(HEADER_FILES
         utils/shader.h
         utils/mesh.h
         utils/model.h
-        src/model.h
         src/texture.h
         src/cube.h
         src/animated_texture.h
 )
 set(SOURCE_FILES
         main.cpp
-        src/model.cpp
         src/texture.cpp
         src/stb_impl.cpp
         src/cube.cpp

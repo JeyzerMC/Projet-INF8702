@@ -12,12 +12,12 @@
 
 class AnimatedTexture {
 public:
-    explicit AnimatedTexture(std::vector<Texture> textures, float framerate, float phase = 0);
-    Texture& sampleTexture(double time);
+    explicit AnimatedTexture(std::vector<arno::Texture> textures, float framerate, float phase = 0);
+    arno::Texture& sampleTexture(double time);
 
     float period;
     float phase;
-    std::vector<Texture> textures;
+    std::vector<arno::Texture> textures;
 };
 
 

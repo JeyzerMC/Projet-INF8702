@@ -13,7 +13,7 @@
 
 #include "utils/shader.h"
 #include "utils/camera.h"
-// #include "utils/model.h"
+#include "utils/model.h"
 
 #include <iostream>
 
@@ -41,15 +41,15 @@ bool debug = true;
 
 glm::vec3 lightPosition(30.0, 30.0, 50.0);
 
-std::vector<Texture> load_water_textures() {
+std::vector<arno::Texture> load_water_textures() {
     int min_index = 1;
     int max_index = 250;
-    auto vector = std::vector<Texture>();
+    auto vector = std::vector<arno::Texture>();
     vector.reserve(max_index - min_index + 1);
     spdlog::info("Loading water normals. This will take some seconds.");
     for (int i = min_index; i <= max_index; ++i) {
         auto file_path = fmt::format("textures/water_height/{:04}.png", i);
-        vector.push_back(Texture::load_from_file(file_path));
+        vector.push_back(arno::Texture::load_from_file(file_path));
     }
     spdlog::info("Finished loading water normals.");
     return vector;
@@ -94,6 +94,7 @@ int main()
         return -1;
     }
     spdlog::info("Using Opengl {}.{}", GLVersion.major, GLVersion.minor);
+    stbi_set_flip_vertically_on_load(true);
 
     // configure global opengl state
     // -----------------------------
@@ -102,6 +103,7 @@ int main()
     // build and compile our shader zprogram
     // ------------------------------------
     Shader baseShader("shaders/camera.vs", "shaders/camera.fs");
+    Model bp_model("models/backpack.obj");
 
     // Load our custom model
     // auto pirate_model = Model::load_from_file("models/pirate.obj", "models");
@@ -153,11 +155,12 @@ int main()
         // render our custom model
         auto model = glm::identity<glm::mat4>();
         // model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
-        model = glm::rotate(model, 90.f, glm::vec3(1, 0, 1));
+        // model = glm::rotate(model, 90.f, glm::vec3(1, 0, 1));
         baseShader.setMat4("model", model);
-        shell_model.render();
+        // shell_model.render();
         // pirate_model.render();
         // cube_model.render(baseShader);
+        bp_model.Draw(baseShader);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

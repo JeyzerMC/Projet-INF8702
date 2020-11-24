@@ -4,13 +4,13 @@ out vec4 fragColor;
 // in vec2 TexCoord;
 in vec3 worldPosition;
 in vec3 vertNormal;
-in vec3 vertColor;
+in vec2 vertTexCoord;
 in vec3 fragPos;
 
 // texture samplers
-// uniform sampler2D texture1;
 // uniform sampler2D texture2;
 uniform sampler2D waterNormalMap;
+uniform sampler2D texture_diffuse1;
 uniform vec2 waterNormalsMapSize;
 
 uniform vec3 lightPos;
@@ -84,9 +84,9 @@ void main()
 	// linearly interpolate between both textures (80% container, 20% awesomeface)
 	// FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);
 
-    // CAUSTICS: 
-
-    // fragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f) * light;
-    vec3 finalColor = (ambientLight() + diffuseLight()) * vertColor;
-    fragColor = vec4(finalColor, 1.0f) + getCaustics();
+    vec4 vertColor = texture(texture_diffuse1, vertTexCoord);
+    vec3 finalColor = (ambientLight() + diffuseLight()) * vertColor.xyz;
+    // vec3 finalColor = vertColor.xyz;
+    // finalColor += getCaustics();
+    fragColor = vec4(finalColor, 1.0f);
 }

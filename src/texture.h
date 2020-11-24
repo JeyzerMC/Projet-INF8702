@@ -8,14 +8,13 @@
 #include <string>
 
 #include <glad/glad.h>
-
+namespace arno {
 struct TextureParameters {
     GLint wrap_mode_s;
     GLint wrap_mode_t;
 
     static TextureParameters get_default();
 };
-
 
 class Texture {
 public:
@@ -27,6 +26,7 @@ public:
 
     GLuint texture;
 };
+}
 
 
 #endif //SCENE_SOUS_MARINE_TEXTURE_H

@@ -9,7 +9,7 @@
 #include <spdlog/spdlog.h>
 #include <stb_image.h>
 
-
+namespace arno {
 TextureParameters TextureParameters::get_default() {
     return TextureParameters {
         GL_REPEAT,
@@ -66,5 +66,4 @@ Texture Texture::load_from_file(const std::string &file_path, TextureParameters 
 
     return Texture(image_data.get(), x, y, parameters);
 }
-
-
+}
