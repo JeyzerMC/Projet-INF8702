@@ -56,12 +56,12 @@ void main()
 	// FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);
 
     // CAUSTICS: 
-    // vec3 normal = normalize(texture(waterNormalMap, worldPosition.xz/4).rgb);
-    // vec3 refractedRay = vec3(0, 0, 1);
-    // vec3 incidentRay = refract(refractedRay, -normal, waterRefracitonIndex);
-    // float cosAngle = dot(incidentRay, vec3(0, 0, 1));
-    // float light = exp(-100 * (cosAngle - 1) * (cosAngle - 1));
+     vec3 normal = normalize(texture(waterNormalMap, worldPosition.xz/4).rgb);
+     vec3 refractedRay = vec3(0, 0, 1);
+     vec3 incidentRay = refract(refractedRay, -normal, waterRefracitonIndex);
+     float cosAngle = dot(incidentRay, vec3(0, 0, 1));
+     float light = exp(-100 * (cosAngle - 1) * (cosAngle - 1));
 
     // fragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f) * light;
-    fragColor = vec4(vertColor.xyz, 1.0f);
+    fragColor = vec4(vertColor.xyz, 1.0f) + light;
 }

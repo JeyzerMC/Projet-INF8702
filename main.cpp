@@ -38,6 +38,19 @@ double lastFrame = 0.0f;
 
 bool debug = true;
 
+std::vector<Texture> load_water_textures() {
+    int min_index = 1;
+    int max_index = 250;
+    auto vector = std::vector<Texture>();
+    vector.reserve(max_index - min_index + 1);
+    for (int i = min_index; i <= max_index; ++i) {
+        auto file_path = fmt::format("textures/water_height/{:04}.png", i);
+        spdlog::info("Loading texture {}", file_path);
+        vector.push_back(Texture::load_from_file(file_path));
+    }
+    return vector;
+}
+
 int main()
 {
     // glfw: initialize and configure
@@ -89,8 +102,9 @@ int main()
     // Load our custom model
     // auto pirate_model = Model::load_from_file("models/pirate.obj", "models");
     auto shell_model = Model::load_from_file("models/Pot.obj", "models/");
-    auto cube_model = Cube::Cube();
-    auto water_normal = Texture::load_from_file("textures/water_height/0001.png");
+    auto cube_model = Cube();
+    auto water_normals = load_water_textures();
+    spdlog::info("Size {}", water_normals.size());
 
     // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
     // -------------------------------------------------------------------------------------------
@@ -98,8 +112,10 @@ int main()
 
     // render loop
     // -----------
+    int current_iteration = 0;
     while (!glfwWindowShouldClose(window))
     {
+        current_iteration++;
         // per-frame time logic
         // --------------------
         double currentFrame = glfwGetTime();
@@ -126,7 +142,7 @@ int main()
         glm::mat4 view = camera.GetViewMatrix();
         baseShader.setMat4("view", view);
         // Bind textures
-        glBindTexture(GL_TEXTURE_2D, water_normal.texture);
+        glBindTexture(GL_TEXTURE_2D, water_normals[current_iteration % water_normals.size()].texture);
 
         // render boxes
 
