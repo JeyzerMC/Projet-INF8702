@@ -8,6 +8,8 @@ project(scene-sous-marine)
 set(HEADER_FILES
         utils/camera.h
         utils/shader.h
+        utils/mesh.h
+        utils/model.h
         src/model.h
         src/texture.h
         src/cube.h
@@ -39,6 +41,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${STB_INCLUDE_DIRS})
 
 find_package(glad CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE glad::glad)
+
+find_package(Assimp CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE assimp::assimp)
 
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)

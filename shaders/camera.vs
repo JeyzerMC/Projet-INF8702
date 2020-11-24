@@ -6,7 +6,9 @@ layout (location = 2) in vec3 color;
 
 // out vec2 TexCoord;
 out vec3 worldPosition;
+out vec3 vertNormal;
 out vec3 vertColor;
+out vec3 fragPos;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -17,6 +19,8 @@ void main()
 	vec4 worldPositionProjective = model * vec4(pos, 1.0f);
     worldPosition = worldPositionProjective.xyz / worldPositionProjective.w;
 	gl_Position = projection * view * worldPositionProjective;
-	// TexCoord = vec2(aTexCoord.x, aTexCoord.y);
+	vertNormal = mat3(model) * normal;
 	vertColor = color;
+	fragPos = worldPositionProjective.xyz;
+	// TexCoord = vec2(aTexCoord.x, aTexCoord.y);
 }

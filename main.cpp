@@ -7,12 +7,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "src/model.h"
+// #include "src/model.h"
 #include "src/texture.h"
-#include "src/cube.h"
+// #include "src/cube.h"
 
 #include "utils/shader.h"
 #include "utils/camera.h"
+#include "utils/model.h"
 
 #include <iostream>
 
@@ -37,6 +38,8 @@ double deltaTime = 0.0f;	// time between current frame and last frame
 double lastFrame = 0.0f;
 
 bool debug = true;
+
+glm::vec3 lightPosition(30.0, 30.0, 50.0);
 
 int main()
 {
@@ -88,13 +91,15 @@ int main()
 
     // Load our custom model
     // auto pirate_model = Model::load_from_file("models/pirate.obj", "models");
-    auto shell_model = Model::load_from_file("models/Pot.obj", "models/");
-    auto cube_model = Cube::Cube();
+    // auto shell_model = Model::load_from_file("models/BigFanShell.obj", "models/");
+    // auto cube_model = Cube::Cube();
     auto water_normal = Texture::load_from_file("textures/water_height/0001.png");
+    // Model bpModel
 
     // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
     // -------------------------------------------------------------------------------------------
     baseShader.use();
+    baseShader.setVec3("lightPos", lightPosition);
 
     // render loop
     // -----------
@@ -132,7 +137,8 @@ int main()
 
         // render our custom model
         auto model = glm::identity<glm::mat4>();
-        model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
+        // model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
+        model = glm::rotate(model, 90.f, glm::vec3(1, 0, 1));
         baseShader.setMat4("model", model);
         shell_model.render();
         // pirate_model.render();

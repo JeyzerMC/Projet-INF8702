@@ -84,7 +84,8 @@ Model Model::load_from_file(const std::string &file_path, const std::string& mat
         v.position[0] = x;
         v.position[1] = y;
         v.position[2] = z;
-        v.color[0] = -1;
+        v.color[0] = -1; // To check overwrites later
+        v.normal[0] = -1;
         vertices.push_back(v);
     }
 
@@ -103,7 +104,7 @@ Model Model::load_from_file(const std::string &file_path, const std::string& mat
         return i.vertex_index;
     });
 
-    // Vertex normal
+    // Vertex normal [TODO: Fix overwrite issue]
     std::vector<unsigned> normals;
     normals.resize(shapes[0].mesh.indices.size());
     std::transform(shapes[0].mesh.indices.begin(), shapes[0].mesh.indices.end(), normals.begin(), [](tinyobj::index_t i) {
@@ -119,7 +120,7 @@ Model Model::load_from_file(const std::string &file_path, const std::string& mat
         vertices[idp].normal[2] = attrib.normals[idn + 2];
     }
 
-    // Vertex color
+    // Vertex color [TODO: fix overwrite issue]
     for (size_t i = 0; i < shapes[0].mesh.material_ids.size(); ++i) {
         auto mat = materials[shapes[0].mesh.material_ids[i]].diffuse;
         for (unsigned j = 0; j < 3; ++j) {
@@ -131,5 +132,3 @@ Model Model::load_from_file(const std::string &file_path, const std::string& mat
 
     return Model(vertices, indices);
 }
-
-
