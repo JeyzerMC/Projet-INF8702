@@ -1,7 +1,3 @@
-//
-// Created by Mehdi on 2020-11-19.
-//
-
 #ifndef CUBE__H
 #define CUBE__H
 

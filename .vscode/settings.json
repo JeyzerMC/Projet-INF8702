@@ -11,7 +11,8 @@
         "xlocinfo": "cpp",
         "memory": "cpp",
         "vector": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "algorithm": "cpp"
     },
     "cmake.debugConfig": {
         "cwd": "${workspaceFolder}"

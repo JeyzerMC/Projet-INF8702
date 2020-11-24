@@ -29,6 +29,8 @@ Model::Model(const std::vector<Vertex> &vertices, const std::vector<unsigned int
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, position));
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, color));
+    glEnableVertexAttribArray(1);
 }
 
 
@@ -80,6 +82,7 @@ Model Model::load_from_file(const std::string &file_path, const std::string& mat
         v.position[0] = x;
         v.position[1] = y;
         v.position[2] = z;
+        v.color[0] = -1;
         vertices.push_back(v);
     }
 
@@ -96,6 +99,15 @@ Model Model::load_from_file(const std::string &file_path, const std::string& mat
     std::transform(shapes[0].mesh.indices.begin(), shapes[0].mesh.indices.end(), indices.begin(), [](tinyobj::index_t i) {
         return i.vertex_index;
     });
+
+    for (size_t i = 0; i < shapes[0].mesh.material_ids.size(); ++i) {
+        auto mat = materials[shapes[0].mesh.material_ids[i]].diffuse;
+        for (unsigned j = 0; j < 3; ++j) {
+            vertices[indices[3 * i + j]].color[0] = mat[0];
+            vertices[indices[3 * i + j]].color[1] = mat[1];
+            vertices[indices[3 * i + j]].color[2] = mat[2];
+        }
+    }
 
     return Model(vertices, indices);
 }
