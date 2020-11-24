@@ -88,7 +88,7 @@ void main()
 	// FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);
 
     vec4 vertColor = texture(texture_diffuse1, vertTexCoord);
-    vec3 finalColor = (ambientLight() + diffuseLight()) * vertColor.xyz;
+    vec3 finalColor = (ambientLight() + diffuseLight() + getCaustics()) * vertColor.xyz;
     // vec3 finalColor = vertColor.xyz;
     // finalColor += getCaustics();
     fragColor = vec4(finalColor, 1.0f);
