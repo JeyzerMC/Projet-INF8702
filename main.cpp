@@ -10,6 +10,7 @@
 #include "src/model.h"
 #include "src/texture.h"
 #include "src/cube.h"
+#include "src/animated_texture.h"
 
 #include "utils/shader.h"
 #include "utils/camera.h"
@@ -43,11 +44,12 @@ std::vector<Texture> load_water_textures() {
     int max_index = 250;
     auto vector = std::vector<Texture>();
     vector.reserve(max_index - min_index + 1);
+    spdlog::info("Loading water normals. This will take some seconds.");
     for (int i = min_index; i <= max_index; ++i) {
         auto file_path = fmt::format("textures/water_height/{:04}.png", i);
-        spdlog::info("Loading texture {}", file_path);
         vector.push_back(Texture::load_from_file(file_path));
     }
+    spdlog::info("Finished loading water normals.");
     return vector;
 }
 
@@ -103,8 +105,7 @@ int main()
     // auto pirate_model = Model::load_from_file("models/pirate.obj", "models");
     auto shell_model = Model::load_from_file("models/Pot.obj", "models/");
     auto cube_model = Cube();
-    auto water_normals = load_water_textures();
-    spdlog::info("Size {}", water_normals.size());
+    auto water_normals = AnimatedTexture(load_water_textures(), 24);
 
     // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
     // -------------------------------------------------------------------------------------------
@@ -112,10 +113,8 @@ int main()
 
     // render loop
     // -----------
-    int current_iteration = 0;
     while (!glfwWindowShouldClose(window))
     {
-        current_iteration++;
         // per-frame time logic
         // --------------------
         double currentFrame = glfwGetTime();
@@ -142,7 +141,7 @@ int main()
         glm::mat4 view = camera.GetViewMatrix();
         baseShader.setMat4("view", view);
         // Bind textures
-        glBindTexture(GL_TEXTURE_2D, water_normals[current_iteration % water_normals.size()].texture);
+        glBindTexture(GL_TEXTURE_2D, water_normals.sampleTexture(glfwGetTime()).texture);
 
         // render boxes
 
@@ -170,7 +169,7 @@ int main()
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
