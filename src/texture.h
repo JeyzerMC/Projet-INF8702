@@ -21,6 +21,7 @@ class Texture {
 public:
     Texture(unsigned char* data, int width, int height, TextureParameters parameters);
     Texture(const Texture&) = delete;
+    Texture(Texture&&) noexcept;
     ~Texture();
     static Texture load_from_file(const std::string& file_path, TextureParameters parameters = TextureParameters::get_default());
 

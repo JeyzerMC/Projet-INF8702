@@ -35,6 +35,14 @@ Texture::Texture(unsigned char *data, int width, int height, TextureParameters p
 
 
 
+Texture::Texture(Texture&& other) noexcept
+    : texture(other.texture)
+{
+    other.texture = 0;
+}
+
+
+
 Texture::~Texture() {
     glDeleteTextures(1, &texture);
 }
