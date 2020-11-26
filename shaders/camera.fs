@@ -13,6 +13,10 @@ uniform sampler2D waterNormalMap;
 uniform sampler2D texture_diffuse1;
 uniform vec2 waterNormalsMapSize;
 
+// Effects
+uniform bool showToonShading;
+uniform bool showCaustics;
+
 uniform vec3 lightPos;
 vec3 lightColor = vec3(1.0, 1.0, 1.0);
 float ambientStrength = 0.1;
@@ -64,9 +68,21 @@ vec3 diffuseLight()
     return diff * lightColor;
 }
 
-void toonShading()
+float getToonFactor()
 {
+    vec3 norm = normalize(vertNormal);
+    vec3 lightDir = normalize(lightPos - fragPos);  
+    float u = dot(norm, lightDir);
+    if (u < 0.5) return 0;
+    if (u < 0.7) return 0.2;
+    return 1;
+}
 
+vec3 toonShading()
+{
+    vec3 lightHsv = rgb2hsv(lightColor);
+    lightHsv.z = lightHsv.z * getToonFactor();
+    return hsv2rgb(lightHsv);
 }
 
 float getCaustics() {
@@ -81,15 +97,19 @@ float getCaustics() {
     return light * diff;
 }
 
+vec3 getEffects()
+{
+    vec3 effects = ambientLight();
+    effects += showToonShading? toonShading(): diffuseLight();
+
+    if (showCaustics)
+        effects += getCaustics();
+    return effects;
+}
+
 void main()
 {
-    // BEFORE:
-	// linearly interpolate between both textures (80% container, 20% awesomeface)
-	// FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);
-
     vec4 vertColor = texture(texture_diffuse1, vertTexCoord);
-    vec3 finalColor = (ambientLight() + diffuseLight() + getCaustics()) * vertColor.xyz;
-    // vec3 finalColor = vertColor.xyz;
-    // finalColor += getCaustics();
+    vec3 finalColor = getEffects() * vertColor.xyz;
     fragColor = vec4(finalColor, 1.0f);
 }

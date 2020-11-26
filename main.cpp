@@ -21,6 +21,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void debug_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam);
 
 // settings
@@ -38,6 +39,8 @@ double deltaTime = 0.0f;	// time between current frame and last frame
 double lastFrame = 0.0f;
 
 bool debug = true;
+bool showToonShading = true;
+bool showCaustics = true;
 
 glm::vec3 lightPosition(30.0, 30.0, 50.0);
 
@@ -85,6 +88,7 @@ int main()
 
     // tell GLFW to capture our mouse
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetKeyCallback(window, key_callback);
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -162,6 +166,12 @@ int main()
         // cube_model.render(baseShader);
         bp_model.Draw(baseShader);
 
+        // Should we render toon shading
+        baseShader.setBool("showToonShading", showToonShading);
+        // // Should we render caustics
+        baseShader.setBool("showCaustics", showCaustics);
+
+
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
@@ -193,6 +203,14 @@ void processInput(GLFWwindow *window)
         camera.ProcessKeyboard(UP, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
         camera.ProcessKeyboard(DOWN, deltaTime);
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_V && action == GLFW_PRESS)
+        showToonShading = !showToonShading;
+    if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
+        showCaustics = !showCaustics;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
