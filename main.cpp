@@ -10,6 +10,7 @@
 // #include "src/model.h"
 #include "src/texture.h"
 #include "src/animated_texture.h"
+#include "src/post_processing.h"
 
 #include "utils/shader.h"
 #include "utils/camera.h"
@@ -108,6 +109,7 @@ int main()
     // ------------------------------------
     Shader baseShader("shaders/camera.vs", "shaders/camera.fs");
     Model bp_model("models/Backpack.obj");
+    PostProcessing post_processing(SCR_WIDTH, SCR_HEIGHT);
 
     // Load our custom model
     // auto pirate_model = Model::load_from_file("models/pirate.obj", "models");
@@ -133,14 +135,14 @@ int main()
         // input
         // -----
         processInput(window);
-
-        // render
-        // ------
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+        post_processing.bindFBO();
 
         // activate shader
         baseShader.use();
+        // Should we render toon shading
+        baseShader.setBool("showToonShading", showToonShading);
+        // // Should we render caustics
+        baseShader.setBool("showCaustics", showCaustics);
 
         // pass projection matrix to shader (note that in this case it could change every frame)
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -158,20 +160,10 @@ int main()
 
         // render our custom model
         auto model = glm::identity<glm::mat4>();
-        // model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
-        // model = glm::rotate(model, 90.f, glm::vec3(1, 0, 1));
         baseShader.setMat4("model", model);
-        // shell_model.render();
-        // pirate_model.render();
-        // cube_model.render(baseShader);
         bp_model.Draw(baseShader);
 
-        // Should we render toon shading
-        baseShader.setBool("showToonShading", showToonShading);
-        // // Should we render caustics
-        baseShader.setBool("showCaustics", showCaustics);
-
-
+        post_processing.renderFBO();
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);

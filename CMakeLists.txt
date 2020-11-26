@@ -13,6 +13,7 @@ set(HEADER_FILES
         src/texture.h
         src/cube.h
         src/animated_texture.h
+        src/post_processing.h
 )
 set(SOURCE_FILES
         main.cpp
@@ -20,6 +21,7 @@ set(SOURCE_FILES
         src/stb_impl.cpp
         src/cube.cpp
         src/animated_texture.cpp
+        src/post_processing.cpp
 )
 
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})

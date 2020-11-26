@@ -7,13 +7,13 @@ in vec3 vertNormal;
 in vec2 vertTexCoord;
 in vec3 fragPos;
 
-// texture samplers
+// Texture samplers
 // uniform sampler2D texture2;
 uniform sampler2D waterNormalMap;
 uniform sampler2D texture_diffuse1;
 uniform vec2 waterNormalsMapSize;
 
-// Effects
+// Toggling effects
 uniform bool showToonShading;
 uniform bool showCaustics;
 
