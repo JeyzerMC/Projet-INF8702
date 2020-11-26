@@ -39,9 +39,11 @@ bool firstMouse = true;
 double deltaTime = 0.0f;	// time between current frame and last frame
 double lastFrame = 0.0f;
 
+// Options
 bool debug = true;
 bool showToonShading = true;
 bool showCaustics = true;
+bool showEdges = false;
 
 glm::vec3 lightPosition(30.0, 30.0, 50.0);
 
@@ -108,7 +110,7 @@ int main()
     // build and compile our shader zprogram
     // ------------------------------------
     Shader baseShader("shaders/camera.vs", "shaders/camera.fs");
-    Model bp_model("models/Backpack.obj");
+    Model bp_model("models/Backpack/Backpack.obj");
     PostProcessing post_processing(SCR_WIDTH, SCR_HEIGHT);
 
     // Load our custom model
@@ -163,7 +165,7 @@ int main()
         baseShader.setMat4("model", model);
         bp_model.Draw(baseShader);
 
-        post_processing.renderFBO();
+        post_processing.renderFBO(showEdges);
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
@@ -203,6 +205,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         showToonShading = !showToonShading;
     if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
         showCaustics = !showCaustics;
+    if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
+        showEdges = !showEdges;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

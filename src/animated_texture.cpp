@@ -24,7 +24,6 @@ arno::Texture &AnimatedTexture::sampleTexture(double time) {
     double timeInPeriod = fmod(phasedTime, period);
     float normalizedTime = static_cast<float>(timeInPeriod) / period;
     normalizedTime = std::clamp(normalizedTime, 0.0f, 1.0f);
-    normalizedTime = std::clamp(normalizedTime, 0.0f, 1.0f);
     auto index = (size_t) ((float)(textures.size() - 1) * normalizedTime);
     if (index >= textures.size()) {
         spdlog::error("sampling texture from time failed! index was {}, but it needs to be smaller than {}", textures.size());

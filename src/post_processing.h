@@ -14,7 +14,7 @@ public:
     ~PostProcessing();
 
     void bindFBO();
-    void renderFBO();
+    void renderFBO(bool showEdges);
 private:
     unsigned int VAO, VBO;
     unsigned int FBO, textureColorbuffer;

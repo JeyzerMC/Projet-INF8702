@@ -68,7 +68,7 @@ void PostProcessing::bindFBO()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 }
 
-void PostProcessing::renderFBO()
+void PostProcessing::renderFBO(bool showEdges)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
@@ -78,6 +78,7 @@ void PostProcessing::renderFBO()
     glClear(GL_COLOR_BUFFER_BIT);
 
     pp_shader.use();
+    pp_shader.setBool("showEdges", showEdges);
     glBindVertexArray(VAO);
     glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
     glDrawArrays(GL_TRIANGLES, 0, 6);
