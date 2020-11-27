@@ -21,11 +21,11 @@ private:
 
     // Models
     Model ground;
+    Model pot;
     // Model spiral_shell;
     // Model big_shell;
     // Model star_fish;
     // Model fish;
-    // Model pot;
     // Model coral;
 
     // Post Processing

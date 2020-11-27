@@ -19,7 +19,8 @@ Scene::Scene(int w, int h)
     light_pos(10.0, 50.0, 10.0),
     post_process(w, h),
     water_normals(load_water_textures(), 24),
-    ground("models/Ground/Ground.obj")
+    ground("models/Ground/Ground.obj"),
+    pot("models/Pot/Pot.obj")
 {
     rend_shader.use();
     rend_shader.setVec3("lightPos", light_pos);
@@ -47,13 +48,30 @@ void Scene::render(Camera* camera, bool toonShading, bool caustics, bool edges)
     // Our water normal map covers a 5 x 5 m area
     rend_shader.setVec2("waterNormalsMapSize", 5, 5);
 
-    // render our custom model
+    // Ground
     auto model = glm::identity<glm::mat4>();
-    model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
-    model = glm::translate(model, glm::vec3(0, -10, -20));
+    model = glm::translate(model, glm::vec3(0, -1, 0));
+    model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
     rend_shader.setMat4("model", model);
     ground.Draw(rend_shader);
 
+    // Pot 1
+    model = glm::identity<glm::mat4>();
+    model = glm::translate(model, glm::vec3(-2, 0, -2));
+    model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.2, 0.2, 0.2));
+    rend_shader.setMat4("model", model);
+    pot.Draw(rend_shader);
+
+    // Pot 2
+    model = glm::identity<glm::mat4>();
+    model = glm::translate(model, glm::vec3(4, 0, 4));
+    model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.15, 0.15, 0.15));
+    rend_shader.setMat4("model", model);
+    pot.Draw(rend_shader);
+
+    // After drawing the scene, add the post processing effects
     post_process.renderFBO(edges);
 }
 
