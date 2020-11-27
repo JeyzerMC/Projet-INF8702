@@ -5,8 +5,9 @@ in vec2 vertTexCoord;
 
 uniform sampler2D screenTexture;
 uniform bool showEdges;
+uniform int scr_width;
+uniform int scr_height;
 
-const float offset = 1.0 / 300.0;
 
 bool nearWhite(vec3 color)
 {
@@ -20,21 +21,24 @@ bool nearWhite(vec3 color)
 
 vec3 edgeDetection()
 {
+    float w_offset = 1.0 / scr_width;
+    float h_offset = 1.0 / scr_height;
+
     vec2 offsets[9] = vec2[](
-        vec2(-offset,  offset), // top-left
-        vec2( 0.0f,    offset), // top-center
-        vec2( offset,  offset), // top-right
-        vec2(-offset,  0.0f),   // center-left
+        vec2(-w_offset,  h_offset), // top-left
+        vec2( 0.0f,    h_offset), // top-center
+        vec2( w_offset,  h_offset), // top-right
+        vec2(-w_offset,  0.0f),   // center-left
         vec2( 0.0f,    0.0f),   // center-center
-        vec2( offset,  0.0f),   // center-right
-        vec2(-offset, -offset), // bottom-left
-        vec2( 0.0f,   -offset), // bottom-center
-        vec2( offset, -offset)  // bottom-right    
+        vec2( w_offset,  0.0f),   // center-right
+        vec2(-w_offset, -h_offset), // bottom-left
+        vec2( 0.0f,   -h_offset), // bottom-center
+        vec2( w_offset, -h_offset)  // bottom-right    
     );
 
     float kernel[9] = float[](
         1, 1, 1,
-        1,-9, 1,
+        1, -8, 1,
         1, 1, 1
     );
 

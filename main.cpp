@@ -111,6 +111,7 @@ int main()
     // ------------------------------------
     Shader baseShader("shaders/camera.vs", "shaders/camera.fs");
     Model bp_model("models/Backpack/Backpack.obj");
+    // Model bp_model("models/Pot/Pot.obj");
     PostProcessing post_processing(SCR_WIDTH, SCR_HEIGHT);
 
     // Load our custom model
@@ -162,6 +163,7 @@ int main()
 
         // render our custom model
         auto model = glm::identity<glm::mat4>();
+        model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
         baseShader.setMat4("model", model);
         bp_model.Draw(baseShader);
 
@@ -182,7 +184,7 @@ int main()
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)

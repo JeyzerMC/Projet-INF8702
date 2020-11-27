@@ -30,6 +30,8 @@ PostProcessing::PostProcessing(int scr_width, int scr_height)
     // Post processing shader [TODO: CHECK IF SHOULD GO HERE]
     pp_shader.use();
     pp_shader.setInt("screenTexture", 0);
+    pp_shader.setInt("scr_width", scr_width);
+    pp_shader.setInt("scr_height", scr_height);
 
     // Framebuffer
     glGenFramebuffers(1, &FBO);
