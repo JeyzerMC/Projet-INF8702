@@ -17,8 +17,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void debug_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam);
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1600;
+const unsigned int SCR_HEIGHT = 1200;
 
 // camera
 Camera camera(glm::vec3(0.0f, 8.0f, 15.0f), glm::vec3(0.0f, 1.0f, 0.0f), /* yaw */ -90.0, /* pitch */ -25.0);
@@ -32,9 +32,9 @@ double lastFrame = 0.0f;
 
 // Options
 bool debug = true;
-bool showToonShading = true;
+bool showToonShading = false;
 bool showCaustics = false;
-int showEdges = 0;
+int showEdges = 2;
 
 glm::vec3 lightPosition(10.0, 50.0, 10.0);
 
@@ -54,7 +54,9 @@ int main()
 
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Underwater Watercolor", NULL, NULL);
+    glfwSetWindowPos(window, SCR_WIDTH / 2, 50);
+
     if (window == NULL)
     {
         spdlog::critical("Failed to create GLFW window");
