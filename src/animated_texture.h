@@ -10,10 +10,17 @@
 
 #include "texture.h"
 
+enum LoopMode {
+    Repeat,
+    PingPong,
+};
+
 class AnimatedTexture {
 public:
     explicit AnimatedTexture(std::vector<arno::Texture> textures, float framerate, float phase = 0);
     arno::Texture& sampleTexture(double time);
+
+    LoopMode loop_mode = LoopMode::Repeat;
 
     float period;
     float phase;

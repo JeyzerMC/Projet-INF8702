@@ -22,6 +22,7 @@ Scene::Scene(int w, int h)
     ground("models/Ground/Ground.obj", false),
     pot("models/Pot/Pot.obj")
 {
+    water_normals.loop_mode = LoopMode::PingPong;
     glEnable(GL_DEPTH_TEST); // TODO: CHECK IF STAYS HERE
     post_process.InitFBO(light_pos); // TODO: Move lights into scene
 }
