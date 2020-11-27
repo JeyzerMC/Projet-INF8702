@@ -43,7 +43,11 @@ find_package(glad CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE glad::glad)
 
 find_package(assimp CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE assimp::assimp)
+if (WIN32)
+  target_link_libraries(${PROJECT_NAME} PRIVATE assimp::assimp)
+else()
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${ASSIMP_LIBRARIES})
+endif()
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
