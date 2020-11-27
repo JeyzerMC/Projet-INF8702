@@ -44,7 +44,7 @@ PostProcessing::PostProcessing(int scr_width, int scr_height)
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
 
     // Renderbuffer
-        unsigned int rbo;
+    unsigned int rbo;
     glGenRenderbuffers(1, &rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, scr_width, scr_height); // use a single renderbuffer object for both a depth AND stencil buffer.
@@ -70,7 +70,7 @@ void PostProcessing::bindFBO()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 }
 
-void PostProcessing::renderFBO(bool showEdges)
+void PostProcessing::renderFBO(int showEdges)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
@@ -80,7 +80,7 @@ void PostProcessing::renderFBO(bool showEdges)
     glClear(GL_COLOR_BUFFER_BIT);
 
     pp_shader.use();
-    pp_shader.setBool("showEdges", showEdges);
+    pp_shader.setInt("showEdges", showEdges);
     glBindVertexArray(VAO);
     glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
     glDrawArrays(GL_TRIANGLES, 0, 6);

@@ -4,7 +4,7 @@ out vec4 fragColor;
 in vec2 vertTexCoord;
 
 uniform sampler2D screenTexture;
-uniform bool showEdges;
+uniform int showEdges;
 uniform int scr_width;
 uniform int scr_height;
 
@@ -54,7 +54,7 @@ vec3 edgeDetection()
     if (nearWhite(col)) 
         col = vec3(0.0);
     else
-        col = vec3(1.0);
+        col = showEdges == 0? texture(screenTexture, vertTexCoord).rgb: vec3(1.0);
     return col;
 }
 
@@ -63,10 +63,10 @@ void main()
     // Show regular image
     vec3 col;
 
-    if (showEdges) {
-        col = edgeDetection();
+    if (showEdges == 2) {
+        col = texture(screenTexture, vertTexCoord).rgb;
     } else {
-       col = texture(screenTexture, vertTexCoord).rgb;
+        col = edgeDetection();
     }
 
     fragColor = vec4(col, 1.0);

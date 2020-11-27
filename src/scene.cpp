@@ -26,7 +26,7 @@ Scene::Scene(int w, int h)
     rend_shader.setVec3("lightPos", light_pos);
 }
 
-void Scene::render(Camera* camera, bool toonShading, bool caustics, bool edges)
+void Scene::render(Camera* camera, bool toonShading, bool caustics, int edges)
 {
     post_process.bindFBO();
 

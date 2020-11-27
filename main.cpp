@@ -34,7 +34,7 @@ double lastFrame = 0.0f;
 bool debug = true;
 bool showToonShading = true;
 bool showCaustics = false;
-bool showEdges = false;
+int showEdges = 0;
 
 glm::vec3 lightPosition(10.0, 50.0, 10.0);
 
@@ -140,7 +140,7 @@ void key_callback(GLFWwindow* window, int key, int, int action, int)
     if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
         showCaustics = !showCaustics;
     if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
-        showEdges = !showEdges;
+        showEdges = (showEdges + 1) % 3;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
