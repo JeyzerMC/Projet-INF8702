@@ -23,16 +23,14 @@ Scene::Scene(int w, int h)
     pot("models/Pot/Pot.obj")
 {
     glEnable(GL_DEPTH_TEST); // TODO: CHECK IF STAYS HERE
-    // rend_shader.use();
-    // rend_shader.setVec3("lightPos", light_pos);
-    // post_process.InitFBO(light_pos); // TODO: Move lights into scene
+    post_process.InitFBO(light_pos); // TODO: Move lights into scene
 }
 
 void Scene::render(Camera* camera, bool toonShading, bool caustics, int edges)
 {
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
-    // post_process.bindFBO();
+    // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+    post_process.bindFBO();
 
     // activate shader
     rend_shader.use();
@@ -72,7 +70,7 @@ void Scene::render(Camera* camera, bool toonShading, bool caustics, int edges)
     // pot.Draw(rend_shader);
 
     // After drawing the scene, add the post processing effects
-    // post_process.renderFBO(toonShading, caustics, edges);
+    post_process.renderFBO(toonShading, caustics, edges);
 }
 
 std::vector<arno::Texture> load_water_textures() 

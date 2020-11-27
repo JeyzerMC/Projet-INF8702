@@ -14,21 +14,21 @@ PostProcessing::PostProcessing(int scr_width, int scr_height)
     : pp_shader("shaders/post_processing.vs", "shaders/post_processing.fs")
 {
     // Screen quad
-    // glGenVertexArrays(1, &VAO);
-    // glGenBuffers(1, &VBO);
-    // glBindVertexArray(VAO);
-    // glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-    // glEnableVertexAttribArray(0);
-    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    // glEnableVertexAttribArray(1);
-    // glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     
-    // initBuffers(scr_width, scr_height);
+    initBuffers(scr_width, scr_height);
 
-    // if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    //     std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-    // glBindFramebuffer(GL_FRAMEBUFFER, 0);  
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);  
 }
 
 PostProcessing::~PostProcessing()
@@ -92,6 +92,9 @@ void PostProcessing::initBuffers(int scr_width, int scr_height)
     pp_shader.setInt("screenTexture", 0);
     pp_shader.setInt("scr_width", scr_width);
     pp_shader.setInt("scr_height", scr_height);
+
+    glGenFramebuffers(1, &g_buffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, g_buffer);
 
     // position color buffer
     glGenTextures(1, &g_position);
