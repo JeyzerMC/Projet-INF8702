@@ -106,44 +106,43 @@ bool nearWhite(vec3 color)
     return length(color) > threshold;
 }
 
-vec3 edgeDetection()
+vec3 edgeDetection(vec3 litColor)
 {
-    // float w_offset = 1.0 / scr_width;
-    // float h_offset = 1.0 / scr_height;
+    float w_offset = 1.0 / scr_width;
+    float h_offset = 1.0 / scr_height;
 
-    // vec2 offsets[9] = vec2[](
-    //     vec2(-w_offset,  h_offset), // top-left
-    //     vec2( 0.0f,    h_offset), // top-center
-    //     vec2( w_offset,  h_offset), // top-right
-    //     vec2(-w_offset,  0.0f),   // center-left
-    //     vec2( 0.0f,    0.0f),   // center-center
-    //     vec2( w_offset,  0.0f),   // center-right
-    //     vec2(-w_offset, -h_offset), // bottom-left
-    //     vec2( 0.0f,   -h_offset), // bottom-center
-    //     vec2( w_offset, -h_offset)  // bottom-right    
-    // );
+    vec2 offsets[9] = vec2[](
+        vec2(-w_offset,  h_offset), // top-left
+        vec2( 0.0f,    h_offset), // top-center
+        vec2( w_offset,  h_offset), // top-right
+        vec2(-w_offset,  0.0f),   // center-left
+        vec2( 0.0f,    0.0f),   // center-center
+        vec2( w_offset,  0.0f),   // center-right
+        vec2(-w_offset, -h_offset), // bottom-left
+        vec2( 0.0f,   -h_offset), // bottom-center
+        vec2( w_offset, -h_offset)  // bottom-right    
+    );
 
-    // float kernel[9] = float[](
-    //     1, 1, 1,
-    //     1, -8, 1,
-    //     1, 1, 1
-    // );
+    float kernel[9] = float[](
+        1, 1, 1,
+        1, -8, 1,
+        1, 1, 1
+    );
 
-    // vec3 sampleTex[9];
-    // for(int i = 0; i < 9; i++)
-    // {
-    //     sampleTex[i] = vec3(texture(screenTexture, vertTexCoord.st + offsets[i]));
-    // }
-    // vec3 col = vec3(0.0);
-    // for(int i = 0; i < 9; i++)
-    //     col += sampleTex[i] * kernel[i];
+    vec3 sampleTex[9];
+    for(int i = 0; i < 9; i++)
+    {
+        sampleTex[i] = vec3(texture(gColor, vertTexCoord.st + offsets[i]));
+    }
+    vec3 col = vec3(0.0);
+    for(int i = 0; i < 9; i++)
+        col += sampleTex[i] * kernel[i];
     
-    // if (nearWhite(col)) 
-    //     col = vec3(0.0);
-    // else
-    //     col = showEdges == 0? texture(screenTexture, vertTexCoord).rgb: vec3(1.0);
-    // return col;
-    return vec3(0.0);
+    if (nearWhite(col)) 
+        col = vec3(0.0);
+    else
+        col = showEdges == 0? litColor: vec3(1.0);
+    return col;
 }
 
 void main()
@@ -156,13 +155,12 @@ void main()
     vec3 litColor = getEffects(pos, normal) * color;
 
     // Show regular image
-    // vec3 col;
+    vec3 col;
+    if (showEdges == 2) {
+        col = litColor;
+    } else {
+        col = edgeDetection(litColor);
+    }
 
-    // if (showEdges == 2) {
-    //     col = texture(screenTexture, vertTexCoord).rgb;
-    // } else {
-    //     col = edgeDetection();
-    // }
-
-    fragColor = vec4(litColor, 1.0);
+    fragColor = vec4(col, 1.0);
 } 

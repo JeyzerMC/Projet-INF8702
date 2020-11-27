@@ -32,9 +32,9 @@ double lastFrame = 0.0f;
 
 // Options
 bool debug = true;
-bool showToonShading = false;
+bool showToonShading = true;
 bool showCaustics = false;
-int showEdges = 2;
+int showEdges = 0;
 
 glm::vec3 lightPosition(10.0, 50.0, 10.0);
 
