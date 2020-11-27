@@ -1,0 +1,73 @@
+#include "scene.h"
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <spdlog/spdlog.h>
+
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include <iostream>
+
+std::vector<arno::Texture> load_water_textures();
+
+Scene::Scene(int w, int h)
+  : rend_shader("shaders/camera.vs", "shaders/camera.fs"),
+    scr_width(w), scr_height(h),
+    light_pos(10.0, 50.0, 10.0),
+    post_process(w, h),
+    water_normals(load_water_textures(), 24),
+    ground("models/Ground/Ground.obj")
+{
+    rend_shader.use();
+    rend_shader.setVec3("lightPos", light_pos);
+}
+
+void Scene::render(Camera* camera, bool toonShading, bool caustics, bool edges)
+{
+    post_process.bindFBO();
+
+    // activate shader
+    rend_shader.use();
+    // Should we render toon shading
+    rend_shader.setBool("showToonShading", toonShading);
+    // // Should we render caustics
+    rend_shader.setBool("showCaustics", caustics);
+
+    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)scr_width / (float)scr_height, 0.1f, 100.0f);
+    rend_shader.setMat4("projection", projection);
+
+    // camera/view transformation
+    glm::mat4 view = camera->GetViewMatrix();
+    rend_shader.setMat4("view", view);
+    // Bind textures
+    glBindTexture(GL_TEXTURE_2D, water_normals.sampleTexture(glfwGetTime()).texture);
+    // Our water normal map covers a 5 x 5 m area
+    rend_shader.setVec2("waterNormalsMapSize", 5, 5);
+
+    // render our custom model
+    auto model = glm::identity<glm::mat4>();
+    model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
+    model = glm::translate(model, glm::vec3(0, -10, -20));
+    rend_shader.setMat4("model", model);
+    ground.Draw(rend_shader);
+
+    post_process.renderFBO(edges);
+}
+
+std::vector<arno::Texture> load_water_textures() 
+{
+    int min_index = 1;
+    int max_index = 250;
+    auto vector = std::vector<arno::Texture>();
+    vector.reserve(max_index - min_index + 1);
+    spdlog::info("Loading water normals. This will take some seconds.");
+    for (int i = min_index; i <= max_index; ++i) {
+        auto file_path = fmt::format("textures/water_height/{:04}.png", i);
+        vector.push_back(arno::Texture::load_from_file(file_path));
+    }
+    spdlog::info("Finished loading water normals.");
+    return vector;
+}

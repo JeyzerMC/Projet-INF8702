@@ -11,17 +11,17 @@ set(HEADER_FILES
         utils/mesh.h
         utils/model.h
         src/texture.h
-        src/cube.h
         src/animated_texture.h
         src/post_processing.h
+        src/scene.h
 )
 set(SOURCE_FILES
         main.cpp
         src/texture.cpp
         src/stb_impl.cpp
-        src/cube.cpp
         src/animated_texture.cpp
         src/post_processing.cpp
+        src/scene.cpp
 )
 
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})

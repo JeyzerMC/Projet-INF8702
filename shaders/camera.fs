@@ -18,7 +18,7 @@ uniform bool showToonShading;
 uniform bool showCaustics;
 
 uniform vec3 lightPos;
-vec3 lightColor = vec3(1.0, 1.0, 1.0);
+vec3 lightColor = vec3(0.6157, 0.8941, 0.9333);
 float ambientStrength = 0.1;
 
 const float waterRefracitonIndex = 1.333;
@@ -112,4 +112,5 @@ void main()
     vec4 vertColor = texture(texture_diffuse1, vertTexCoord);
     vec3 finalColor = getEffects() * vertColor.xyz;
     fragColor = vec4(finalColor, 1.0f);
+    // fragColor = vertColor;
 }

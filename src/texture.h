@@ -2,8 +2,8 @@
 // Created by arnaud on 2020-11-20.
 //
 
-#ifndef SCENE_SOUS_MARINE_TEXTURE_H
-#define SCENE_SOUS_MARINE_TEXTURE_H
+#ifndef TEXTURE_H
+#define TEXTURE_H
 
 #include <string>
 
@@ -29,4 +29,4 @@ public:
 }
 
 
-#endif //SCENE_SOUS_MARINE_TEXTURE_H
+#endif //TEXTURE_H
