@@ -26,27 +26,26 @@ float ambientStrength = 0.1;
 // Utility functions to change from rgb to hsv and opposite.
 // Comes from: https://gist.github.com/yiwenl
 vec3 rgb2hsv(vec3 rgb) {
-    // float Cmax = max(rgb.r, max(rgb.g, rgb.b));
-    // float Cmin = min(rgb.r, min(rgb.g, rgb.b));
-    // float delta = Cmax - Cmin;
+    float Cmax = max(rgb.r, max(rgb.g, rgb.b));
+    float Cmin = min(rgb.r, min(rgb.g, rgb.b));
+    float delta = Cmax - Cmin;
 
-    // vec3 hsv = vec3(0.0, 0.0, Cmax);
+    vec3 hsv = vec3(0.0, 0.0, Cmax);
 
-    // if (Cmax > Cmin) {
-    //     hsv.y = delta / Cmax;
+    if (Cmax > Cmin) {
+        hsv.y = delta / Cmax;
 
-    //     if (rgb.r == Cmax)
-    //         hsv.x = (rgb.g - rgb.b) / delta;
-    //     else {
-    //         if (rgb.g == Cmax)
-    //             hsv.x = 2.0 + (rgb.b - rgb.r) / delta;
-    //         else
-    //             hsv.x = 4.0 + (rgb.r - rgb.g) / delta;
-    //     }
-    //     hsv.x = fract(hsv.x / 6.0);
-    // }
-    // return hsv;
-    return vec3(0.0);
+        if (rgb.r == Cmax)
+            hsv.x = (rgb.g - rgb.b) / delta;
+        else {
+            if (rgb.g == Cmax)
+                hsv.x = 2.0 + (rgb.b - rgb.r) / delta;
+            else
+                hsv.x = 4.0 + (rgb.r - rgb.g) / delta;
+        }
+        hsv.x = fract(hsv.x / 6.0);
+    }
+    return hsv;
 }
 
 vec3 hsv2rgb(vec3 c)
@@ -66,37 +65,35 @@ vec3 ambientLight()
     return ambientStrength * lightColor;
 }
 
-vec3 diffuseLight()
+vec3 diffuseLight(vec3 pos, vec3 normal)
 {
-    // vec3 norm = normalize(vertNormal);
-    // vec3 lightDir = normalize(lightPos - fragPos);  
-    // float diff = max(dot(norm, lightDir), 0.0);
-    // return diff * lightColor;
-    return vec3(0.0);
+    vec3 norm = normalize(normal);
+    vec3 lightDir = normalize(lightPos - pos);  
+    float diff = max(dot(norm, lightDir), 0.0);
+    return diff * lightColor;
 }
 
-float getToonFactor()
+float getToonFactor(vec3 pos, vec3 normal)
 {
-    // vec3 norm = normalize(vertNormal);
-    // vec3 lightDir = normalize(lightPos - fragPos);  
-    // float u = dot(norm, lightDir);
-    // if (u < 0.5) return 0;
-    // if (u < 0.7) return 0.2;
-    // return 1.0;
-    return 0.0;
+    vec3 norm = normalize(normal);
+    vec3 lightDir = normalize(lightPos - pos);  
+    float u = dot(norm, lightDir);
+    if (u < 0.5) return 0;
+    if (u < 0.7) return 0.2;
+    return 1.0;
 }
 
-vec3 toonShading()
+vec3 toonShading(vec3 pos, vec3 normal)
 {
     vec3 lightHsv = rgb2hsv(lightColor);
-    lightHsv.z = lightHsv.z * getToonFactor();
+    lightHsv.z = lightHsv.z * getToonFactor(pos, normal);
     return hsv2rgb(lightHsv);
 }
 
-vec3 getEffects()
+vec3 getEffects(vec3 pos, vec3 normal)
 {
     vec3 effects = ambientLight();
-    effects += showToonShading? toonShading(): diffuseLight();
+    effects += showToonShading? toonShading(pos, normal): diffuseLight(pos, normal);
 
     // if (showCaustics)
     //     effects += getCaustics();
@@ -156,6 +153,8 @@ void main()
     vec3 normal = texture(gNormal, vertTexCoord).rgb;
     vec3 color = texture(gColor, vertTexCoord).rgb;
 
+    vec3 litColor = getEffects(pos, normal) * color;
+
     // Show regular image
     // vec3 col;
 
@@ -165,5 +164,5 @@ void main()
     //     col = edgeDetection();
     // }
 
-    fragColor = vec4(color, 1.0);
+    fragColor = vec4(litColor, 1.0);
 } 

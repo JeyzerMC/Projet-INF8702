@@ -53,21 +53,21 @@ void Scene::render(Camera* camera, bool toonShading, bool caustics, int edges)
     rend_shader.setMat4("model", model);
     ground.Draw(rend_shader);
 
-    // // Pot 1
-    // model = glm::identity<glm::mat4>();
-    // model = glm::translate(model, glm::vec3(-2, 0, -2));
-    // model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    // model = glm::scale(model, glm::vec3(0.2, 0.2, 0.2));
-    // rend_shader.setMat4("model", model);
-    // pot.Draw(rend_shader);
+    // Pot 1
+    model = glm::identity<glm::mat4>();
+    model = glm::translate(model, glm::vec3(-2, 0, -2));
+    model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.2, 0.2, 0.2));
+    rend_shader.setMat4("model", model);
+    pot.Draw(rend_shader);
 
-    // // Pot 2
-    // model = glm::identity<glm::mat4>();
-    // model = glm::translate(model, glm::vec3(4, 0, 4));
-    // model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    // model = glm::scale(model, glm::vec3(0.15, 0.15, 0.15));
-    // rend_shader.setMat4("model", model);
-    // pot.Draw(rend_shader);
+    // Pot 2
+    model = glm::identity<glm::mat4>();
+    model = glm::translate(model, glm::vec3(4, 0, 4));
+    model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.15, 0.15, 0.15));
+    rend_shader.setMat4("model", model);
+    pot.Draw(rend_shader);
 
     // After drawing the scene, add the post processing effects
     post_process.renderFBO(toonShading, caustics, edges);
