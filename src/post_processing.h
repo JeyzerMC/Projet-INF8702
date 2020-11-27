@@ -13,11 +13,12 @@ public:
     PostProcessing(int scr_width, int scr_height);
     ~PostProcessing();
 
+    void InitFBO(glm::vec3 lightPos);
     void bindFBO();
-    void renderFBO(int showEdges);
+    void renderFBO(bool toonShading, bool caustics, int showEdges);
 private:
+    void initBuffers(int scr_width, int scr_height);
     unsigned int VAO, VBO;
-    unsigned int FBO, textureColorbuffer; // TODO: Remove those
     unsigned int g_buffer;
     unsigned int g_position, g_normal, g_color;
     Shader pp_shader;

@@ -32,7 +32,8 @@ private:
     PostProcessing post_process;
 
     // Caustics
-    AnimatedTexture water_normals;
+    // TODO: RE-ADD CAUSTICS
+    // AnimatedTexture water_normals; 
 
     // Lights
     glm::vec3 light_pos;

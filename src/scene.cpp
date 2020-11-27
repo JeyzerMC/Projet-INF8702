@@ -18,24 +18,24 @@ Scene::Scene(int w, int h)
     scr_width(w), scr_height(h),
     light_pos(10.0, 50.0, 10.0),
     post_process(w, h),
-    water_normals(load_water_textures(), 24),
+    // water_normals(load_water_textures(), 24), // TODO: RE-ADD CAUSTICS
     ground("models/Ground/Ground.obj"),
     pot("models/Pot/Pot.obj")
 {
-    rend_shader.use();
-    rend_shader.setVec3("lightPos", light_pos);
+    glEnable(GL_DEPTH_TEST); // TODO: CHECK IF STAYS HERE
+    // rend_shader.use();
+    // rend_shader.setVec3("lightPos", light_pos);
+    // post_process.InitFBO(light_pos); // TODO: Move lights into scene
 }
 
 void Scene::render(Camera* camera, bool toonShading, bool caustics, int edges)
 {
-    post_process.bindFBO();
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+    // post_process.bindFBO();
 
     // activate shader
     rend_shader.use();
-    // Should we render toon shading
-    rend_shader.setBool("showToonShading", toonShading);
-    // // Should we render caustics
-    rend_shader.setBool("showCaustics", caustics);
 
     glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)scr_width / (float)scr_height, 0.1f, 100.0f);
     rend_shader.setMat4("projection", projection);
@@ -43,10 +43,10 @@ void Scene::render(Camera* camera, bool toonShading, bool caustics, int edges)
     // camera/view transformation
     glm::mat4 view = camera->GetViewMatrix();
     rend_shader.setMat4("view", view);
-    // Bind textures
-    glBindTexture(GL_TEXTURE_2D, water_normals.sampleTexture(glfwGetTime()).texture);
+    // Bind textures // TODO: MOVE THIS TO POST PROCESS
+    // glBindTexture(GL_TEXTURE_2D, water_normals.sampleTexture(glfwGetTime()).texture);
     // Our water normal map covers a 5 x 5 m area
-    rend_shader.setVec2("waterNormalsMapSize", 5, 5);
+    // rend_shader.setVec2("waterNormalsMapSize", 5, 5);
 
     // Ground
     auto model = glm::identity<glm::mat4>();
@@ -72,7 +72,7 @@ void Scene::render(Camera* camera, bool toonShading, bool caustics, int edges)
     // pot.Draw(rend_shader);
 
     // After drawing the scene, add the post processing effects
-    post_process.renderFBO(edges);
+    // post_process.renderFBO(toonShading, caustics, edges);
 }
 
 std::vector<arno::Texture> load_water_textures() 
