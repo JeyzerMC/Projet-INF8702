@@ -1,5 +1,6 @@
 #include "post_processing.h"
 #include <iostream>
+#include "../utils/constants.h"
 
 // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
 float quadVertices[] = { 
@@ -10,8 +11,9 @@ float quadVertices[] = {
      1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
 };
 
-PostProcessing::PostProcessing(int scr_width, int scr_height)
-    : pp_shader("shaders/post_processing.vs", "shaders/post_processing.fs")
+PostProcessing::PostProcessing(int scrWidth, int scrHeight)
+    : pp_shader("shaders/post_processing.vs", "shaders/post_processing.fs"),
+      scr_width(scrWidth), scr_height(scrHeight)
 {
     // Screen quad
     glGenVertexArrays(1, &VAO);
@@ -24,11 +26,22 @@ PostProcessing::PostProcessing(int scr_width, int scr_height)
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     
-    initBuffers(scr_width, scr_height);
+    initBuffers();
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);  
+
+    // Normal smoothing offsets
+    n_offsets.push_back(-scr_width - 1);   // top-left
+    n_offsets.push_back(-scr_width);     // top-center
+    n_offsets.push_back(-scr_width + 1);   // top-right
+    n_offsets.push_back(-1);       // center-left
+    n_offsets.push_back(0);         // center-center
+    n_offsets.push_back(+1);       // center-right
+    n_offsets.push_back(scr_width - 1);   // bottom-left
+    n_offsets.push_back(scr_width);     // bottom-center
+    n_offsets.push_back(scr_width + 1);   // bottom-right
 }
 
 PostProcessing::~PostProcessing()
@@ -43,6 +56,7 @@ void PostProcessing::InitFBO(glm::vec3 lightPos)
     pp_shader.setInt("gPosition", 0);
     pp_shader.setInt("gNormal", 1);
     pp_shader.setInt("gColor", 2); 
+    pp_shader.setInt("gSmooth", 3); 
     pp_shader.setVec3("lightPos", lightPos);
 }
 
@@ -56,7 +70,7 @@ void PostProcessing::bindFBO()
     // glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
 }
 
-void PostProcessing::renderFBO(bool toonShading, bool caustics, int showEdges)
+void PostProcessing::renderFBO(bool toonShading, bool caustics, int showEdges, int smoothLevel)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     // glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
@@ -68,24 +82,33 @@ void PostProcessing::renderFBO(bool toonShading, bool caustics, int showEdges)
     pp_shader.use();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, g_position);
+
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, g_normal);
+
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, g_color);
+
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, g_smooth);
+
+    // TODO: SMOOTH NORMALS HERE
+    // smoothNormals();
 
     // TODO: BIND HERE THE CAUSTICS MAP
 
     // Set toggles
     pp_shader.setBool("showToonShading", toonShading);
-    pp_shader.setInt("showEdges", showEdges);
     pp_shader.setBool("showCaustics", caustics);
+    pp_shader.setInt("showEdges", showEdges);
+    pp_shader.setInt("smoothLevel", smoothLevel);
 
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glBindVertexArray(0);
 }
 
-void PostProcessing::initBuffers(int scr_width, int scr_height)
+void PostProcessing::initBuffers()
 {
     // Post processing shader [TODO: CHECK IF SHOULD GO HERE]
     pp_shader.use();
@@ -99,7 +122,7 @@ void PostProcessing::initBuffers(int scr_width, int scr_height)
     // position color buffer
     glGenTextures(1, &g_position);
     glBindTexture(GL_TEXTURE_2D, g_position);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, scr_width, scr_height, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scr_width, scr_height, 0, GL_RGB, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_position, 0);
@@ -107,7 +130,7 @@ void PostProcessing::initBuffers(int scr_width, int scr_height)
     // normal color buffer
     glGenTextures(1, &g_normal);
     glBindTexture(GL_TEXTURE_2D, g_normal);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, scr_width, scr_height, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scr_width, scr_height, 0, GL_RGB, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, g_normal, 0);
@@ -115,17 +138,25 @@ void PostProcessing::initBuffers(int scr_width, int scr_height)
     // pixel color buffer
     glGenTextures(1, &g_color);
     glBindTexture(GL_TEXTURE_2D, g_color);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, scr_width, scr_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scr_width, scr_height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, g_color, 0);
 
+    // smooth normal buffer
+    glGenTextures(1, &g_smooth);
+    glBindTexture(GL_TEXTURE_2D, g_smooth); // TODO: CHANGE THE RGBA TO RGB ?
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scr_width, scr_height, 0, GL_RGB, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, g_smooth, 0);
+
     // Caustics
     // TODO: PUT CAUSTICS HERE
 
-    // tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
-    unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-    glDrawBuffers(3, attachments);
+    // tell OpenGL which color attachments we'll use (of this framebuffer) for rendering
+    unsigned int attachments[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
+    glDrawBuffers(4, attachments);
 
     // create and attach depth buffer (renderbuffer)
     unsigned int rboDepth;
@@ -133,4 +164,48 @@ void PostProcessing::initBuffers(int scr_width, int scr_height)
     glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, scr_width, scr_height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+}
+
+// TODO: DELETE - REPLACED WITH PER - VERTEX NORMAL SMOOTHING
+void PostProcessing::smoothNormals()
+{
+    static const int N_PIXELS = Constants::SCR_WIDTH * Constants::SCR_HEIGHT * 3;
+    GLfloat* normals = new GLfloat[N_PIXELS];
+    glActiveTexture(GL_TEXTURE1);
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, normals);
+
+    GLfloat* smooth_normals = new GLfloat[N_PIXELS];
+    for (int h = 0; h < scr_height; h++) {
+        for (int w = 0; w < scr_width; w += 4) {
+            int pos = h * 1600 + w;
+            glm::vec3 norm(normals[pos + 0], normals[pos + 1], normals[pos + 2]);
+            int n_neighbors = 0;
+            for (int i = 0; i < 9; i++) {
+                int n_pos = pos + n_offsets[i] * 3;
+                if (n_pos < 0 || n_pos >= N_PIXELS) continue;
+                norm.x += normals[n_pos + 0];
+                norm.y += normals[n_pos + 1];
+                norm.z += normals[n_pos + 2];
+                n_neighbors++;
+            }
+            norm /= n_neighbors;
+            // smooth_normals[pos + 0] = norm.x;
+            // smooth_normals[pos + 1] = norm.y;
+            // smooth_normals[pos + 2] = norm.z;
+
+            smooth_normals[pos + 0] = 0.0f;
+            smooth_normals[pos + 1] = 1.0f;
+            smooth_normals[pos + 2] = 0.0f;
+
+            // if (pos % 50000 == 0) {
+            //     std::cout << "smooth_norm: [" << norm.x << ", " << norm.y << ", " << norm.z << "]" <<std::endl;
+            // }
+        }
+    }
+    // TODO: CHECK IF MUST FREE NORMALS FIRST
+    // delete normals;
+    // normals = smooth_normals;
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, g_smooth);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scr_width, scr_height, 0, GL_RGB, GL_FLOAT, smooth_normals);
 }

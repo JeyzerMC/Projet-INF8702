@@ -10,6 +10,7 @@ set(HEADER_FILES
         utils/shader.h
         utils/mesh.h
         utils/model.h
+        utils/constants.h
         src/texture.h
         src/animated_texture.h
         src/post_processing.h

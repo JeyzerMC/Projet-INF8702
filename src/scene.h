@@ -11,7 +11,7 @@ class Scene {
 public:
     Scene(int scr_width, int scr_height);
 
-    void render(Camera* camera, bool toonShading, bool caustics, int edges);
+    void render(Camera* camera, bool toonShading, bool caustics, int edges, int smoothLevel);
 
 private:
     // Scene dimensions

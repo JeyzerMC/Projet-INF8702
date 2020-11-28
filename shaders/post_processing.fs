@@ -7,6 +7,7 @@ in vec2 vertTexCoord;
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gColor;
+uniform sampler2D gSmooth;
 // TODO: ADD CAUSTICS HERE
 
 uniform int scr_width;
@@ -16,6 +17,7 @@ uniform int scr_height;
 uniform bool showToonShading;
 uniform bool showCaustics;
 uniform int showEdges;
+uniform int smoothLevel;
 
 // Light
 // TODO: Consider adding multiple light sources.
@@ -57,7 +59,28 @@ vec3 hsv2rgb(vec3 c)
 
 vec3 normalSmoothing()
 {
-    return vec3(0.0);
+    float w_offset = 1.0 / scr_width;
+    float h_offset = 1.0 / scr_height;
+
+    vec2 offsets[9] = vec2[](
+        vec2(-w_offset,  h_offset), // top-left
+        vec2( 0.0f,    h_offset), // top-center
+        vec2( w_offset,  h_offset), // top-right
+        vec2(-w_offset,  0.0f),   // center-left
+        vec2( 0.0f,    0.0f),   // center-center
+        vec2( w_offset,  0.0f),   // center-right
+        vec2(-w_offset, -h_offset), // bottom-left
+        vec2( 0.0f,   -h_offset), // bottom-center
+        vec2( w_offset, -h_offset)  // bottom-right    
+    );
+
+    vec3 smoothNorm = vec3(0.0);
+    for(int i = 0; i < 9; i++)
+    {
+        smoothNorm += vec3(texture(gNormal, vertTexCoord.st + offsets[i]));
+    }
+    smoothNorm /= 9;
+    return smoothNorm;
 }
 
 vec3 ambientLight()
@@ -147,9 +170,14 @@ vec3 edgeDetection(vec3 litColor)
 
 void main()
 {
-
     vec3 pos = texture(gPosition, vertTexCoord).rgb;
-    vec3 normal = texture(gNormal, vertTexCoord).rgb;
+    vec3 normal;
+    if (smoothLevel != 0)
+        // normal = normalSmoothing();
+        normal = texture(gSmooth, vertTexCoord).rgb;
+    else 
+        normal = texture(gNormal, vertTexCoord).rgb;
+    
     vec3 color = texture(gColor, vertTexCoord).rgb;
 
     vec3 litColor = getEffects(pos, normal) * color;
@@ -162,5 +190,6 @@ void main()
         col = edgeDetection(litColor);
     }
 
-    fragColor = vec4(col, 1.0);
+    // fragColor = vec4(col, 1.0);
+    fragColor = vec4(litColor, 1.0);
 } 

@@ -19,14 +19,14 @@ Scene::Scene(int w, int h)
     light_pos(10.0, 50.0, 10.0),
     post_process(w, h),
     // water_normals(load_water_textures(), 24), // TODO: RE-ADD CAUSTICS
-    ground("models/Ground/Ground.obj"),
+    ground("models/Ground/Ground.obj", false),
     pot("models/Pot/Pot.obj")
 {
     glEnable(GL_DEPTH_TEST); // TODO: CHECK IF STAYS HERE
     post_process.InitFBO(light_pos); // TODO: Move lights into scene
 }
 
-void Scene::render(Camera* camera, bool toonShading, bool caustics, int edges)
+void Scene::render(Camera* camera, bool toonShading, bool caustics, int edges, int smoothLevel)
 {
     // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
@@ -70,7 +70,7 @@ void Scene::render(Camera* camera, bool toonShading, bool caustics, int edges)
     pot.Draw(rend_shader);
 
     // After drawing the scene, add the post processing effects
-    post_process.renderFBO(toonShading, caustics, edges);
+    post_process.renderFBO(toonShading, caustics, edges, smoothLevel);
 }
 
 std::vector<arno::Texture> load_water_textures() 

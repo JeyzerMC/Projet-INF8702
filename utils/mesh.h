@@ -10,7 +10,16 @@
 
 #include <string>
 #include <vector>
+
 using namespace std;
+
+// struct compareVec
+// {
+//     bool operator() (const glm::vec3& lhs, const glm::vec3& rhs) const
+//     {
+//         return glm::all(glm::lessThan(lhs, rhs));
+//     }
+// };
 
 struct Vertex {
     // position
@@ -19,6 +28,8 @@ struct Vertex {
     glm::vec3 Normal;
     // texCoords
     glm::vec2 TexCoords;
+    // smooth normal
+    glm::vec3 SmoothNormal;
     // tangent
     glm::vec3 Tangent;
     // bitangent
@@ -121,13 +132,16 @@ private:
         // vertex texture coords
         glEnableVertexAttribArray(2);	
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
-        // vertex tangent
+        // Smooth normal
         glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
-        // vertex bitangent
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, SmoothNormal));
+        // vertex tangent
         glEnableVertexAttribArray(4);
-        glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
-
+        glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
+        // vertex bitangent
+        glEnableVertexAttribArray(5);
+        glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
+        
         glBindVertexArray(0);
     }
 };

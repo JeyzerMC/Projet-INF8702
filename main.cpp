@@ -8,6 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "src/scene.h"
+#include "utils/constants.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -17,13 +18,13 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void debug_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam);
 
 // settings
-const unsigned int SCR_WIDTH = 1600;
-const unsigned int SCR_HEIGHT = 1200;
+// const static unsigned int SCR_WIDTH = 1200;
+// const static unsigned int SCR_HEIGHT = 800;
 
 // camera
 Camera camera(glm::vec3(0.0f, 8.0f, 15.0f), glm::vec3(0.0f, 1.0f, 0.0f), /* yaw */ -90.0, /* pitch */ -25.0);
-double lastX = SCR_WIDTH / 2.0f;
-double lastY = SCR_HEIGHT / 2.0f;
+double lastX = Constants::SCR_WIDTH / 2.0f;
+double lastY = Constants::SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
 // timing
@@ -35,6 +36,7 @@ bool debug = true;
 bool showToonShading = true;
 bool showCaustics = false;
 int showEdges = 0;
+int normalSmoothingLevel = 0;
 
 glm::vec3 lightPosition(10.0, 50.0, 10.0);
 
@@ -54,8 +56,8 @@ int main()
 
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Underwater Watercolor", NULL, NULL);
-    glfwSetWindowPos(window, SCR_WIDTH / 2, 50);
+    GLFWwindow* window = glfwCreateWindow(Constants::SCR_WIDTH, Constants::SCR_HEIGHT, "Underwater Watercolor", NULL, NULL);
+    glfwSetWindowPos(window, Constants::SCR_WIDTH / 2, 50);
 
     if (window == NULL)
     {
@@ -85,7 +87,7 @@ int main()
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
-    Scene underwater_scene(SCR_WIDTH, SCR_HEIGHT);
+    Scene underwater_scene(Constants::SCR_WIDTH, Constants::SCR_HEIGHT);
 
     // render loop
     // -----------
@@ -100,7 +102,7 @@ int main()
         // input
         // -----
         processInput(window);
-        underwater_scene.render(&camera, showToonShading, showCaustics, showEdges);
+        underwater_scene.render(&camera, showToonShading, showCaustics, showEdges, normalSmoothingLevel);
         
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -143,6 +145,8 @@ void key_callback(GLFWwindow* window, int key, int, int action, int)
         showCaustics = !showCaustics;
     if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
         showEdges = (showEdges + 1) % 3;
+    if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
+        normalSmoothingLevel = (normalSmoothingLevel + 1) % 2;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

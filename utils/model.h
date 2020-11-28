@@ -19,10 +19,29 @@
 #include <sstream>
 #include <iostream>
 #include <map>
-#include <vector>
+#include <set>
 using namespace std;
 
 // unsigned int TextureFromFile(const char *path, const string &directory);
+
+struct CustomVec3
+{
+    float x;
+    float y;
+    float z;
+
+    CustomVec3(glm::vec3 v): x(v.x), y(v.y), z(v.z) {}
+
+    bool operator<(const CustomVec3& rhs) const 
+    {
+        return (x * 941 + y * 113 + z) < (rhs.x * 941 + rhs.y * 113 + rhs.z);
+    }
+
+    glm::vec3 toGLM()
+    {
+        return glm::vec3(x, y, z);
+    }
+};
 
 class Model 
 {
@@ -31,10 +50,10 @@ public:
     vector<ATexture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
     vector<Mesh>    meshes;
     string directory;
-    bool gammaCorrection;
+    bool smooth_normals;
 
     // constructor, expects a filepath to a 3D model.
-    Model(string const &path, bool gamma = false) : gammaCorrection(gamma)
+    Model(string const &path, bool smoothNormals = true) : smooth_normals(smoothNormals)
     {
         loadModel(path);
     }
@@ -109,6 +128,7 @@ private:
                 vector.y = mesh->mNormals[i].y;
                 vector.z = mesh->mNormals[i].z;
                 vertex.Normal = vector;
+                // vertex.SmoothNormal = vector;
             }
             // texture coordinates
             if(mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
@@ -135,14 +155,42 @@ private:
 
             vertices.push_back(vertex);
         }
-        // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
+
+        // neighboring vertices indexes
+        std::map<CustomVec3, std::set<CustomVec3>> neighbors;
+
+        // now walk through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
         for(unsigned int i = 0; i < mesh->mNumFaces; i++)
         {
             aiFace face = mesh->mFaces[i];
             // retrieve all indices of the face and store them in the indices vector
-            for(unsigned int j = 0; j < face.mNumIndices; j++)
-                indices.push_back(face.mIndices[j]);        
+            for(unsigned int j = 0; j < face.mNumIndices; j++) {
+                indices.push_back(face.mIndices[j]);
+
+                auto key = CustomVec3(vertices[face.mIndices[j]].Position);
+                if (neighbors.find(key) == neighbors.end()) {
+                    std::set<CustomVec3> v_set;
+                    neighbors[key] = v_set;
+                }
+                for (unsigned int k = 0; k < face.mNumIndices; k++) {
+                    auto val = vertices[face.mIndices[k]].Normal;
+                    neighbors[key].insert(CustomVec3(val));
+                }      
+            }
         }
+
+        // Smooth normals
+        if (smooth_normals) {
+            for (unsigned int i = 0; i < vertices.size(); i++) {
+                glm::vec3 snormal(0.0f);
+                for (auto norm: neighbors[CustomVec3(vertices[i].Position)]) {
+                    snormal += norm.toGLM();
+                }
+
+                vertices[i].SmoothNormal = glm::normalize(snormal);
+            }
+        }
+
         // process materials
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];    
         // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
