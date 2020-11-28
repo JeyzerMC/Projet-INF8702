@@ -14,10 +14,10 @@ public:
     void render(Camera* camera, bool toonShading, bool caustics, int edges, int smoothLevel);
 
 private:
-    // Scene dimensions
-    int scr_width, scr_height;
     // Shaders
     Shader rend_shader;
+    // Scene dimensions
+    int scr_width, scr_height;
 
     // Models
     Model ground;

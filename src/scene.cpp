@@ -16,13 +16,13 @@ std::vector<arno::Texture> load_water_textures();
 Scene::Scene(int w, int h)
   : rend_shader("shaders/camera.vs", "shaders/camera.fs"),
     scr_width(w), scr_height(h),
-    light_pos(10.0, 50.0, 10.0),
-    post_process(w, h),
-    // water_normals(load_water_textures(), 24), // TODO: RE-ADD CAUSTICS
     ground("models/Ground/Ground.obj", false),
-    pot("models/Pot/Pot.obj")
+    pot("models/Pot/Pot.obj"),
+    post_process(w, h),
+    light_pos(10.0, 50.0, 10.0)
+// water_normals(load_water_textures(), 24), // TODO: RE-ADD CAUSTICS
 {
-    water_normals.loop_mode = LoopMode::PingPong;
+//    water_normals.loop_mode = LoopMode::PingPong;
     glEnable(GL_DEPTH_TEST); // TODO: CHECK IF STAYS HERE
     post_process.InitFBO(light_pos); // TODO: Move lights into scene
 }

@@ -24,8 +24,8 @@ private:
     unsigned int VAO, VBO;
     unsigned int g_buffer;
     unsigned int g_position, g_normal, g_color, g_smooth;
-    int scr_width, scr_height;
     Shader pp_shader;
+    int scr_width, scr_height;
 
     std::vector<int> n_offsets;
 };
