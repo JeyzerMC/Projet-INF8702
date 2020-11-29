@@ -183,16 +183,16 @@ private:
         }
 
         // Smooth normals
-        for (int i = 0; i < Constants::NORMAL_SMOOTHNESS_LEVEL; i++) {
+        for (unsigned int i = 0; i < Constants::NORMAL_SMOOTHNESS_LEVEL; i++) {
             if (smooth_normals) {
-                for (unsigned int i = 0; i < vertices.size(); i++) {
+                for (unsigned int j = 0; j < vertices.size(); j++) {
                     glm::vec3 snormal(0.0f);
-                    for (auto idx: neighbors[CustomVec3(vertices[i].Position)]) {
+                    for (auto idx: neighbors[CustomVec3(vertices[j].Position)]) {
                         // snormal += idx.toGLM();
                         auto norm = vertices[idx].SmoothNormal;
                         snormal += norm;
                     }
-                    vertices[i].SmoothNormal = glm::normalize(snormal);
+                    vertices[j].SmoothNormal = glm::normalize(snormal);
                 }
             }
         }
