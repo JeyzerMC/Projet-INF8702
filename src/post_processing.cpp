@@ -71,6 +71,7 @@ void PostProcessing::InitFBO(glm::vec3 lightPos)
     pp_shader.setInt("pigmentDispersion", 6);
     pp_shader.setInt("paperLayer", 7);
     pp_shader.setInt("abstractColor", 8);
+    pp_shader.setInt("shadowMap", 9);
 
     pp_shader.setVec3("lightPos", lightPos);
     pp_shader.setVec2("waterNormalsSize", glm::vec2(15, 15));
@@ -86,7 +87,7 @@ void PostProcessing::bindFBO()
     // glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
 }
 
-void PostProcessing::renderFBO(bool toonShading, bool caustics, int showEdges, int smoothLevel, double time)
+void PostProcessing::renderFBO(bool toonShading, bool caustics, int showEdges, int smoothLevel, double time, const Shadowmap& shadow_map)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     // glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
@@ -125,10 +126,14 @@ void PostProcessing::renderFBO(bool toonShading, bool caustics, int showEdges, i
     glActiveTexture(GL_TEXTURE8);
     glBindTexture(GL_TEXTURE_2D, t_abstract_colors.texture);
 
+    glActiveTexture(GL_TEXTURE9);
+    glBindTexture(GL_TEXTURE_2D, shadow_map.texture.texture);
+
     pp_shader.setBool("showToonShading", toonShading);
     pp_shader.setBool("showCaustics", caustics);
     pp_shader.setInt("showEdges", showEdges);
     pp_shader.setInt("smoothLevel", smoothLevel);
+    pp_shader.setMat4("lightMatrix", shadow_map.get_light_matrix());
 
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

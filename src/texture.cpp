@@ -14,12 +14,15 @@ TextureParameters TextureParameters::get_default() {
     return TextureParameters {
         GL_REPEAT,
         GL_REPEAT,
+        GL_LINEAR,
+        GL_LINEAR,
+        GL_RGB,
     };
 }
 
 
 
-Texture::Texture(unsigned char *data, int width, int height, TextureParameters parameters)
+Texture::Texture(TextureData data, unsigned width, unsigned height, TextureParameters parameters)
     : texture(0)
 {
     glGenTextures(1, &texture);
@@ -27,10 +30,10 @@ Texture::Texture(unsigned char *data, int width, int height, TextureParameters p
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, parameters.wrap_mode_s);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, parameters.wrap_mode_t);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, parameters.min_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, parameters.max_filter);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, parameters.texture_format, width, height, 0, data.data_format, data.data_type, data.data);
 }
 
 Texture::Texture(Texture&& other) noexcept
@@ -58,6 +61,12 @@ Texture Texture::load_from_file(const std::string &file_path, TextureParameters 
         throw std::runtime_error(fmt::format("image {} had {} channels, it must have 3", file_path, n));
     }
 
-    return Texture(image_data.get(), x, y, parameters);
+    auto data = TextureData {
+        image_data.get(),
+        GL_RGB,
+        GL_UNSIGNED_BYTE,
+    };
+
+    return Texture(data, x, y, parameters);
 }
 }

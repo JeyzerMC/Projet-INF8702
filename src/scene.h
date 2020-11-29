@@ -6,6 +6,7 @@
 #include "../utils/camera.h"
 #include "animated_texture.h"
 #include "post_processing.h"
+#include "shadowmap.h"
 
 class Scene {
 public:
@@ -14,6 +15,8 @@ public:
     void render(Camera* camera, bool toonShading, bool caustics, int edges, int smoothLevel, double time);
 
 private:
+    void draw_models(Shader& shader);
+
     // Shaders
     Shader rend_shader;
     // Scene dimensions
@@ -30,6 +33,7 @@ private:
 
     // Post Processing
     PostProcessing post_process;
+    Shadowmap shadowmap;
 
     // Caustics
     // TODO: RE-ADD CAUSTICS

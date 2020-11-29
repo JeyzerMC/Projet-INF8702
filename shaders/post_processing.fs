@@ -13,9 +13,12 @@ uniform sampler2D turbulentFlow;
 uniform sampler2D pigmentDispersion;
 uniform sampler2D paperLayer;
 uniform sampler2D abstractColor;
+uniform sampler2D shadowMap;
 
 uniform int scr_width;
 uniform int scr_height;
+
+uniform mat4 lightMatrix;
 
 uniform vec2 waterNormalsSize;
 const float waterRefracitonIndex = 1.333;
@@ -90,6 +93,16 @@ vec3 normalSmoothing()
     return smoothNorm;
 }
 
+float shadowFactor(vec3 pos)
+{
+    vec4 shadowMapPosProj = lightMatrix * vec4(pos, 1.0);
+    vec3 shadowMapPos = shadowMapPosProj.xyz / shadowMapPosProj.w;
+    shadowMapPos = shadowMapPos * 0.5 + 0.5;
+    float closestDepth = texture(shadowMap, shadowMapPos.xy).r;
+    float currentDepth = shadowMapPos.z;
+    return currentDepth - 0.001 < closestDepth  ? 1.0 : 0.0;
+}
+
 vec3 ambientLight()
 {
     return ambientStrength * lightColor;
@@ -137,10 +150,10 @@ vec3 getCaustics(vec3 pos, vec3 normal)
 vec3 getEffects(vec3 pos, vec3 normal)
 {
     vec3 effects = ambientLight();
-    effects += showToonShading? toonShading(pos, normal): diffuseLight(pos, normal);
+    effects += shadowFactor(pos) * (showToonShading? toonShading(pos, normal): diffuseLight(pos, normal));
 
     if (showCaustics)
-        effects += getCaustics(pos, normal);
+        effects += shadowFactor(pos) * getCaustics(pos, normal);
     return effects;
 }
 
@@ -217,4 +230,4 @@ void main()
     col = mix(col, col * texture(abstractColor, pos.xz / 5.0).rgb, 0.2);
 
     fragColor = vec4(col, 1.0);
-} 
+}

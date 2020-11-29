@@ -17,6 +17,7 @@ Scene::Scene(int w, int h)
     ground("models/Ground/Ground.obj", false),
     pot("models/Pot/Pot.obj"),
     post_process(w, h),
+    shadowmap(1024, 1024),
     light_pos(10.0, 50.0, 10.0)
 // water_normals(), // TODO: RE-ADD CAUSTICS
 {
@@ -45,30 +46,36 @@ void Scene::render(Camera* camera, bool toonShading, bool caustics, int edges, i
     // Our water normal map covers a 5 x 5 m area
     // rend_shader.setVec2("waterNormalsMapSize", 5, 5);
 
+    draw_models(rend_shader);
+    shadowmap.draw_in_map([this] (Shader& s) { draw_models(s); });
+    glViewport(0, 0, scr_width, scr_height);
+
+    // After drawing the scene, add the post processing effects
+    post_process.renderFBO(toonShading, caustics, edges, smoothLevel, time, shadowmap);
+}
+
+void Scene::draw_models(Shader& shader) {
     // Ground
     auto model = glm::identity<glm::mat4>();
     model = glm::translate(model, glm::vec3(0, -1, 0));
     model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
-    rend_shader.setMat4("model", model);
-    ground.Draw(rend_shader);
+    shader.setMat4("model", model);
+    ground.Draw(shader);
 
     // Pot 1
     model = glm::identity<glm::mat4>();
     model = glm::translate(model, glm::vec3(-2, 0, -2));
     model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::scale(model, glm::vec3(0.2, 0.2, 0.2));
-    rend_shader.setMat4("model", model);
-    pot.Draw(rend_shader);
+    shader.setMat4("model", model);
+    pot.Draw(shader);
 
     // Pot 2
     model = glm::identity<glm::mat4>();
     model = glm::translate(model, glm::vec3(4, 0, 4));
     model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::scale(model, glm::vec3(0.15, 0.15, 0.15));
-    rend_shader.setMat4("model", model);
-    pot.Draw(rend_shader);
-
-    // After drawing the scene, add the post processing effects
-    post_process.renderFBO(toonShading, caustics, edges, smoothLevel, time);
+    shader.setMat4("model", model);
+    pot.Draw(shader);
 }
 

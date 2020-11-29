@@ -13,12 +13,23 @@ struct TextureParameters {
     GLint wrap_mode_s;
     GLint wrap_mode_t;
 
+    GLint min_filter;
+    GLint max_filter;
+
+    GLint texture_format;
+
     static TextureParameters get_default();
+};
+
+struct TextureData {
+    unsigned char* data;
+    GLint data_format;
+    GLint data_type;
 };
 
 class Texture {
 public:
-    Texture(unsigned char* data, int width, int height, TextureParameters parameters);
+    Texture(TextureData data, unsigned width, unsigned height, TextureParameters parameters);
     Texture(const Texture&) = delete;
     Texture(Texture&&) noexcept;
     ~Texture();

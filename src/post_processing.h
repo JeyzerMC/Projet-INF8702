@@ -9,6 +9,7 @@
 
 #include "../utils/shader.h"
 #include "animated_texture.h"
+#include "shadowmap.h"
 
 class PostProcessing {
 
@@ -18,7 +19,7 @@ public:
 
     void InitFBO(glm::vec3 lightPos);
     void bindFBO();
-    void renderFBO(bool toonShading, bool caustics, int showEdges, int smoothLevel, double time);
+    void renderFBO(bool toonShading, bool caustics, int showEdges, int smoothLevel, double time, const Shadowmap& shadow_map);
 private:
     void initBuffers();
     void smoothNormals();
