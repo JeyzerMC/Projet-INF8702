@@ -15,21 +15,6 @@ in vec3 fragSmoothNormal;
 // Texture samplers
 uniform sampler2D texture_diffuse1;
 
-// uniform sampler2D waterNormalMap;
-// uniform vec2 waterNormalsMapSize;
-// const float waterRefracitonIndex = 1.333;
-// float getCaustics() {
-//     vec3 normal = normalize(texture(waterNormalMap, worldPosition.xz/waterNormalsMapSize).rgb);
-//     vec3 refractedRay = vec3(0, 0, 1);
-//     vec3 incidentRay = refract(refractedRay, -normal, waterRefracitonIndex);
-//     float cosAngle = dot(incidentRay, vec3(0, 0, 1));
-//     float light = exp(-100 * (cosAngle - 1) * (cosAngle - 1));
-
-//     float diff = dot(normalize(vertNormal), vec3(0, 0, 1));
-
-//     return light * diff;
-// }
-
 void main()
 {
     // vec4 vertColor = texture(texture_diffuse1, vertTexCoord);

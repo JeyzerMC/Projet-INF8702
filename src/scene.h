@@ -11,7 +11,7 @@ class Scene {
 public:
     Scene(int scr_width, int scr_height);
 
-    void render(Camera* camera, bool toonShading, bool caustics, int edges, int smoothLevel);
+    void render(Camera* camera, bool toonShading, bool caustics, int edges, int smoothLevel, double time);
 
 private:
     // Shaders

@@ -1,5 +1,6 @@
 #include "post_processing.h"
 #include <iostream>
+#include <spdlog/spdlog.h>
 #include "../utils/constants.h"
 
 // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
@@ -11,10 +12,14 @@ float quadVertices[] = {
      1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
 };
 
+std::vector<arno::Texture> load_water_textures();
+
 PostProcessing::PostProcessing(int scrWidth, int scrHeight)
     : pp_shader("shaders/post_processing.vs", "shaders/post_processing.fs"),
-      scr_width(scrWidth), scr_height(scrHeight)
+      scr_width(scrWidth), scr_height(scrHeight),
+      water_normal_map(load_water_textures(), 24)
 {
+    water_normal_map.loop_mode = LoopMode::PingPong;
     // Screen quad
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -56,8 +61,11 @@ void PostProcessing::InitFBO(glm::vec3 lightPos)
     pp_shader.setInt("gPosition", 0);
     pp_shader.setInt("gNormal", 1);
     pp_shader.setInt("gColor", 2); 
-    pp_shader.setInt("gSmooth", 3); 
+    pp_shader.setInt("gSmooth", 3);
+    pp_shader.setInt("gWaterNormal", 4);
+
     pp_shader.setVec3("lightPos", lightPos);
+    pp_shader.setVec2("waterNormalsSize", glm::vec2(15, 15));
 }
 
 void PostProcessing::bindFBO()
@@ -70,7 +78,7 @@ void PostProcessing::bindFBO()
     // glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
 }
 
-void PostProcessing::renderFBO(bool toonShading, bool caustics, int showEdges, int smoothLevel)
+void PostProcessing::renderFBO(bool toonShading, bool caustics, int showEdges, int smoothLevel, double time)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     // glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
@@ -96,6 +104,8 @@ void PostProcessing::renderFBO(bool toonShading, bool caustics, int showEdges, i
     // smoothNormals();
 
     // TODO: BIND HERE THE CAUSTICS MAP
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_2D, water_normal_map.sampleTexture(time).texture);
 
     // Set toggles
     pp_shader.setBool("showToonShading", toonShading);
@@ -122,7 +132,7 @@ void PostProcessing::initBuffers()
     // position color buffer
     glGenTextures(1, &g_position);
     glBindTexture(GL_TEXTURE_2D, g_position);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scr_width, scr_height, 0, GL_RGB, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, scr_width, scr_height, 0, GL_RGB, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_position, 0);
@@ -130,7 +140,7 @@ void PostProcessing::initBuffers()
     // normal color buffer
     glGenTextures(1, &g_normal);
     glBindTexture(GL_TEXTURE_2D, g_normal);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scr_width, scr_height, 0, GL_RGB, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, scr_width, scr_height, 0, GL_RGB, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, g_normal, 0);
@@ -208,4 +218,19 @@ void PostProcessing::smoothNormals()
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, g_smooth);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scr_width, scr_height, 0, GL_RGB, GL_FLOAT, smooth_normals);
+}
+
+std::vector<arno::Texture> load_water_textures()
+{
+    int min_index = 1;
+    int max_index = 250;
+    auto vector = std::vector<arno::Texture>();
+    vector.reserve(max_index - min_index + 1);
+    spdlog::info("Loading water normals. This will take some seconds.");
+    for (int i = min_index; i <= max_index; ++i) {
+        auto file_path = fmt::format("textures/water_height/{:04}.png", i);
+        vector.push_back(arno::Texture::load_from_file(file_path));
+    }
+    spdlog::info("Finished loading water normals.");
+    return vector;
 }

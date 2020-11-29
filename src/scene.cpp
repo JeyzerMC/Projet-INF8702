@@ -11,8 +11,6 @@
 
 #include <iostream>
 
-std::vector<arno::Texture> load_water_textures();
-
 Scene::Scene(int w, int h)
   : rend_shader("shaders/camera.vs", "shaders/camera.fs"),
     scr_width(w), scr_height(h),
@@ -20,14 +18,14 @@ Scene::Scene(int w, int h)
     pot("models/Pot/Pot.obj"),
     post_process(w, h),
     light_pos(10.0, 50.0, 10.0)
-// water_normals(load_water_textures(), 24), // TODO: RE-ADD CAUSTICS
+// water_normals(), // TODO: RE-ADD CAUSTICS
 {
 //    water_normals.loop_mode = LoopMode::PingPong;
     glEnable(GL_DEPTH_TEST); // TODO: CHECK IF STAYS HERE
     post_process.InitFBO(light_pos); // TODO: Move lights into scene
 }
 
-void Scene::render(Camera* camera, bool toonShading, bool caustics, int edges, int smoothLevel)
+void Scene::render(Camera* camera, bool toonShading, bool caustics, int edges, int smoothLevel, double time)
 {
     // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
@@ -71,20 +69,6 @@ void Scene::render(Camera* camera, bool toonShading, bool caustics, int edges, i
     pot.Draw(rend_shader);
 
     // After drawing the scene, add the post processing effects
-    post_process.renderFBO(toonShading, caustics, edges, smoothLevel);
+    post_process.renderFBO(toonShading, caustics, edges, smoothLevel, time);
 }
 
-std::vector<arno::Texture> load_water_textures() 
-{
-    int min_index = 1;
-    int max_index = 250;
-    auto vector = std::vector<arno::Texture>();
-    vector.reserve(max_index - min_index + 1);
-    spdlog::info("Loading water normals. This will take some seconds.");
-    for (int i = min_index; i <= max_index; ++i) {
-        auto file_path = fmt::format("textures/water_height/{:04}.png", i);
-        vector.push_back(arno::Texture::load_from_file(file_path));
-    }
-    spdlog::info("Finished loading water normals.");
-    return vector;
-}

@@ -19,7 +19,7 @@ void main()
 	vec4 worldPositionProjective = model * vec4(pos, 1.0f);
     // worldPosition = worldPositionProjective.xyz / worldPositionProjective.w;
 	gl_Position = projection * view * worldPositionProjective;
-	fragPos = worldPositionProjective.xyz;
+	fragPos = worldPositionProjective.xyz / worldPositionProjective.w;
 	fragNormal = mat3(model) * normal;
 	fragTexCoord = texCoord;
 	fragSmoothNormal = mat3(model) * smoothNormal;

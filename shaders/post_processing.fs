@@ -8,10 +8,13 @@ uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gColor;
 uniform sampler2D gSmooth;
-// TODO: ADD CAUSTICS HERE
+uniform sampler2D gWaterNormal;
 
 uniform int scr_width;
 uniform int scr_height;
+
+uniform vec2 waterNormalsSize;
+const float waterRefracitonIndex = 1.333;
 
 // Toggling effects
 uniform bool showToonShading;
@@ -113,13 +116,27 @@ vec3 toonShading(vec3 pos, vec3 normal)
     return hsv2rgb(lightHsv);
 }
 
+vec3 getCaustics(vec3 pos, vec3 normal)
+{
+    vec2 normalizedPosition = pos.xz / waterNormalsSize;
+    vec3 waterNormal = normalize(texture(gWaterNormal, normalizedPosition).rgb);
+    vec3 refractedRay = vec3(0, 0, 1);
+    vec3 incidentRay = refract(refractedRay, -waterNormal, waterRefracitonIndex);
+    float cosAngle = dot(incidentRay, vec3(0, 0, 1));
+    float light = exp(-100 * (cosAngle - 1) * (cosAngle - 1));
+
+    float diff = dot(normalize(normal), vec3(0, 1, 0));
+
+    return vec3(light * diff);
+}
+
 vec3 getEffects(vec3 pos, vec3 normal)
 {
     vec3 effects = ambientLight();
     effects += showToonShading? toonShading(pos, normal): diffuseLight(pos, normal);
 
-    // if (showCaustics)
-    //     effects += getCaustics();
+    if (showCaustics)
+        effects += getCaustics(pos, normal);
     return effects;
 }
 

@@ -102,7 +102,7 @@ int main()
         // input
         // -----
         processInput(window);
-        underwater_scene.render(&camera, showToonShading, showCaustics, showEdges, normalSmoothingLevel);
+        underwater_scene.render(&camera, showToonShading, showCaustics, showEdges, normalSmoothingLevel, currentFrame);
         
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
