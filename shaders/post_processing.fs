@@ -9,6 +9,10 @@ uniform sampler2D gNormal;
 uniform sampler2D gColor;
 uniform sampler2D gSmooth;
 uniform sampler2D gWaterNormal;
+uniform sampler2D turbulentFlow;
+uniform sampler2D pigmentDispersion;
+uniform sampler2D paperLayer;
+uniform sampler2D abstractColor;
 
 uniform int scr_width;
 uniform int scr_height;
@@ -206,6 +210,11 @@ void main()
     } else {
         col = edgeDetection(litColor);
     }
+
+    col = mix(col, col * texture(turbulentFlow, pos.xz / 15.0).rgb, 0.8);
+    col = mix(col, col * texture(pigmentDispersion, pos.xz).rgb, 0.3);
+    col = mix(col, col * texture(paperLayer, pos.xz / 5.0).rgb, 0.9);
+    col = mix(col, col * texture(abstractColor, pos.xz / 5.0).rgb, 0.2);
 
     fragColor = vec4(col, 1.0);
 } 

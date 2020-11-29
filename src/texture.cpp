@@ -33,21 +33,15 @@ Texture::Texture(unsigned char *data, int width, int height, TextureParameters p
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 }
 
-
-
 Texture::Texture(Texture&& other) noexcept
     : texture(other.texture)
 {
     other.texture = 0;
 }
 
-
-
 Texture::~Texture() {
     glDeleteTextures(1, &texture);
 }
-
-
 
 Texture Texture::load_from_file(const std::string &file_path, TextureParameters parameters) {
     int x, y, n;

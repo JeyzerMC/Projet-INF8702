@@ -30,6 +30,11 @@ private:
 
     AnimatedTexture water_normal_map;
 
+    arno::Texture t_turbulent_flow;
+    arno::Texture t_pigment_dispersion;
+    arno::Texture t_paper_layer;
+    arno::Texture t_abstract_colors;
+
     std::vector<int> n_offsets;
 };
 #endif //POST_PROCESSING_H

@@ -17,7 +17,11 @@ std::vector<arno::Texture> load_water_textures();
 PostProcessing::PostProcessing(int scrWidth, int scrHeight)
     : pp_shader("shaders/post_processing.vs", "shaders/post_processing.fs"),
       scr_width(scrWidth), scr_height(scrHeight),
-      water_normal_map(load_water_textures(), 24)
+      water_normal_map(load_water_textures(), 24),
+      t_turbulent_flow(arno::Texture::load_from_file("textures/perlin_noise.jpg")),
+      t_pigment_dispersion(arno::Texture::load_from_file("textures/gaussian_noise.jpg")),
+      t_paper_layer(arno::Texture::load_from_file("textures/cotton_paper_2.jpg")),
+      t_abstract_colors(arno::Texture::load_from_file("textures/abstract_colors.jpg"))
 {
     water_normal_map.loop_mode = LoopMode::PingPong;
     // Screen quad
@@ -63,6 +67,10 @@ void PostProcessing::InitFBO(glm::vec3 lightPos)
     pp_shader.setInt("gColor", 2); 
     pp_shader.setInt("gSmooth", 3);
     pp_shader.setInt("gWaterNormal", 4);
+    pp_shader.setInt("turbulentFlow", 5);
+    pp_shader.setInt("pigmentDispersion", 6);
+    pp_shader.setInt("paperLayer", 7);
+    pp_shader.setInt("abstractColor", 8);
 
     pp_shader.setVec3("lightPos", lightPos);
     pp_shader.setVec2("waterNormalsSize", glm::vec2(15, 15));
@@ -100,14 +108,23 @@ void PostProcessing::renderFBO(bool toonShading, bool caustics, int showEdges, i
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, g_smooth);
 
-    // TODO: SMOOTH NORMALS HERE
-    // smoothNormals();
-
     // TODO: BIND HERE THE CAUSTICS MAP
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, water_normal_map.sampleTexture(time).texture);
 
-    // Set toggles
+    // Watercolor effects textures
+    glActiveTexture(GL_TEXTURE5);
+    glBindTexture(GL_TEXTURE_2D, t_turbulent_flow.texture);
+
+    glActiveTexture(GL_TEXTURE6);
+    glBindTexture(GL_TEXTURE_2D, t_pigment_dispersion.texture);
+
+    glActiveTexture(GL_TEXTURE7);
+    glBindTexture(GL_TEXTURE_2D, t_paper_layer.texture);
+
+    glActiveTexture(GL_TEXTURE8);
+    glBindTexture(GL_TEXTURE_2D, t_abstract_colors.texture);
+
     pp_shader.setBool("showToonShading", toonShading);
     pp_shader.setBool("showCaustics", caustics);
     pp_shader.setInt("showEdges", showEdges);
