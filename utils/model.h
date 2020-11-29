@@ -12,6 +12,7 @@
 
 #include "mesh.h"
 #include "shader.h"
+#include "constants.h"
 
 #include <algorithm>
 #include <string>
@@ -128,7 +129,7 @@ private:
                 vector.y = mesh->mNormals[i].y;
                 vector.z = mesh->mNormals[i].z;
                 vertex.Normal = vector;
-                // vertex.SmoothNormal = vector;
+                vertex.SmoothNormal = vector;
             }
             // texture coordinates
             if(mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
@@ -157,7 +158,7 @@ private:
         }
 
         // neighboring vertices indexes
-        std::map<CustomVec3, std::set<CustomVec3>> neighbors;
+        std::map<CustomVec3, std::set<int>> neighbors;
 
         // now walk through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
         for(unsigned int i = 0; i < mesh->mNumFaces; i++)
@@ -169,25 +170,30 @@ private:
 
                 auto key = CustomVec3(vertices[face.mIndices[j]].Position);
                 if (neighbors.find(key) == neighbors.end()) {
-                    std::set<CustomVec3> v_set;
+                    std::set<int> v_set;
                     neighbors[key] = v_set;
                 }
                 for (unsigned int k = 0; k < face.mNumIndices; k++) {
-                    auto val = vertices[face.mIndices[k]].Normal;
-                    neighbors[key].insert(CustomVec3(val));
+                    // auto val = vertices[face.mIndices[k]].Normal;
+                    // neighbors[key].insert(CustomVec3(val));
+                    auto val = face.mIndices[k];
+                    neighbors[key].insert(val);
                 }      
             }
         }
 
         // Smooth normals
-        if (smooth_normals) {
-            for (unsigned int i = 0; i < vertices.size(); i++) {
-                glm::vec3 snormal(0.0f);
-                for (auto norm: neighbors[CustomVec3(vertices[i].Position)]) {
-                    snormal += norm.toGLM();
+        for (int i = 0; i < Constants::NORMAL_SMOOTHNESS_LEVEL; i++) {
+            if (smooth_normals) {
+                for (unsigned int i = 0; i < vertices.size(); i++) {
+                    glm::vec3 snormal(0.0f);
+                    for (auto idx: neighbors[CustomVec3(vertices[i].Position)]) {
+                        // snormal += idx.toGLM();
+                        auto norm = vertices[idx].SmoothNormal;
+                        snormal += norm;
+                    }
+                    vertices[i].SmoothNormal = glm::normalize(snormal);
                 }
-
-                vertices[i].SmoothNormal = glm::normalize(snormal);
             }
         }
 

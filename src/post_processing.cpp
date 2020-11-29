@@ -70,7 +70,7 @@ void PostProcessing::InitFBO(glm::vec3 lightPos)
 
 void PostProcessing::bindFBO()
 {
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClearColor(0.0f, 0.16f, 0.41f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
     glBindFramebuffer(GL_FRAMEBUFFER, g_buffer);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -84,7 +84,7 @@ void PostProcessing::renderFBO(bool toonShading, bool caustics, int showEdges, i
     // glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
 
     // clear all relevant buffers
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClearColor(0.0f, 0.16f, 0.41f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     pp_shader.use();

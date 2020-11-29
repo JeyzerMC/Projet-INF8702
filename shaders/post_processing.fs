@@ -149,7 +149,7 @@ bool nearWhite(vec3 color)
 vec3 edgeDetection(vec3 litColor)
 {
     float w_offset = 1.0 / scr_width;
-    float h_offset = 1.0 / scr_height;
+float h_offset = 1.0 / scr_height;
 
     vec2 offsets[9] = vec2[](
         vec2(-w_offset,  h_offset), // top-left
@@ -207,6 +207,5 @@ void main()
         col = edgeDetection(litColor);
     }
 
-    // fragColor = vec4(col, 1.0);
-    fragColor = vec4(litColor, 1.0);
+    fragColor = vec4(col, 1.0);
 } 
