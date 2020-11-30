@@ -39,7 +39,7 @@ Scene::Scene(int w, int h)
     });
 
     objects.push_back(SceneObject{
-            Transform(glm::vec3(0, 3, 0), glm::quat(glm::vec3(0, 0, 0)), 2),
+            Transform(glm::vec3(0, 3, 0), glm::quat(glm::vec3(0, 0, 0)), 4),
             fish,
     });
 
