@@ -126,11 +126,15 @@ float getToonFactor(vec3 pos, vec3 normal)
     return 1.0;
 }
 
-vec3 toonShading(vec3 pos, vec3 normal)
+float applyToonGrading(float intensity) {
+    return round(intensity * 3) / 3;
+}
+
+vec3 toonShading(vec3 color)
 {
-    vec3 lightHsv = rgb2hsv(lightColor);
-    lightHsv.z = lightHsv.z * getToonFactor(pos, normal);
-    return hsv2rgb(lightHsv);
+    vec3 hsvColor = rgb2hsv(color);
+    hsvColor.z = applyToonGrading(hsvColor.z);
+    return hsv2rgb(hsvColor);
 }
 
 // Takes something in the range [src_low, src_high] and remaps it to the range [dst_low, dst_high]
@@ -150,10 +154,13 @@ vec3 getCaustics(vec3 pos, vec3 normal)
 vec3 getEffects(vec3 pos, vec3 normal)
 {
     vec3 effects = ambientLight();
-    effects += shadowFactor(pos) * (showToonShading? toonShading(pos, normal): diffuseLight(pos, normal));
-
+    float shadows = shadowFactor(pos);
+    effects += diffuseLight(pos, normal) * shadows;
     if (showCaustics)
-        effects += shadowFactor(pos) * getCaustics(pos, normal);
+        effects += shadows * getCaustics(pos, normal);
+    if (showToonShading)
+        effects = toonShading(effects);
+
     return effects;
 }
 
@@ -230,5 +237,5 @@ void main()
     col = mix(col, col * texture(abstractColor, pos.xz / 5.0).rgb, 0.2);
 
     fragColor = vec4(col, 1.0);
-//    fragColor = texture(caustics, vertTexCoord);
+//    fragColor = texture(gSmooth, vertTexCoord);
 }
