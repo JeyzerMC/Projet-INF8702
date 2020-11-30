@@ -26,7 +26,7 @@ Scene::Scene(int w, int h)
     post_process.InitFBO(light_pos); // TODO: Move lights into scene
 }
 
-void Scene::render(Camera* camera, bool toonShading, bool caustics, int edges, int smoothLevel, double time)
+void Scene::render(Camera* camera, bool toonShading, bool caustics, bool showWobbling, int edges, int smoothLevel, double time)
 {
     // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
@@ -51,7 +51,7 @@ void Scene::render(Camera* camera, bool toonShading, bool caustics, int edges, i
     glViewport(0, 0, scr_width, scr_height);
 
     // After drawing the scene, add the post processing effects
-    post_process.renderFBO(toonShading, caustics, edges, smoothLevel, time, shadowmap);
+    post_process.renderFBO(toonShading, caustics, showWobbling, edges, smoothLevel, time, shadowmap);
 }
 
 void Scene::draw_models(Shader& shader) {

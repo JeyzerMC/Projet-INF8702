@@ -20,7 +20,7 @@ public:
 
     void InitFBO(glm::vec3 lightPos);
     void bindFBO();
-    void renderFBO(bool toonShading, bool caustics, int showEdges, int smoothLevel, double time, const Shadowmap& shadow_map);
+    void renderFBO(bool toonShading, bool caustics, bool showWobbling, int showEdges, int smoothLevel, double time, const Shadowmap& shadow_map);
 
     void reload_shaders();
 

@@ -26,6 +26,7 @@ const float waterRefracitonIndex = 1.333;
 // Toggling effects
 uniform bool showToonShading;
 uniform bool showCaustics;
+uniform bool showWobbling;
 uniform int showEdges;
 uniform int smoothLevel;
 
@@ -96,14 +97,14 @@ vec3 normalSmoothing()
     return smoothNorm;
 }
 
-float shadowFactor(vec3 pos)
+float shadowFactor(vec3 pos, vec3 normal)
 {
-    vec4 shadowMapPosProj = lightMatrix * vec4(pos, 1.0);
+    vec4 shadowMapPosProj = lightMatrix * vec4(pos + normal * 0.1, 1.0);
     vec3 shadowMapPos = shadowMapPosProj.xyz / shadowMapPosProj.w;
     shadowMapPos = shadowMapPos * 0.5 + 0.5;
     float closestDepth = texture(shadowMap, shadowMapPos.xy).r;
     float currentDepth = shadowMapPos.z;
-    return currentDepth - 0.001 < closestDepth  ? 1.0 : 0.0;
+    return currentDepth /*- 0.001*/ < closestDepth  ? 1.0 : 0.0;
 }
 
 vec3 ambientLight()
@@ -157,7 +158,7 @@ vec3 getCaustics(vec3 pos, vec3 normal)
 vec3 getEffects(vec3 pos, vec3 normal)
 {
     vec3 effects = ambientLight();
-    float shadows = shadowFactor(pos);
+    float shadows = shadowFactor(pos, normal);
     effects += diffuseLight(pos, normal) * shadows;
     if (showCaustics)
         effects += shadows * getCaustics(pos, normal);
@@ -173,10 +174,10 @@ bool nearWhite(vec3 color)
     return length(color) > threshold;
 }
 
-vec3 edgeDetection(vec3 litColor)
+vec3 edgeDetection(vec3 litColor, vec2 texCoords)
 {
     float w_offset = 1.0 / scr_width;
-float h_offset = 1.0 / scr_height;
+    float h_offset = 1.0 / scr_height;
 
     vec2 offsets[9] = vec2[](
         vec2(-w_offset,  h_offset), // top-left
@@ -199,7 +200,7 @@ float h_offset = 1.0 / scr_height;
     vec3 sampleTex[9];
     for(int i = 0; i < 9; i++)
     {
-        sampleTex[i] = vec3(texture(gColor, vertTexCoord.st + offsets[i]));
+        sampleTex[i] = vec3(texture(gColor, texCoords.st + offsets[i]));
     }
     vec3 col = vec3(0.0);
     for(int i = 0; i < 9; i++)
@@ -212,23 +213,35 @@ float h_offset = 1.0 / scr_height;
     return col;
 }
 
+vec2 getPaperGradient() {
+    float dx = texture(paperLayer, vertTexCoord + vec2(0.01, 0)).r - texture(paperLayer, vertTexCoord - vec2(0.01, 0)).r;
+    float dy = texture(paperLayer, vertTexCoord + vec2(0, 0.01)).r - texture(paperLayer, vertTexCoord - vec2(0, 0.01)).r;
+    return vec2(dx, dy);
+}
+
 void main()
 {
+    vec2 texCoords = vertTexCoord;
+    if (showWobbling) {
+        texCoords += getPaperGradient() * 0.015;
+        // For some reason, 1 still resulted in wrapping, but 0.9999 is fine :/
+        texCoords = clamp(texCoords, 0, 0.9999);
+    }
     vec3 normal;
     if (smoothLevel != 0)
         // normal = normalSmoothing();
-        normal = texture(gSmooth, vertTexCoord).rgb;
+        normal = texture(gSmooth, texCoords).rgb;
     else 
-        normal = texture(gNormal, vertTexCoord).rgb;
+        normal = texture(gNormal, texCoords).rgb;
 
     if (length(normal) < epsilon) {
         fragColor = vec4(clearColor, 1);
         return;
     }
 
-    vec3 pos = texture(gPosition, vertTexCoord).rgb;
+    vec3 pos = texture(gPosition, texCoords).rgb;
 
-    vec3 color = texture(gColor, vertTexCoord).rgb;
+    vec3 color = texture(gColor, texCoords).rgb;
 
     vec3 litColor = getEffects(pos, normal) * color;
 
@@ -237,7 +250,7 @@ void main()
     if (showEdges == 2) {
         col = litColor;
     } else {
-        col = edgeDetection(litColor);
+        col = edgeDetection(litColor, texCoords);
     }
 
     col = mix(col, col * texture(turbulentFlow, pos.xz / 15.0).rgb, 0.8);
@@ -246,5 +259,5 @@ void main()
     col = mix(col, col * texture(abstractColor, pos.xz / 5.0).rgb, 0.2);
 
     fragColor = vec4(col, 1.0);
-//    fragColor = texture(gSmooth, vertTexCoord);
+//    fragColor = texture(caustics, vertTexCoord);
 }
