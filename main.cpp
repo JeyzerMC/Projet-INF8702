@@ -35,6 +35,7 @@ double lastFrame = 0.0f;
 bool debug = true;
 bool showToonShading = true;
 bool showCaustics = true;
+bool showWobbling = true;
 bool reloadShadersNextFrame = false;
 int showEdges = 1;
 int normalSmoothingLevel = 1;
@@ -105,7 +106,7 @@ int main()
         // input
         // -----
         processInput(window);
-        underwater_scene.render(&camera, showToonShading, showCaustics, showEdges, normalSmoothingLevel, currentFrame);
+        underwater_scene.render(&camera, showToonShading, showCaustics, showWobbling, showEdges, normalSmoothingLevel, currentFrame);
         
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -156,6 +157,8 @@ void key_callback(GLFWwindow* window, int key, int, int action, int)
         showEdges = (showEdges + 1) % 2;
     if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
         normalSmoothingLevel = (normalSmoothingLevel + 1) % 2;
+    if (key == GLFW_KEY_M && action == GLFW_PRESS)
+        showWobbling = !showWobbling;
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
         reloadShadersNextFrame = true;
 }

@@ -4,7 +4,6 @@
 #include "../utils/shader.h"
 #include "../utils/model.h"
 #include "../utils/camera.h"
-#include "animated_texture.h"
 #include "post_processing.h"
 #include "shadowmap.h"
 
@@ -12,7 +11,7 @@ class Scene {
 public:
     Scene(int scr_width, int scr_height);
 
-    void render(Camera* camera, bool toonShading, bool caustics, int edges, int smoothLevel, double time);
+    void render(Camera* camera, bool toonShading, bool caustics, bool showWobbling, int edges, int smoothLevel, double time);
 
     void reload_shaders();
 

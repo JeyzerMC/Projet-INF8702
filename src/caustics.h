@@ -21,7 +21,6 @@ public:
 
     GLuint fbo;
     arno::Texture caustics_texture;
-    arno::Texture water_normals_texture;
 
     Shader shader;
 

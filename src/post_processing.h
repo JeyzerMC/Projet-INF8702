@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "../utils/shader.h"
-#include "animated_texture.h"
 #include "shadowmap.h"
 #include "caustics.h"
 
@@ -20,7 +19,7 @@ public:
 
     void InitFBO(glm::vec3 lightPos);
     void bindFBO();
-    void renderFBO(bool toonShading, bool caustics, int showEdges, int smoothLevel, double time, const Shadowmap& shadow_map);
+    void renderFBO(bool toonShading, bool caustics, bool showWobbling, int showEdges, int smoothLevel, double time, const Shadowmap& shadow_map);
 
     void reload_shaders();
 
@@ -34,7 +33,6 @@ private:
     Shader pp_shader;
     int scr_width, scr_height;
 
-    AnimatedTexture water_normal_map;
     Caustics caustics;
 
     arno::Texture t_turbulent_flow;
