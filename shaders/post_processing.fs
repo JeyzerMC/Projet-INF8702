@@ -208,7 +208,7 @@ float h_offset = 1.0 / scr_height;
     if (nearWhite(col)) 
         col = vec3(0.0);
     else
-        col = showEdges == 0? litColor: vec3(1.0);
+        col = litColor;
     return col;
 }
 
@@ -234,7 +234,7 @@ void main()
 
     // Show regular image
     vec3 col;
-    if (showEdges == 2) {
+    if (showEdges == 0) {
         col = litColor;
     } else {
         col = edgeDetection(litColor);
@@ -243,8 +243,8 @@ void main()
     col = mix(col, col * texture(turbulentFlow, pos.xz / 15.0).rgb, 0.8);
     col = mix(col, col * texture(pigmentDispersion, pos.xz).rgb, 0.3);
     col = mix(col, col * texture(paperLayer, pos.xz / 5.0).rgb, 0.9);
-    col = mix(col, col * texture(abstractColor, pos.xz / 5.0).rgb, 0.2);
+    // col = mix(col, col * texture(abstractColor, pos.xz / 5.0).rgb, 0.2);
 
     fragColor = vec4(col, 1.0);
-//    fragColor = texture(gSmooth, vertTexCoord);
+//    fragColor = texture(gColor, vertTexCoord);
 }
