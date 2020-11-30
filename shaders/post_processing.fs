@@ -8,7 +8,7 @@ uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gColor;
 uniform sampler2D gSmooth;
-uniform sampler2D gWaterNormal;
+uniform sampler2D caustics;
 uniform sampler2D turbulentFlow;
 uniform sampler2D pigmentDispersion;
 uniform sampler2D paperLayer;
@@ -136,15 +136,10 @@ vec3 toonShading(vec3 pos, vec3 normal)
 vec3 getCaustics(vec3 pos, vec3 normal)
 {
     vec2 normalizedPosition = pos.xz / waterNormalsSize;
-    vec3 waterNormal = normalize(texture(gWaterNormal, normalizedPosition).rgb);
-    vec3 refractedRay = vec3(0, 0, 1);
-    vec3 incidentRay = refract(refractedRay, -waterNormal, waterRefracitonIndex);
-    float cosAngle = dot(incidentRay, vec3(0, 0, 1));
-    float light = exp(-100 * (cosAngle - 1) * (cosAngle - 1));
-
+    vec3 light = texture(caustics, normalizedPosition).rgb;
     float diff = dot(normalize(normal), vec3(0, 1, 0));
 
-    return vec3(light * diff);
+    return light * diff;
 }
 
 vec3 getEffects(vec3 pos, vec3 normal)
@@ -230,4 +225,5 @@ void main()
     col = mix(col, col * texture(abstractColor, pos.xz / 5.0).rgb, 0.2);
 
     fragColor = vec4(col, 1.0);
+//    fragColor = texture(caustics, vertTexCoord);
 }

@@ -16,6 +16,7 @@ set(HEADER_FILES
         src/post_processing.h
         src/scene.h
         src/shadowmap.h
+        src/caustics.h
 )
 set(SOURCE_FILES
         main.cpp
@@ -25,6 +26,7 @@ set(SOURCE_FILES
         src/post_processing.cpp
         src/scene.cpp
         src/shadowmap.cpp
+        src/caustics.cpp
 )
 
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})

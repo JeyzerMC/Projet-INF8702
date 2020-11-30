@@ -10,6 +10,7 @@
 #include "../utils/shader.h"
 #include "animated_texture.h"
 #include "shadowmap.h"
+#include "caustics.h"
 
 class PostProcessing {
 
@@ -30,6 +31,7 @@ private:
     int scr_width, scr_height;
 
     AnimatedTexture water_normal_map;
+    Caustics caustics;
 
     arno::Texture t_turbulent_flow;
     arno::Texture t_pigment_dispersion;

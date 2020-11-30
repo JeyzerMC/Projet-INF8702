@@ -18,6 +18,7 @@ PostProcessing::PostProcessing(int scrWidth, int scrHeight)
     : pp_shader("shaders/post_processing.vs", "shaders/post_processing.fs"),
       scr_width(scrWidth), scr_height(scrHeight),
       water_normal_map(load_water_textures(), 24),
+      caustics(1024, 1024),
       t_turbulent_flow(arno::Texture::load_from_file("textures/perlin_noise.jpg")),
       t_pigment_dispersion(arno::Texture::load_from_file("textures/gaussian_noise.jpg")),
       t_paper_layer(arno::Texture::load_from_file("textures/cotton_paper_2.jpg")),
@@ -66,7 +67,7 @@ void PostProcessing::InitFBO(glm::vec3 lightPos)
     pp_shader.setInt("gNormal", 1);
     pp_shader.setInt("gColor", 2); 
     pp_shader.setInt("gSmooth", 3);
-    pp_shader.setInt("gWaterNormal", 4);
+    pp_shader.setInt("caustics", 4);
     pp_shader.setInt("turbulentFlow", 5);
     pp_shader.setInt("pigmentDispersion", 6);
     pp_shader.setInt("paperLayer", 7);
@@ -89,6 +90,8 @@ void PostProcessing::bindFBO()
 
 void PostProcessing::renderFBO(bool toonShading, bool caustics, int showEdges, int smoothLevel, double time, const Shadowmap& shadow_map)
 {
+    this->caustics.render(time);
+    glViewport(0, 0, scr_width, scr_height);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     // glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
 
@@ -111,7 +114,7 @@ void PostProcessing::renderFBO(bool toonShading, bool caustics, int showEdges, i
 
     // TODO: BIND HERE THE CAUSTICS MAP
     glActiveTexture(GL_TEXTURE4);
-    glBindTexture(GL_TEXTURE_2D, water_normal_map.sampleTexture(time).texture);
+    glBindTexture(GL_TEXTURE_2D, this->caustics.caustics_texture.texture);
 
     // Watercolor effects textures
     glActiveTexture(GL_TEXTURE5);
