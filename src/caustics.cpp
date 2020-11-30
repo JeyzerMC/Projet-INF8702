@@ -102,6 +102,10 @@ void Caustics::render(double /*time*/) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void Caustics::reload_shaders() {
+    shader.reload();
+}
+
 
 
 

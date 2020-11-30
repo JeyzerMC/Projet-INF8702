@@ -60,3 +60,7 @@ glm::mat4 Shadowmap::get_light_matrix() const {
                                        glm::vec3( 0.0f, 0.0f,  1.0f));
     return light_projection * light_view;
 }
+
+void Shadowmap::reload_shaders() {
+    shadow_shader.reload();
+}

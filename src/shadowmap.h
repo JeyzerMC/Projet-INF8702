@@ -29,6 +29,8 @@ public:
     arno::Texture texture;
 
     Shader shadow_shader;
+
+    void reload_shaders();
 };
 
 

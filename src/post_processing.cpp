@@ -15,14 +15,15 @@ float quadVertices[] = {
 std::vector<arno::Texture> load_water_textures();
 
 PostProcessing::PostProcessing(int scrWidth, int scrHeight)
-    : pp_shader("shaders/post_processing.vs", "shaders/post_processing.fs"),
-      scr_width(scrWidth), scr_height(scrHeight),
-      water_normal_map(load_water_textures(), 24),
-      caustics(1024, 1024),
-      t_turbulent_flow(arno::Texture::load_from_file("textures/perlin_noise.jpg")),
-      t_pigment_dispersion(arno::Texture::load_from_file("textures/gaussian_noise.jpg")),
-      t_paper_layer(arno::Texture::load_from_file("textures/cotton_paper_2.jpg")),
-      t_abstract_colors(arno::Texture::load_from_file("textures/abstract_colors.jpg"))
+    : pp_shader("shaders/post_processing.vs", "shaders/post_processing.fs")
+    , scr_width(scrWidth), scr_height(scrHeight)
+    , water_normal_map(load_water_textures(), 24)
+    , caustics(1024, 1024)
+    , t_turbulent_flow(arno::Texture::load_from_file("textures/perlin_noise.jpg"))
+    , t_pigment_dispersion(arno::Texture::load_from_file("textures/gaussian_noise.jpg"))
+    , t_paper_layer(arno::Texture::load_from_file("textures/cotton_paper_2.jpg"))
+    , t_abstract_colors(arno::Texture::load_from_file("textures/abstract_colors.jpg"))
+    , light_pos(0)
 {
     water_normal_map.loop_mode = LoopMode::PingPong;
     // Screen quad
@@ -35,7 +36,8 @@ PostProcessing::PostProcessing(int scrWidth, int scrHeight)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    
+
+    init_shader();
     initBuffers();
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -62,20 +64,8 @@ PostProcessing::~PostProcessing()
 
 void PostProcessing::InitFBO(glm::vec3 lightPos)
 {
-    pp_shader.use();
-    pp_shader.setInt("gPosition", 0);
-    pp_shader.setInt("gNormal", 1);
-    pp_shader.setInt("gColor", 2); 
-    pp_shader.setInt("gSmooth", 3);
-    pp_shader.setInt("caustics", 4);
-    pp_shader.setInt("turbulentFlow", 5);
-    pp_shader.setInt("pigmentDispersion", 6);
-    pp_shader.setInt("paperLayer", 7);
-    pp_shader.setInt("abstractColor", 8);
-    pp_shader.setInt("shadowMap", 9);
-
-    pp_shader.setVec3("lightPos", lightPos);
-    pp_shader.setVec2("waterNormalsSize", glm::vec2(15, 15));
+    light_pos = lightPos;
+    init_shader();
 }
 
 void PostProcessing::bindFBO()
@@ -146,10 +136,6 @@ void PostProcessing::renderFBO(bool toonShading, bool caustics, int showEdges, i
 void PostProcessing::initBuffers()
 {
     // Post processing shader [TODO: CHECK IF SHOULD GO HERE]
-    pp_shader.use();
-    pp_shader.setInt("screenTexture", 0);
-    pp_shader.setInt("scr_width", scr_width);
-    pp_shader.setInt("scr_height", scr_height);
 
     glGenFramebuffers(1, &g_buffer);
     glBindFramebuffer(GL_FRAMEBUFFER, g_buffer);
@@ -243,6 +229,34 @@ void PostProcessing::smoothNormals()
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, g_smooth);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scr_width, scr_height, 0, GL_RGB, GL_FLOAT, smooth_normals);
+}
+
+void PostProcessing::reload_shaders() {
+    pp_shader.reload();
+    init_shader();
+    caustics.reload_shaders();
+}
+
+void PostProcessing::init_shader() {
+    pp_shader.use();
+    pp_shader.setInt("screenTexture", 0);
+    pp_shader.setInt("scr_width", scr_width);
+    pp_shader.setInt("scr_height", scr_height);
+
+    pp_shader.setInt("gPosition", 0);
+    pp_shader.setInt("gNormal", 1);
+    pp_shader.setInt("gColor", 2);
+    pp_shader.setInt("gSmooth", 3);
+    pp_shader.setInt("caustics", 4);
+    pp_shader.setInt("turbulentFlow", 5);
+    pp_shader.setInt("pigmentDispersion", 6);
+    pp_shader.setInt("paperLayer", 7);
+    pp_shader.setInt("abstractColor", 8);
+    pp_shader.setInt("shadowMap", 9);
+
+    pp_shader.setVec3("lightPos", light_pos);
+    pp_shader.setVec2("waterNormalsSize", glm::vec2(15, 15));
+
 }
 
 std::vector<arno::Texture> load_water_textures()

@@ -21,8 +21,12 @@ public:
     void InitFBO(glm::vec3 lightPos);
     void bindFBO();
     void renderFBO(bool toonShading, bool caustics, int showEdges, int smoothLevel, double time, const Shadowmap& shadow_map);
+
+    void reload_shaders();
+
 private:
     void initBuffers();
+    void init_shader();
     void smoothNormals();
     unsigned int VAO, VBO;
     unsigned int g_buffer;
@@ -39,5 +43,6 @@ private:
     arno::Texture t_abstract_colors;
 
     std::vector<int> n_offsets;
+    glm::vec3 light_pos;
 };
 #endif //POST_PROCESSING_H

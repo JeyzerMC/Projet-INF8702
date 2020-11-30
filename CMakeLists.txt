@@ -27,6 +27,7 @@ set(SOURCE_FILES
         src/scene.cpp
         src/shadowmap.cpp
         src/caustics.cpp
+        utils/shader.cpp
 )
 
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})

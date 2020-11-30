@@ -29,6 +29,8 @@ public:
     GLuint grid_vbo;
     GLuint grid_ibo;
     unsigned indices_number;
+
+    void reload_shaders();
 };
 
 

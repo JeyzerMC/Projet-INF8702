@@ -35,6 +35,7 @@ double lastFrame = 0.0f;
 bool debug = true;
 bool showToonShading = true;
 bool showCaustics = false;
+bool reloadShadersNextFrame = false;
 int showEdges = 0;
 int normalSmoothingLevel = 0;
 
@@ -108,6 +109,12 @@ int main()
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+        // Hot reload shaders
+        if (reloadShadersNextFrame) {
+            reloadShadersNextFrame = false;
+            underwater_scene.reload_shaders();
+        }
     }
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
@@ -147,6 +154,8 @@ void key_callback(GLFWwindow* window, int key, int, int action, int)
         showEdges = (showEdges + 1) % 3;
     if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
         normalSmoothingLevel = (normalSmoothingLevel + 1) % 2;
+    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+        reloadShadersNextFrame = true;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

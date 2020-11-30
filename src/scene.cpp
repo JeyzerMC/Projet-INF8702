@@ -79,3 +79,9 @@ void Scene::draw_models(Shader& shader) {
     pot.Draw(shader);
 }
 
+void Scene::reload_shaders() {
+    rend_shader.reload();
+    post_process.reload_shaders();
+    shadowmap.reload_shaders();
+}
+

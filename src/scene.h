@@ -14,6 +14,8 @@ public:
 
     void render(Camera* camera, bool toonShading, bool caustics, int edges, int smoothLevel, double time);
 
+    void reload_shaders();
+
 private:
     void draw_models(Shader& shader);
 
@@ -37,7 +39,7 @@ private:
 
     // Caustics
     // TODO: RE-ADD CAUSTICS
-    // AnimatedTexture water_normals; 
+    // AnimatedTexture water_normals;
 
     // Lights
     glm::vec3 light_pos;
