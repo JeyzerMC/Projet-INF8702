@@ -14,6 +14,8 @@ in vec3 fragSmoothNormal;
 
 // Texture samplers
 uniform sampler2D texture_diffuse1;
+uniform bool texture_diffuse1_bound;
+uniform vec3 mat_diffuse;
 
 void main()
 {
@@ -22,6 +24,8 @@ void main()
     // fragColor = vec4(finalColor, 1.0f);
     gPosition = fragPos;
     gNormal = normalize(fragNormal);
-    gColor = texture(texture_diffuse1, fragTexCoord);
+    gColor = vec4(mat_diffuse, 1.0);
+    if (texture_diffuse1_bound)
+        gColor *= texture(texture_diffuse1, fragTexCoord);
     gSmoothNormal = normalize(fragSmoothNormal);
 } 

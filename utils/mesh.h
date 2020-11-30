@@ -48,15 +48,16 @@ public:
     vector<Vertex>       vertices;
     vector<unsigned int> indices;
     vector<ATexture>      textures;
+    glm::vec3 mat_diffuse;
     unsigned int VAO;
 
     // constructor
-    Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<ATexture> textures)
+    Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<ATexture> textures, glm::vec3 diffuse)
+        : vertices(vertices)
+        , indices(indices)
+        , textures(textures)
+        , mat_diffuse(diffuse)
     {
-        this->vertices = vertices;
-        this->indices = indices;
-        this->textures = textures;
-
         // now that we have all the required data, set the vertex buffers and its attribute pointers.
         setupMesh();
     }
@@ -64,6 +65,7 @@ public:
     // render the mesh
     void Draw(Shader &shader) 
     {
+        std::vector<std::string> bound_texture_names;
         // bind appropriate textures
         unsigned int diffuseNr  = 1;
         unsigned int specularNr = 1;
@@ -88,7 +90,11 @@ public:
             glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);
             // and finally bind the texture
             glBindTexture(GL_TEXTURE_2D, textures[i].id);
+
+            bound_texture_names.push_back(name + number + "_bound");
+            shader.setBool(bound_texture_names.back(), true);
         }
+        shader.setVec3("mat_diffuse", mat_diffuse);
         
         // draw mesh
         glBindVertexArray(VAO);
@@ -97,6 +103,10 @@ public:
 
         // always good practice to set everything back to defaults once configured.
         glActiveTexture(GL_TEXTURE0);
+        // Set all bound variables to 0 for the next model
+        for (auto name : bound_texture_names) {
+            shader.setBool(name, false);
+        }
     }
 
 private:
