@@ -70,7 +70,8 @@ void PostProcessing::InitFBO(glm::vec3 lightPos)
 
 void PostProcessing::bindFBO()
 {
-    glClearColor(0.0f, 0.16f, 0.41f, 1.0f);
+    // The important thing is to have tho normal buffer set to 0, we use that info to see if we rendered anything
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
     glBindFramebuffer(GL_FRAMEBUFFER, g_buffer);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

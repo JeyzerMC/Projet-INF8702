@@ -34,6 +34,9 @@ uniform int smoothLevel;
 uniform vec3 lightPos; 
 vec3 lightColor = vec3(0.6157, 0.8941, 0.9333);
 float ambientStrength = 0.1;
+const vec3 clearColor = vec3(0, 0.15, 0.20);
+
+const float epsilon = 0.0001;
 
 // Utility functions to change from rgb to hsv and opposite.
 // Comes from: https://gist.github.com/yiwenl
@@ -211,14 +214,20 @@ float h_offset = 1.0 / scr_height;
 
 void main()
 {
-    vec3 pos = texture(gPosition, vertTexCoord).rgb;
     vec3 normal;
     if (smoothLevel != 0)
         // normal = normalSmoothing();
         normal = texture(gSmooth, vertTexCoord).rgb;
     else 
         normal = texture(gNormal, vertTexCoord).rgb;
-    
+
+    if (length(normal) < epsilon) {
+        fragColor = vec4(clearColor, 1);
+        return;
+    }
+
+    vec3 pos = texture(gPosition, vertTexCoord).rgb;
+
     vec3 color = texture(gColor, vertTexCoord).rgb;
 
     vec3 litColor = getEffects(pos, normal) * color;
