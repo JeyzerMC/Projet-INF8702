@@ -16,6 +16,7 @@ set(HEADER_FILES
         src/scene.h
         src/shadowmap.h
         src/caustics.h
+        src/transform.h
 )
 set(SOURCE_FILES
         main.cpp
@@ -25,6 +26,7 @@ set(SOURCE_FILES
         src/scene.cpp
         src/shadowmap.cpp
         src/caustics.cpp
+        src/transform.cpp
         utils/shader.cpp
 )
 
