@@ -17,7 +17,6 @@ std::vector<arno::Texture> load_water_textures();
 PostProcessing::PostProcessing(int scrWidth, int scrHeight)
     : pp_shader("shaders/post_processing.vs", "shaders/post_processing.fs")
     , scr_width(scrWidth), scr_height(scrHeight)
-    , water_normal_map(load_water_textures(), 24)
     , caustics(1024, 1024)
     , t_turbulent_flow(arno::Texture::load_from_file("textures/perlin_noise.jpg"))
     , t_pigment_dispersion(arno::Texture::load_from_file("textures/gaussian_noise.jpg"))
@@ -25,7 +24,6 @@ PostProcessing::PostProcessing(int scrWidth, int scrHeight)
     , t_abstract_colors(arno::Texture::load_from_file("textures/abstract_colors.jpg"))
     , light_pos(0)
 {
-    water_normal_map.loop_mode = LoopMode::PingPong;
     // Screen quad
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -262,19 +260,4 @@ void PostProcessing::init_shader() {
     pp_shader.setVec3("lightPos", light_pos);
     pp_shader.setVec2("waterNormalsSize", glm::vec2(15, 15));
 
-}
-
-std::vector<arno::Texture> load_water_textures()
-{
-    int min_index = 1;
-    int max_index = 250;
-    auto vector = std::vector<arno::Texture>();
-    vector.reserve(max_index - min_index + 1);
-    spdlog::info("Loading water normals. This will take some seconds.");
-    for (int i = min_index; i <= max_index; ++i) {
-        auto file_path = fmt::format("textures/water_height/{:04}.png", i);
-        vector.push_back(arno::Texture::load_from_file(file_path));
-    }
-    spdlog::info("Finished loading water normals.");
-    return vector;
 }

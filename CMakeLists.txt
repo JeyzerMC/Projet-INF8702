@@ -12,7 +12,6 @@ set(HEADER_FILES
         utils/model.h
         utils/constants.h
         src/texture.h
-        src/animated_texture.h
         src/post_processing.h
         src/scene.h
         src/shadowmap.h
@@ -22,7 +21,6 @@ set(SOURCE_FILES
         main.cpp
         src/texture.cpp
         src/stb_impl.cpp
-        src/animated_texture.cpp
         src/post_processing.cpp
         src/scene.cpp
         src/shadowmap.cpp

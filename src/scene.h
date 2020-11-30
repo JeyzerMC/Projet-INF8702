@@ -4,7 +4,6 @@
 #include "../utils/shader.h"
 #include "../utils/model.h"
 #include "../utils/camera.h"
-#include "animated_texture.h"
 #include "post_processing.h"
 #include "shadowmap.h"
 
