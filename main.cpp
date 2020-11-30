@@ -34,10 +34,10 @@ double lastFrame = 0.0f;
 // Options
 bool debug = true;
 bool showToonShading = true;
-bool showCaustics = false;
+bool showCaustics = true;
 bool reloadShadersNextFrame = false;
-int showEdges = 0;
-int normalSmoothingLevel = 0;
+int showEdges = 1;
+int normalSmoothingLevel = 1;
 
 glm::vec3 lightPosition(10.0, 50.0, 10.0);
 
@@ -72,7 +72,9 @@ int main()
     glfwSetScrollCallback(window, scroll_callback);
 
     // tell GLFW to capture our mouse
-//    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    #ifdef _WIN32
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    #endif
     glfwSetKeyCallback(window, key_callback);
 
     // glad: load all OpenGL function pointers
@@ -151,7 +153,7 @@ void key_callback(GLFWwindow* window, int key, int, int action, int)
     if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
         showCaustics = !showCaustics;
     if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
-        showEdges = (showEdges + 1) % 3;
+        showEdges = (showEdges + 1) % 2;
     if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
         normalSmoothingLevel = (normalSmoothingLevel + 1) % 2;
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
