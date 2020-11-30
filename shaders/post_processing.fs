@@ -133,9 +133,14 @@ vec3 toonShading(vec3 pos, vec3 normal)
     return hsv2rgb(lightHsv);
 }
 
+// Takes something in the range [src_low, src_high] and remaps it to the range [dst_low, dst_high]
+vec2 remap(vec2 value, vec2 src_low, vec2 src_high, vec2 dst_low, vec2 dst_high) {
+    return dst_low + (value - src_low) * (dst_high - dst_low) / (src_high - src_low);
+}
+
 vec3 getCaustics(vec3 pos, vec3 normal)
 {
-    vec2 normalizedPosition = pos.xz / waterNormalsSize;
+    vec2 normalizedPosition = remap(pos.xz, -waterNormalsSize / 2, waterNormalsSize/2, vec2(0), vec2(1));
     vec3 light = texture(caustics, normalizedPosition).rgb;
     float diff = dot(normalize(normal), vec3(0, 1, 0));
 

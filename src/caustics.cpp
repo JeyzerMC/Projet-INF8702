@@ -44,7 +44,7 @@ Caustics::Caustics(unsigned int width, unsigned int height)
     // Generate a square grid from a to b with 10x10 verts
     float a = -1.2;
     float b = 1.2;
-    unsigned resolution = 100;
+    unsigned resolution = 256;
 
     std::vector<float> vertex_data;
     vertex_data.resize(resolution * resolution * 3);
@@ -90,12 +90,13 @@ Caustics::~Caustics() {
     glDeleteVertexArrays(1, &grid_vao);
 }
 
-void Caustics::render(double /*time*/) {
+void Caustics::render(double time) {
     glViewport(0, 0, width, height);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glClearColor(1, 0, 1, 1);
     glClear(GL_COLOR_BUFFER_BIT);
     shader.use();
+    shader.setFloat("time", time);
     glBindVertexArray(grid_vao);
     glDrawElements(GL_TRIANGLES, indices_number, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
