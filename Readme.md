@@ -31,7 +31,7 @@ E -> Move Up
 
 Mouse -> Turn camera
 
-R -> Reload shader
+R -> Hot-Reload Shader
 
 V -> Toggle Toon Shading
 C -> Toggle Caustics
@@ -40,6 +40,7 @@ N -> Toggle Normal Smoothing
 M -> Toggle Wobbling
 J -> Toggle Blur
 K -> Toggle Underwater Tint
+L -> Toggle Watercolor Textures
 
 1 -> Show Selected Effects
 2 -> Show All Effects

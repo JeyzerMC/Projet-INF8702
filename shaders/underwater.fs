@@ -74,9 +74,6 @@ float remap(float value, float src_low, float src_high, float dst_low, float dst
 vec3 getBlur(vec2 tex, vec3 color, vec3 pos)
 {
     vec3 blur = gaussianBlur(tex.x, tex.y, 5);
-    // blur += gaussianBlur(tex.x, tex.y, 10);
-    // blur /= 2;
-
     float w = 0.5;
     
     // Base water blur
@@ -99,7 +96,6 @@ vec3 getBlur(vec2 tex, vec3 color, vec3 pos)
     }
 
     return col;
-    // return vec3(0.0, 0.0, fragDepth / max_depth);
 }
 
 void main()
@@ -107,9 +103,11 @@ void main()
     vec3 color = texture(oColor, vertTexCoord).rgb;
     vec3 pos = texture(oPosition, vertTexCoord).rgb;
 
-    color = getBlur(vertTexCoord, color, pos);
+    if (showEffects == 1 || (showEffects == 0 && showBlur))
+        color = getBlur(vertTexCoord, color, pos);
 
     // Blue tint effect
+    if (showEffects == 1 || (showEffects == 0 && showTint))
     color = mix(color, vec3(0.0, 0.07, 0.1), 0.25); 
 
     // Darken edge effect

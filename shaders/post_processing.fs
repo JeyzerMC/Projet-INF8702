@@ -34,6 +34,7 @@ uniform bool showCaustics;
 uniform bool showWobbling;
 uniform bool showEdges;
 uniform bool showNormalSmoothing;
+uniform bool showWatercolorTextures;
 
 // Light
 // TODO: Consider adding multiple light sources.
@@ -165,9 +166,9 @@ vec3 getEffects(vec3 pos, vec3 normal)
     vec3 effects = ambientLight();
     float shadows = shadowFactor(pos, normal);
     effects += diffuseLight(pos, normal) * shadows;
-    if (showCaustics)
+    if (showEffects == 1 || (showEffects == 0 && showCaustics))
         effects += shadows * getCaustics(pos, normal);
-    if (showToonShading)
+    if (showEffects == 1 || (showEffects == 0 && showToonShading))
         effects = toonShading(effects);
 
     return effects;
@@ -225,14 +226,14 @@ vec2 getPaperGradient() {
 void main()
 {
     vec2 texCoords = vertTexCoord;
-    if (showWobbling) {
+    if (showEffects == 1 || (showEffects == 0 && showWobbling)) {
         texCoords += getPaperGradient() * 0.015;
         // For some reason, 1 still resulted in wrapping, but 0.9999 is fine :/
         texCoords = clamp(texCoords, 0, 0.9999);
     }
     
     vec3 normal;
-    if (showNormalSmoothing)
+    if (showEffects == 1 || (showEffects == 0 && showNormalSmoothing))
         // normal = normalSmoothing();
         normal = texture(gSmooth, texCoords).rgb;
     else 
@@ -249,26 +250,22 @@ void main()
 
     vec3 color = texture(gColor, texCoords).rgb;
 
-    // color = getBlur(texCoords, color, pos.z);
-
     vec3 litColor = getEffects(pos, normal) * color;
 
     // Show regular image
     vec3 col;
-    if (showEdges) {
+    if (showEffects == 1 || (showEffects == 0 && showEdges)) {
         col = edgeDetection(litColor, texCoords);
     } else {
         col = litColor;
     }
 
-    col = mix(col, col * texture(turbulentFlow, pos.xz / 15.0).rgb, 0.8);
-    col = mix(col, col * texture(pigmentDispersion, pos.xz).rgb, 0.3);
-    col = mix(col, col * texture(paperLayer, pos.xz / 5.0).rgb, 0.9);
+    if (showEffects == 1 || (showEffects == 0 && showWatercolorTextures)) {
+        col = mix(col, col * texture(turbulentFlow, pos.xz / 15.0).rgb, 0.8);
+        col = mix(col, col * texture(pigmentDispersion, pos.xz).rgb, 0.3);
+        col = mix(col, col * texture(paperLayer, pos.xz / 5.0).rgb, 0.9);
+    }
 
-    // fragColor = vec4(0.0, 0.0, abs(depth - center_depth) / depth_max, 1.0);
-    // fragColor = vec4(0.0, 0.0, center_depth - depth, 1.0);
-
-    // fragColor = vec4(col, 1.0);
     oColor = vec4(col, 1.0);
     oPosition = pos;
 }

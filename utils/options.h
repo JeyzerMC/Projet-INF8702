@@ -4,17 +4,17 @@
 class Options {
 public:
     void inputReceived(int key);
-    int showEffects = 0;
+    int showEffects = 1; // Show all effects by default
 
-    bool debug = true;
-    bool showToonShading = true;
-    bool showCaustics = true;
-    bool showWobbling = true;
     bool reloadShadersNextFrame = false;
-    bool showBlur = true;
-    bool showTint = true;
-    bool showEdges = true;
-    bool normalSmoothing = true;
+    bool showToonShading = false;
+    bool showCaustics = false;
+    bool showWobbling = false;
+    bool showWatercolorTextures = false;
+    bool showBlur = false;
+    bool showTint = false;
+    bool showEdges = false;
+    bool normalSmoothing = false;
 };
 
 #endif //UNDERWATER_OPTIONS_H

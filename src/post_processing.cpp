@@ -131,6 +131,7 @@ void PostProcessing::renderFBO(const Options& options, double time, const Shadow
     pp_shader.setBool("showWobbling", options.showWobbling);
     pp_shader.setBool("showEdges", options.showEdges);
     pp_shader.setBool("showNormalSmoothing", options.normalSmoothing);
+    pp_shader.setBool("showWatercolorTextures", options.showWatercolorTextures);
 
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
