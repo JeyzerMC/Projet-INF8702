@@ -198,7 +198,12 @@ private:
         }
 
         // process materials
-        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];    
+        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
+        // Get the base diffuse color:
+        aiColor3D diffuse = aiColor3D(1.0, 1.0, 1.0);
+        material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse);
+
         // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
         // as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
         // Same applies to other texture as the following list summarizes:
@@ -220,7 +225,7 @@ private:
         textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
         
         // return a mesh object created from the extracted mesh data
-        return Mesh(vertices, indices, textures);
+        return Mesh(vertices, indices, textures, glm::vec3(diffuse.r, diffuse.g, diffuse.b));
     }
 
     // checks all material textures of a given type and loads the textures if they're not loaded yet.

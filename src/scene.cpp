@@ -14,13 +14,35 @@
 Scene::Scene(int w, int h)
   : rend_shader("shaders/camera.vs", "shaders/camera.fs"),
     scr_width(w), scr_height(h),
-    ground("models/Ground/Ground.obj", false),
-    pot("models/Pot/Pot.obj"),
+    ground(make_shared<Model>("models/Ground/Ground.obj", false)),
+    pot(make_shared<Model>("models/Pot/Pot.obj")),
+    fish(make_shared<Model>("models/Fishes/ClownFish.obj")),
+    objects(),
     post_process(w, h),
     shadowmap(1024, 1024),
     light_pos(10.0, 50.0, 10.0)
 // water_normals(), // TODO: RE-ADD CAUSTICS
 {
+    objects.push_back(SceneObject{
+        Transform(glm::vec3(0, -1, 0), glm::quat(glm::vec3(0, 0, 0)), 0.5),
+        ground,
+    });
+
+    objects.push_back(SceneObject{
+        Transform(glm::vec3(-2, 0, -2), glm::quat(glm::vec3(0, -45, 0)), 0.2),
+        pot,
+    });
+
+    objects.push_back(SceneObject{
+        Transform(glm::vec3(4, 0, 4), glm::quat(glm::vec3(0, 0, 0)), 0.15),
+        pot,
+    });
+
+    objects.push_back(SceneObject{
+            Transform(glm::vec3(0, 3, 0), glm::quat(glm::vec3(0, 0, 0)), 4),
+            fish,
+    });
+
 //    water_normals.loop_mode = LoopMode::PingPong;
     glEnable(GL_DEPTH_TEST); // TODO: CHECK IF STAYS HERE
     post_process.InitFBO(light_pos); // TODO: Move lights into scene
@@ -55,28 +77,10 @@ void Scene::render(Camera* camera, bool toonShading, bool caustics, bool showWob
 }
 
 void Scene::draw_models(Shader& shader) {
-    // Ground
-    auto model = glm::identity<glm::mat4>();
-    model = glm::translate(model, glm::vec3(0, -1, 0));
-    model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
-    shader.setMat4("model", model);
-    ground.Draw(shader);
-
-    // Pot 1
-    model = glm::identity<glm::mat4>();
-    model = glm::translate(model, glm::vec3(-2, 0, -2));
-    model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    model = glm::scale(model, glm::vec3(0.2, 0.2, 0.2));
-    shader.setMat4("model", model);
-    pot.Draw(shader);
-
-    // Pot 2
-    model = glm::identity<glm::mat4>();
-    model = glm::translate(model, glm::vec3(4, 0, 4));
-    model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    model = glm::scale(model, glm::vec3(0.15, 0.15, 0.15));
-    shader.setMat4("model", model);
-    pot.Draw(shader);
+    for (const auto& scene_object : objects) {
+        shader.setMat4("model", scene_object.transform.get_model());
+        scene_object.model->Draw(shader);
+    }
 }
 
 void Scene::reload_shaders() {
