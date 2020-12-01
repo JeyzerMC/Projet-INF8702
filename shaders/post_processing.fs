@@ -1,5 +1,7 @@
 #version 460 core
-out vec4 fragColor;
+// out vec4 fragColor;
+layout (location = 0) out vec3 oPosition;
+layout (location = 1) out vec4 oColor;
 
 in vec2 vertTexCoord;
 
@@ -19,6 +21,8 @@ uniform int scr_width;
 uniform int scr_height;
 
 uniform mat4 lightMatrix;
+
+uniform vec3 camPos;
 
 uniform vec2 waterNormalsSize;
 const float waterRefracitonIndex = 1.333;
@@ -72,63 +76,6 @@ vec3 hsv2rgb(vec3 c)
     vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
     vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
-}
-
-// Gaussian Filter 5x5 : sigma=2.5
-// 0.028672	0.036333	0.039317	0.036333	0.028672
-// 0.036333	0.046042	0.049824	0.046042	0.036333
-// 0.039317	0.049824	0.053916	0.049824	0.039317
-// 0.036333	0.046042	0.049824	0.046042	0.036333
-// 0.028672	0.036333	0.039317	0.036333	0.028672
-vec3 gaussianBlur(float x, float y, float range)
-{
-    vec4 sum = vec4(0.0);
-
-	sum += texture(gColor, vec2(x - 2.0 * w_offset * range, y - 2.0 * h_offset * range)) * 0.028672;
-	sum += texture(gColor, vec2(x - 2.0 * w_offset * range, y - 1.0 * h_offset * range)) * 0.036333;
-	sum += texture(gColor, vec2(x - 2.0 * w_offset * range, y)) * 0.039317;
-	sum += texture(gColor, vec2(x - 2.0 * w_offset * range, y + 1.0 * h_offset * range)) * 0.036333;
-	sum += texture(gColor, vec2(x - 2.0 * w_offset * range, y + 2.0 * h_offset * range)) * 0.028672;
-
-	sum += texture(gColor, vec2(x - 1.0 * w_offset * range, y - 2.0 * h_offset * range)) * 0.036333;
-	sum += texture(gColor, vec2(x - 1.0 * w_offset * range, y - 1.0 * h_offset * range)) * 0.046042;
-	sum += texture(gColor, vec2(x - 1.0 * w_offset * range, y)) * 0.049824;
-	sum += texture(gColor, vec2(x - 1.0 * w_offset * range, y + 1.0 * h_offset * range)) * 0.046042;
-	sum += texture(gColor, vec2(x - 1.0 * w_offset * range, y + 2.0 * h_offset * range)) * 0.036333;
-
-	sum += texture(gColor, vec2(x, y - 2.0 * h_offset * range)) * 0.039317;
-	sum += texture(gColor, vec2(x, y - 1.0 * h_offset * range)) * 0.049824;
-	sum += texture(gColor, vec2(x, y)) * 0.053916;
-	sum += texture(gColor, vec2(x, y + 1.0 * h_offset * range)) * 0.049824;
-	sum += texture(gColor, vec2(x, y + 2.0 * h_offset * range)) * 0.039317;
-
-	sum += texture(gColor, vec2(x + 1.0 * w_offset * range, y - 2.0 * h_offset * range)) * 0.036333;
-	sum += texture(gColor, vec2(x + 1.0 * w_offset * range, y - 1.0 * h_offset * range)) * 0.046042;
-	sum += texture(gColor, vec2(x + 1.0 * w_offset * range, y)) * 0.049824;
-	sum += texture(gColor, vec2(x + 1.0 * w_offset * range, y + 1.0 * h_offset * range)) * 0.046042;
-	sum += texture(gColor, vec2(x + 1.0 * w_offset * range, y + 2.0 * h_offset * range)) * 0.036333;
-
-	sum += texture(gColor, vec2(x + 2.0 * w_offset * range, y - 2.0 * h_offset * range)) * 0.028672;
-	sum += texture(gColor, vec2(x + 2.0 * w_offset * range, y - 1.0 * h_offset * range)) * 0.036333;
-	sum += texture(gColor, vec2(x + 2.0 * w_offset * range, y)) * 0.039317;
-	sum += texture(gColor, vec2(x + 2.0 * w_offset * range, y + 1.0 * h_offset * range)) * 0.036333;
-	sum += texture(gColor, vec2(x + 2.0 * w_offset * range, y + 2.0 * h_offset * range)) * 0.028672;
-
-    return sum.xyz;
-}
-
-vec3 getBlur(vec2 tex, vec3 color, vec3 depth)
-{
-
-    vec3 blur = gaussianBlur(tex.x, tex.y, 1);
-    blur += gaussianBlur(tex.x, tex.y, 7);
-    blur /= 2;
-
-    float w = 1.0;
-
-    float center_depth = texture(gPosition, vec2(0.5, 0.5)).z;
-
-    return mix(color, blur, w);
 }
 
 vec3 normalSmoothing()
@@ -282,6 +229,7 @@ void main()
         // For some reason, 1 still resulted in wrapping, but 0.9999 is fine :/
         texCoords = clamp(texCoords, 0, 0.9999);
     }
+    
     vec3 normal;
     if (smoothLevel != 0)
         // normal = normalSmoothing();
@@ -290,7 +238,9 @@ void main()
         normal = texture(gNormal, texCoords).rgb;
 
     if (length(normal) < epsilon) {
-        fragColor = vec4(clearColor, 1);
+        oColor = vec4(clearColor, 1);
+        oPosition = vec3(0.0); // TODO: CHECK
+        // fragColor = vec4(clearColor, 1);
         return;
     }
 
@@ -314,11 +264,10 @@ void main()
     col = mix(col, col * texture(pigmentDispersion, pos.xz).rgb, 0.3);
     col = mix(col, col * texture(paperLayer, pos.xz / 5.0).rgb, 0.9);
 
-    // TODO: MISSING - PASSING CAMERA POS
-    // float center_depth = texture(gPosition, vec2(0.5, 0.5)).z;
-    // float depth = pos.z;
-    // float depth_max = max(center_depth, depth);
     // fragColor = vec4(0.0, 0.0, abs(depth - center_depth) / depth_max, 1.0);
+    // fragColor = vec4(0.0, 0.0, center_depth - depth, 1.0);
 
-    fragColor = vec4(col, 1.0);
+    // fragColor = vec4(col, 1.0);
+    oColor = vec4(col, 1.0);
+    oPosition = pos;
 }

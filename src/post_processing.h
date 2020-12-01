@@ -19,18 +19,20 @@ public:
 
     void InitFBO(glm::vec3 lightPos);
     void bindFBO();
-    void renderFBO(bool toonShading, bool caustics, bool showWobbling, int showEdges, int smoothLevel, double time, const Shadowmap& shadow_map);
+    void renderFBO(bool toonShading, bool caustics, bool showWobbling, int showEdges, int smoothLevel, double time, const Shadowmap& shadow_map, const glm::vec3& camPos);
 
     void reload_shaders();
 
 private:
     void initBuffers();
+    void initP2Buffers();
     void init_shader();
-    void smoothNormals();
     unsigned int VAO, VBO;
-    unsigned int g_buffer;
+    unsigned int g_buffer, g_buffer2;
     unsigned int g_position, g_normal, g_color, g_smooth;
+    unsigned int g_position2, g_color2;
     Shader pp_shader;
+    Shader pp2_shader;
     int scr_width, scr_height;
 
     Caustics caustics;

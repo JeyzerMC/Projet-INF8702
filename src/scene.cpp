@@ -73,7 +73,7 @@ void Scene::render(Camera* camera, bool toonShading, bool caustics, bool showWob
     glViewport(0, 0, scr_width, scr_height);
 
     // After drawing the scene, add the post processing effects
-    post_process.renderFBO(toonShading, caustics, showWobbling, edges, smoothLevel, time, shadowmap);
+    post_process.renderFBO(toonShading, caustics, showWobbling, edges, smoothLevel, time, shadowmap, camera->Position);
 }
 
 void Scene::draw_models(Shader& shader) {

@@ -16,6 +16,7 @@ std::vector<arno::Texture> load_water_textures();
 
 PostProcessing::PostProcessing(int scrWidth, int scrHeight)
     : pp_shader("shaders/post_processing.vs", "shaders/post_processing.fs")
+    , pp2_shader("shaders/underwater.vs", "shaders/underwater.fs")
     , scr_width(scrWidth), scr_height(scrHeight)
     , caustics(1024, 1024)
     , t_turbulent_flow(arno::Texture::load_from_file("textures/perlin_noise.jpg"))
@@ -37,6 +38,7 @@ PostProcessing::PostProcessing(int scrWidth, int scrHeight)
 
     init_shader();
     initBuffers();
+    initP2Buffers();
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
@@ -77,16 +79,16 @@ void PostProcessing::bindFBO()
     // glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
 }
 
-void PostProcessing::renderFBO(bool toonShading, bool caustics, bool showWobbling, int showEdges, int smoothLevel, double time, const Shadowmap& shadow_map)
+void PostProcessing::renderFBO(bool toonShading, bool caustics, bool showWobbling, int showEdges, int smoothLevel, double time, const Shadowmap& shadow_map, const glm::vec3& camPos)
 {
     this->caustics.render(time);
     glViewport(0, 0, scr_width, scr_height);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, g_buffer2);
     // glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
 
     // clear all relevant buffers
     glClearColor(0.0f, 0.16f, 0.41f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     pp_shader.use();
     glActiveTexture(GL_TEXTURE0);
@@ -126,7 +128,28 @@ void PostProcessing::renderFBO(bool toonShading, bool caustics, bool showWobblin
     pp_shader.setBool("showWobbling", showWobbling);
     pp_shader.setInt("showEdges", showEdges);
     pp_shader.setInt("smoothLevel", smoothLevel);
+    pp_shader.setVec3("camPos", camPos);
     pp_shader.setMat4("lightMatrix", shadow_map.get_light_matrix());
+
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0); // TODO: CHECK IF SHOULD KEEP
+
+    // POST PROCESSING PASS 2
+    glViewport(0, 0, scr_width, scr_height);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClearColor(0.0f, 0.16f, 0.41f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    pp2_shader.use();
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, g_position2);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, g_color2);
+
+    pp2_shader.setVec3("camPos", camPos);
+    // pp2_shader.setInt("showBlur", showBlur);
 
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -190,52 +213,45 @@ void PostProcessing::initBuffers()
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
 }
 
-// TODO: DELETE - REPLACED WITH PER - VERTEX NORMAL SMOOTHING
-void PostProcessing::smoothNormals()
+void PostProcessing::initP2Buffers()
 {
-    static const int N_PIXELS = Constants::SCR_WIDTH * Constants::SCR_HEIGHT * 3;
-    GLfloat* normals = new GLfloat[N_PIXELS];
-    glActiveTexture(GL_TEXTURE1);
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, normals);
+    glGenFramebuffers(1, &g_buffer2);
+    glBindFramebuffer(GL_FRAMEBUFFER, g_buffer2);
 
-    GLfloat* smooth_normals = new GLfloat[N_PIXELS];
-    for (int h = 0; h < scr_height; h++) {
-        for (int w = 0; w < scr_width; w += 4) {
-            int pos = h * 1600 + w;
-            glm::vec3 norm(normals[pos + 0], normals[pos + 1], normals[pos + 2]);
-            int n_neighbors = 0;
-            for (int i = 0; i < 9; i++) {
-                int n_pos = pos + n_offsets[i] * 3;
-                if (n_pos < 0 || n_pos >= N_PIXELS) continue;
-                norm.x += normals[n_pos + 0];
-                norm.y += normals[n_pos + 1];
-                norm.z += normals[n_pos + 2];
-                n_neighbors++;
-            }
-            norm /= n_neighbors;
-            // smooth_normals[pos + 0] = norm.x;
-            // smooth_normals[pos + 1] = norm.y;
-            // smooth_normals[pos + 2] = norm.z;
+    // position color buffer
+    glGenTextures(1, &g_position2);
+    glBindTexture(GL_TEXTURE_2D, g_position2);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, scr_width, scr_height, 0, GL_RGB, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_position2, 0);
 
-            smooth_normals[pos + 0] = 0.0f;
-            smooth_normals[pos + 1] = 1.0f;
-            smooth_normals[pos + 2] = 0.0f;
+    // pixel color buffer
+    glGenTextures(1, &g_color2);
+    glBindTexture(GL_TEXTURE_2D, g_color2);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scr_width, scr_height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, g_color2, 0);
 
-            // if (pos % 50000 == 0) {
-            //     std::cout << "smooth_norm: [" << norm.x << ", " << norm.y << ", " << norm.z << "]" <<std::endl;
-            // }
-        }
-    }
-    // TODO: CHECK IF MUST FREE NORMALS FIRST
-    // delete normals;
-    // normals = smooth_normals;
-    glActiveTexture(GL_TEXTURE3);
-    glBindTexture(GL_TEXTURE_2D, g_smooth);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scr_width, scr_height, 0, GL_RGB, GL_FLOAT, smooth_normals);
+    unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+    glDrawBuffers(2, attachments);
+
+    // create and attach depth buffer (renderbuffer)
+    unsigned int rboDepth;
+    glGenRenderbuffers(1, &rboDepth);
+    glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, scr_width, scr_height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
 }
 
 void PostProcessing::reload_shaders() {
     pp_shader.reload();
+    pp2_shader.reload();
     init_shader();
     caustics.reload_shaders();
 }
@@ -260,4 +276,10 @@ void PostProcessing::init_shader() {
     pp_shader.setVec3("lightPos", light_pos);
     pp_shader.setVec2("waterNormalsSize", glm::vec2(15, 15));
 
+    pp2_shader.use();
+    pp2_shader.setInt("oPosition", 0);
+    pp2_shader.setInt("oColor", 1);
+
+    pp2_shader.setInt("scr_width", scr_width);
+    pp2_shader.setInt("scr_height", scr_height);
 }
