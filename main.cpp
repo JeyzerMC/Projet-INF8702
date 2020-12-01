@@ -138,7 +138,7 @@ void processInput(GLFWwindow *window)
         camera.ProcessKeyboard(DOWN, deltaTime);
 }
 
-void key_callback(GLFWwindow* window, int key, int, int action, int)
+void key_callback(GLFWwindow* /*window*/, int key, int, int action, int)
 {
     if (underwater_scene && action == GLFW_PRESS) {
         underwater_scene->processInputs(key);

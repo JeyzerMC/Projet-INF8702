@@ -9,14 +9,24 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
+#include <utility>
+
+SceneObject::SceneObject(Transform t, std::shared_ptr<Model> m)
+    : transform(t)
+    , model(std::move(m))
+    , is_a_fish(false)
+{
+}
+
+
 
 Scene::Scene(int w, int h)
   : rend_shader("shaders/camera.vs", "shaders/camera.fs"),
     scr_width(w), scr_height(h),
     ground(make_shared<Model>("models/Ground/Ground.obj", false)),
     pot(make_shared<Model>("models/Pot/Pot.obj")),
-    fish(make_shared<Model>("models/Fishes/ClownFish.obj")),
     sand(make_shared<Model>("models/Sand/Sand.obj")),
+    fish(make_shared<Model>("models/Fishes/ClownFish.obj")),
     coral_red(make_shared<Model>("models/Coral/CoralRed.obj")),
     coral_pink(make_shared<Model>("models/Coral/CoralPink.obj")),
     coral_green(make_shared<Model>("models/Coral/CoralGreen.obj")),
@@ -26,30 +36,27 @@ Scene::Scene(int w, int h)
     light_pos(10.0, 50.0, 10.0)
 // water_normals(), // TODO: RE-ADD CAUSTICS
 {
-    objects.push_back(SceneObject{
-        Transform(glm::vec3(0, -1, 0), glm::quat(glm::vec3(0, 0, 0)), 0.5),
-        ground,
-    });
+    objects.emplace_back(Transform(), ground);
+    objects.back().transform.position = glm::vec3(0, -1, 0);
+    objects.back().transform.scale = 0.5;
 
-    objects.push_back(SceneObject{
-        Transform(glm::vec3(-2, 0, -2), glm::quat(glm::vec3(0, -45, 0)), 0.2),
-        pot,
-    });
+    objects.emplace_back(Transform(), pot);
+    objects.back().transform.position = glm::vec3(-2, 0, -2);
+    objects.back().transform.rotation = glm::quat(glm::vec3(0, -45, 0));
+    objects.back().transform.scale = 0.2;
 
-    objects.push_back(SceneObject{
-        Transform(glm::vec3(4, 0, 4), glm::quat(glm::vec3(0, 0, 0)), 0.15),
-        pot,
-    });
+    objects.emplace_back(Transform(), pot);
+    objects.back().transform.position = glm::vec3(4, 0, 0);
+    objects.back().transform.scale = 0.15;
 
-    objects.push_back(SceneObject{
-            Transform(glm::vec3(0, 3, 0), glm::quat(glm::vec3(0, 0, 0)), 4),
-            fish,
-    });
+    objects.emplace_back(Transform(), fish);
+    objects.back().transform.position = glm::vec3(0, 3, 0);
+    objects.back().transform.scale = 4;
+    objects.back().is_a_fish = true;
 
-    objects.push_back(SceneObject{
-            Transform(glm::vec3(0, 0.01, 0), glm::quat(glm::vec3(0, 0, 0)), 1),
-            sand,
-    });
+    objects.emplace_back(Transform(), sand);
+    objects.back().transform.position = glm::vec3(0, 0.01, 0);
+    objects.back().transform.scale = 1;
 
     objects.push_back(SceneObject{
             Transform(glm::vec3(-3.5, 0, 3), glm::quat(glm::vec3(0, 45, 0)), 3),
@@ -141,8 +148,8 @@ void Scene::render(Camera* camera, double time)
     // Our water normal map covers a 5 x 5 m area
     // rend_shader.setVec2("waterNormalsMapSize", 5, 5);
 
-    draw_models(rend_shader);
-    shadowmap.draw_in_map([this] (Shader& s) { draw_models(s); });
+    draw_models(rend_shader, time);
+    shadowmap.draw_in_map([this, time] (Shader& s) { draw_models(s, time); });
     glViewport(0, 0, scr_width, scr_height);
 
     // After drawing the scene, add the post processing effects
@@ -155,9 +162,11 @@ void Scene::render(Camera* camera, double time)
     }
 }
 
-void Scene::draw_models(Shader& shader) {
+void Scene::draw_models(Shader& shader, double time) {
     for (const auto& scene_object : objects) {
         shader.setMat4("model", scene_object.transform.get_model());
+        shader.setBool("isAFish", scene_object.is_a_fish);
+        shader.setFloat("time", static_cast<float>(time));
         scene_object.model->Draw(shader);
     }
 }
