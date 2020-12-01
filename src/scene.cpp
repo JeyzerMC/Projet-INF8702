@@ -164,7 +164,19 @@ void Scene::render(Camera* camera, double time)
 
 void Scene::draw_models(Shader& shader, double time) {
     for (const auto& scene_object : objects) {
-        shader.setMat4("model", scene_object.transform.get_model());
+        if (scene_object.is_a_fish) {
+            float period = 20;
+            float angle = static_cast<float>(time) / period * 2 * 3.14;
+            float radius = 3;
+            Transform animated_transform;
+            animated_transform.position = scene_object.transform.position + radius * glm::vec3(std::cos(angle), 0, std::sin(angle));
+            animated_transform.rotation = scene_object.transform.rotation * glm::quat(glm::vec3(0, -angle, 0));
+            animated_transform.scale = scene_object.transform.scale;
+            shader.setMat4("model", animated_transform.get_model());
+        }
+        else {
+            shader.setMat4("model", scene_object.transform.get_model());
+        }
         shader.setBool("isAFish", scene_object.is_a_fish);
         shader.setFloat("time", static_cast<float>(time));
         scene_object.model->Draw(shader);
