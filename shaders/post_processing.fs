@@ -39,6 +39,9 @@ const vec3 clearColor = vec3(0, 0.15, 0.20);
 
 const float epsilon = 0.0001;
 
+float w_offset = 1.0 / scr_width;
+float h_offset = 1.0 / scr_height;
+
 // Utility functions to change from rgb to hsv and opposite.
 // Comes from: https://gist.github.com/yiwenl
 vec3 rgb2hsv(vec3 rgb) {
@@ -71,11 +74,65 @@ vec3 hsv2rgb(vec3 c)
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
 
+// Gaussian Filter 5x5 : sigma=2.5
+// 0.028672	0.036333	0.039317	0.036333	0.028672
+// 0.036333	0.046042	0.049824	0.046042	0.036333
+// 0.039317	0.049824	0.053916	0.049824	0.039317
+// 0.036333	0.046042	0.049824	0.046042	0.036333
+// 0.028672	0.036333	0.039317	0.036333	0.028672
+vec3 gaussianBlur(float x, float y, float range)
+{
+    vec4 sum = vec4(0.0);
+
+	sum += texture(gColor, vec2(x - 2.0 * w_offset * range, y - 2.0 * h_offset * range)) * 0.028672;
+	sum += texture(gColor, vec2(x - 2.0 * w_offset * range, y - 1.0 * h_offset * range)) * 0.036333;
+	sum += texture(gColor, vec2(x - 2.0 * w_offset * range, y)) * 0.039317;
+	sum += texture(gColor, vec2(x - 2.0 * w_offset * range, y + 1.0 * h_offset * range)) * 0.036333;
+	sum += texture(gColor, vec2(x - 2.0 * w_offset * range, y + 2.0 * h_offset * range)) * 0.028672;
+
+	sum += texture(gColor, vec2(x - 1.0 * w_offset * range, y - 2.0 * h_offset * range)) * 0.036333;
+	sum += texture(gColor, vec2(x - 1.0 * w_offset * range, y - 1.0 * h_offset * range)) * 0.046042;
+	sum += texture(gColor, vec2(x - 1.0 * w_offset * range, y)) * 0.049824;
+	sum += texture(gColor, vec2(x - 1.0 * w_offset * range, y + 1.0 * h_offset * range)) * 0.046042;
+	sum += texture(gColor, vec2(x - 1.0 * w_offset * range, y + 2.0 * h_offset * range)) * 0.036333;
+
+	sum += texture(gColor, vec2(x, y - 2.0 * h_offset * range)) * 0.039317;
+	sum += texture(gColor, vec2(x, y - 1.0 * h_offset * range)) * 0.049824;
+	sum += texture(gColor, vec2(x, y)) * 0.053916;
+	sum += texture(gColor, vec2(x, y + 1.0 * h_offset * range)) * 0.049824;
+	sum += texture(gColor, vec2(x, y + 2.0 * h_offset * range)) * 0.039317;
+
+	sum += texture(gColor, vec2(x + 1.0 * w_offset * range, y - 2.0 * h_offset * range)) * 0.036333;
+	sum += texture(gColor, vec2(x + 1.0 * w_offset * range, y - 1.0 * h_offset * range)) * 0.046042;
+	sum += texture(gColor, vec2(x + 1.0 * w_offset * range, y)) * 0.049824;
+	sum += texture(gColor, vec2(x + 1.0 * w_offset * range, y + 1.0 * h_offset * range)) * 0.046042;
+	sum += texture(gColor, vec2(x + 1.0 * w_offset * range, y + 2.0 * h_offset * range)) * 0.036333;
+
+	sum += texture(gColor, vec2(x + 2.0 * w_offset * range, y - 2.0 * h_offset * range)) * 0.028672;
+	sum += texture(gColor, vec2(x + 2.0 * w_offset * range, y - 1.0 * h_offset * range)) * 0.036333;
+	sum += texture(gColor, vec2(x + 2.0 * w_offset * range, y)) * 0.039317;
+	sum += texture(gColor, vec2(x + 2.0 * w_offset * range, y + 1.0 * h_offset * range)) * 0.036333;
+	sum += texture(gColor, vec2(x + 2.0 * w_offset * range, y + 2.0 * h_offset * range)) * 0.028672;
+
+    return sum.xyz;
+}
+
+vec3 getBlur(vec2 tex, vec3 color, vec3 depth)
+{
+
+    vec3 blur = gaussianBlur(tex.x, tex.y, 1);
+    blur += gaussianBlur(tex.x, tex.y, 7);
+    blur /= 2;
+
+    float w = 1.0;
+
+    float center_depth = texture(gPosition, vec2(0.5, 0.5)).z;
+
+    return mix(color, blur, w);
+}
+
 vec3 normalSmoothing()
 {
-    float w_offset = 1.0 / scr_width;
-    float h_offset = 1.0 / scr_height;
-
     vec2 offsets[9] = vec2[](
         vec2(-w_offset,  h_offset), // top-left
         vec2( 0.0f,    h_offset), // top-center
@@ -176,9 +233,6 @@ bool nearWhite(vec3 color)
 
 vec3 edgeDetection(vec3 litColor, vec2 texCoords)
 {
-    float w_offset = 1.0 / scr_width;
-    float h_offset = 1.0 / scr_height;
-
     vec2 offsets[9] = vec2[](
         vec2(-w_offset,  h_offset), // top-left
         vec2( 0.0f,    h_offset), // top-center
@@ -214,8 +268,9 @@ vec3 edgeDetection(vec3 litColor, vec2 texCoords)
 }
 
 vec2 getPaperGradient() {
-    float dx = texture(paperLayer, vertTexCoord + vec2(0.01, 0)).r - texture(paperLayer, vertTexCoord - vec2(0.01, 0)).r;
-    float dy = texture(paperLayer, vertTexCoord + vec2(0, 0.01)).r - texture(paperLayer, vertTexCoord - vec2(0, 0.01)).r;
+    float wobFactor = 0.05;
+    float dx = texture(paperLayer, vertTexCoord + vec2(wobFactor, 0)).r - texture(paperLayer, vertTexCoord - vec2(wobFactor, 0)).r;
+    float dy = texture(paperLayer, vertTexCoord + vec2(0, wobFactor)).r - texture(paperLayer, vertTexCoord - vec2(0, wobFactor)).r;
     return vec2(dx, dy);
 }
 
@@ -243,6 +298,8 @@ void main()
 
     vec3 color = texture(gColor, texCoords).rgb;
 
+    // color = getBlur(texCoords, color, pos.z);
+
     vec3 litColor = getEffects(pos, normal) * color;
 
     // Show regular image
@@ -256,8 +313,12 @@ void main()
     col = mix(col, col * texture(turbulentFlow, pos.xz / 15.0).rgb, 0.8);
     col = mix(col, col * texture(pigmentDispersion, pos.xz).rgb, 0.3);
     col = mix(col, col * texture(paperLayer, pos.xz / 5.0).rgb, 0.9);
-    // col = mix(col, col * texture(abstractColor, pos.xz / 5.0).rgb, 0.2);
+
+    // TODO: MISSING - PASSING CAMERA POS
+    // float center_depth = texture(gPosition, vec2(0.5, 0.5)).z;
+    // float depth = pos.z;
+    // float depth_max = max(center_depth, depth);
+    // fragColor = vec4(0.0, 0.0, abs(depth - center_depth) / depth_max, 1.0);
 
     fragColor = vec4(col, 1.0);
-//    fragColor = texture(caustics, vertTexCoord);
 }
