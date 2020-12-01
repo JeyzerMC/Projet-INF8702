@@ -16,6 +16,7 @@ Scene::Scene(int w, int h)
     ground(make_shared<Model>("models/Ground/Ground.obj", false)),
     pot(make_shared<Model>("models/Pot/Pot.obj")),
     fish(make_shared<Model>("models/Fishes/ClownFish.obj")),
+    sand(make_shared<Model>("models/Sand/Sand.obj")),
     objects(),
     post_process(w, h),
     shadowmap(1024, 1024),
@@ -40,6 +41,11 @@ Scene::Scene(int w, int h)
     objects.push_back(SceneObject{
             Transform(glm::vec3(0, 3, 0), glm::quat(glm::vec3(0, 0, 0)), 4),
             fish,
+    });
+
+    objects.push_back(SceneObject{
+            Transform(glm::vec3(0, 0.01, 0), glm::quat(glm::vec3(0, 0, 0)), 1),
+            sand,
     });
 
 //    water_normals.loop_mode = LoopMode::PingPong;
