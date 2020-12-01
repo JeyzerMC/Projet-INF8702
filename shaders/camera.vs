@@ -14,9 +14,16 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+uniform bool isAFish;
+uniform float time;
+
 void main()
 {
-	vec4 worldPositionProjective = model * vec4(pos, 1.0f);
+	vec3 localPos = pos;
+	if (isAFish) {
+		localPos.x = localPos.x + 0.05 * sin(2 * 3.14 * localPos.z + time * 2);
+	}
+	vec4 worldPositionProjective = model * vec4(localPos, 1.0f);
     // worldPosition = worldPositionProjective.xyz / worldPositionProjective.w;
 	gl_Position = projection * view * worldPositionProjective;
 	fragPos = worldPositionProjective.xyz / worldPositionProjective.w;

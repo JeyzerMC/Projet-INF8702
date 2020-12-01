@@ -15,6 +15,8 @@
 struct SceneObject {
     Transform transform;
     std::shared_ptr<Model> model;
+    bool is_a_fish;
+    SceneObject(Transform t, std::shared_ptr<Model> m);
 };
 
 class Scene {
@@ -28,7 +30,7 @@ public:
     void reload_shaders();
 
 private:
-    void draw_models(Shader& shader);
+    void draw_models(Shader& shader, double time);
 
     // Shaders
     Shader rend_shader;
