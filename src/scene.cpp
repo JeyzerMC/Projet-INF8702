@@ -15,8 +15,11 @@ Scene::Scene(int w, int h)
     scr_width(w), scr_height(h),
     ground(make_shared<Model>("models/Ground/Ground.obj", false)),
     pot(make_shared<Model>("models/Pot/Pot.obj")),
-    fish(make_shared<Model>("models/Fishes/ClownFish.obj")),
     sand(make_shared<Model>("models/Sand/Sand.obj")),
+    spiral_shell(make_shared<Model>("models/Shells/SpiralShell.obj", false)),
+    big_shell(make_shared<Model>("models/Shells/BigFanShell.obj")),
+    star_fish(make_shared<Model>("models/StarFish/StarFish.obj")),
+    fish(make_shared<Model>("models/Fishes/ClownFish.obj")),
     coral_red(make_shared<Model>("models/Coral/CoralRed.obj")),
     coral_pink(make_shared<Model>("models/Coral/CoralPink.obj")),
     coral_green(make_shared<Model>("models/Coral/CoralGreen.obj")),
@@ -24,7 +27,6 @@ Scene::Scene(int w, int h)
     post_process(w, h),
     shadowmap(1024, 1024),
     light_pos(10.0, 50.0, 10.0)
-// water_normals(), // TODO: RE-ADD CAUSTICS
 {
     objects.push_back(SceneObject{
         Transform(glm::vec3(0, -1, 0), glm::quat(glm::vec3(0, 0, 0)), 0.5),
@@ -37,7 +39,7 @@ Scene::Scene(int w, int h)
     });
 
     objects.push_back(SceneObject{
-        Transform(glm::vec3(4, 0, 4), glm::quat(glm::vec3(0, 0, 0)), 0.15),
+        Transform(glm::vec3(4, 0, 3), glm::quat(glm::vec3(0, 0, 0)), 0.15),
         pot,
     });
 
@@ -109,6 +111,29 @@ Scene::Scene(int w, int h)
     objects.push_back(SceneObject{
             Transform(glm::vec3(0.5, 0, 4.5), glm::quat(glm::vec3(0, 84, 0)), 3),
             coral_green,
+    });
+
+    // Shells
+    objects.push_back(SceneObject{
+            Transform(glm::vec3(-0.4, 0.3, 3.5), glm::quat(glm::vec3(0, 7, 0)), 5),
+            spiral_shell,
+    });
+
+    objects.push_back(SceneObject{
+            Transform(glm::vec3(-1.3, 0.15, 2.3), glm::quat(glm::vec3(-0.03, 83, 0.02)), 4),
+            big_shell,
+    });
+
+    // Star Fishes
+    objects.push_back(SceneObject{
+            Transform(glm::vec3(0.7, 0.1, -1.3), glm::quat(glm::vec3(-25, 24, 0)), 2),
+            star_fish,
+    });
+
+    objects.push_back(SceneObject{
+            // Transform(glm::vec3(4, 0.2, 4), glm::quat(glm::vec3(0, 3, 76)), 4),
+            Transform(glm::vec3(4, 0.1, 4), glm::quat(glm::vec3(0, 3, 0.05)), 4),
+            star_fish,
     });
 
 //    water_normals.loop_mode = LoopMode::PingPong;

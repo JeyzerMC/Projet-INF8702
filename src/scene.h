@@ -39,9 +39,9 @@ private:
     std::shared_ptr<Model> ground;
     std::shared_ptr<Model> pot;
     std::shared_ptr<Model> sand;
-    // std::shared_ptr<Model> spiral_shell;
-    // std::shared_ptr<Model> big_shell;
-    // std::shared_ptr<Model> star_fish;
+    std::shared_ptr<Model> spiral_shell;
+    std::shared_ptr<Model> big_shell;
+    std::shared_ptr<Model> star_fish;
     std::shared_ptr<Model> fish;
     std::shared_ptr<Model> coral_red;
     std::shared_ptr<Model> coral_pink;
