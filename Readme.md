@@ -18,3 +18,29 @@
    $ cmake ../
    $ make .
    ```
+
+
+# Inputs
+
+W -> Move Forward
+S -> Move Backward
+A -> Move Left
+D -> Move Right
+Q -> Move Down
+E -> Move Up
+
+Mouse -> Turn camera
+
+R -> Reload shader
+
+V -> Toggle Toon Shading
+C -> Toggle Caustics
+B -> Toggle Edges
+N -> Toggle Normal Smoothing
+M -> Toggle Wobbling
+J -> Toggle Blur
+K -> Toggle Underwater Tint
+
+1 -> Show Selected Effects
+2 -> Show All Effects
+3 -> Show No Effects

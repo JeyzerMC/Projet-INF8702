@@ -7,6 +7,7 @@
 #include "../utils/shader.h"
 #include "../utils/model.h"
 #include "../utils/camera.h"
+#include "../utils/options.h"
 #include "post_processing.h"
 #include "shadowmap.h"
 #include "transform.h"
@@ -20,7 +21,9 @@ class Scene {
 public:
     Scene(int scr_width, int scr_height);
 
-    void render(Camera* camera, bool toonShading, bool caustics, bool showWobbling, int edges, int smoothLevel, double time);
+    void processInputs(int key);
+
+    void render(Camera* camera, double time);
 
     void reload_shaders();
 
@@ -53,6 +56,8 @@ private:
 
     // Lights
     glm::vec3 light_pos;
+
+    Options options;
 };
 
 #endif //SCENE_SOUS_MARINE_H

@@ -12,6 +12,10 @@ uniform int scr_height;
 
 uniform vec3 camPos;
 
+uniform int showEffects;
+uniform bool showBlur;
+uniform bool showTint;
+
 float w_offset = 1.0 / scr_width;
 float h_offset = 1.0 / scr_height;
 

@@ -79,7 +79,7 @@ void PostProcessing::bindFBO()
     // glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
 }
 
-void PostProcessing::renderFBO(bool toonShading, bool caustics, bool showWobbling, int showEdges, int smoothLevel, double time, const Shadowmap& shadow_map, const glm::vec3& camPos)
+void PostProcessing::renderFBO(const Options& options, double time, const Shadowmap& shadow_map, const glm::vec3& camPos)
 {
     this->caustics.render(time);
     glViewport(0, 0, scr_width, scr_height);
@@ -123,13 +123,14 @@ void PostProcessing::renderFBO(bool toonShading, bool caustics, bool showWobblin
     glActiveTexture(GL_TEXTURE9);
     glBindTexture(GL_TEXTURE_2D, shadow_map.texture.texture);
 
-    pp_shader.setBool("showToonShading", toonShading);
-    pp_shader.setBool("showCaustics", caustics);
-    pp_shader.setBool("showWobbling", showWobbling);
-    pp_shader.setInt("showEdges", showEdges);
-    pp_shader.setInt("smoothLevel", smoothLevel);
     pp_shader.setVec3("camPos", camPos);
     pp_shader.setMat4("lightMatrix", shadow_map.get_light_matrix());
+    pp_shader.setInt("showEffects", options.showEffects);
+    pp_shader.setBool("showToonShading", options.showToonShading);
+    pp_shader.setBool("showCaustics", options.showCaustics);
+    pp_shader.setBool("showWobbling", options.showWobbling);
+    pp_shader.setBool("showEdges", options.showEdges);
+    pp_shader.setBool("showNormalSmoothing", options.normalSmoothing);
 
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -149,6 +150,9 @@ void PostProcessing::renderFBO(bool toonShading, bool caustics, bool showWobblin
     glBindTexture(GL_TEXTURE_2D, g_color2);
 
     pp2_shader.setVec3("camPos", camPos);
+    pp2_shader.setInt("showEffects", options.showEffects);
+    pp2_shader.setBool("showBlur", options.showBlur);
+    pp2_shader.setBool("showTint", options.showTint);
     // pp2_shader.setInt("showBlur", showBlur);
 
     glBindVertexArray(VAO);

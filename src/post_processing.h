@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "../utils/shader.h"
+#include "../utils/options.h"
 #include "shadowmap.h"
 #include "caustics.h"
 
@@ -19,7 +20,7 @@ public:
 
     void InitFBO(glm::vec3 lightPos);
     void bindFBO();
-    void renderFBO(bool toonShading, bool caustics, bool showWobbling, int showEdges, int smoothLevel, double time, const Shadowmap& shadow_map, const glm::vec3& camPos);
+    void renderFBO(const Options& options, double time, const Shadowmap& shadow_map, const glm::vec3& camPos);
 
     void reload_shaders();
 

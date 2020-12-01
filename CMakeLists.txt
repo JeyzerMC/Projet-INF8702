@@ -11,6 +11,7 @@ set(HEADER_FILES
         utils/mesh.h
         utils/model.h
         utils/constants.h
+        utils/options.h
         src/texture.h
         src/post_processing.h
         src/scene.h
@@ -28,6 +29,7 @@ set(SOURCE_FILES
         src/caustics.cpp
         src/transform.cpp
         utils/shader.cpp
+        utils/options.cpp
 )
 
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})

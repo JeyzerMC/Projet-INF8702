@@ -1,7 +1,6 @@
 #include "scene.h"
 
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
 
 
@@ -48,7 +47,12 @@ Scene::Scene(int w, int h)
     post_process.InitFBO(light_pos); // TODO: Move lights into scene
 }
 
-void Scene::render(Camera* camera, bool toonShading, bool caustics, bool showWobbling, int edges, int smoothLevel, double time)
+void Scene::processInputs(int key)
+{
+    options.inputReceived(key);
+}
+
+void Scene::render(Camera* camera, double time)
 {
     // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
@@ -73,7 +77,13 @@ void Scene::render(Camera* camera, bool toonShading, bool caustics, bool showWob
     glViewport(0, 0, scr_width, scr_height);
 
     // After drawing the scene, add the post processing effects
-    post_process.renderFBO(toonShading, caustics, showWobbling, edges, smoothLevel, time, shadowmap, camera->Position);
+    post_process.renderFBO(options, time, shadowmap, camera->Position);
+
+    // Hot reload shaders
+    if (options.reloadShadersNextFrame) {
+        options.reloadShadersNextFrame = false;
+        reload_shaders();
+    }
 }
 
 void Scene::draw_models(Shader& shader) {

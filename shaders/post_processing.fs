@@ -28,11 +28,12 @@ uniform vec2 waterNormalsSize;
 const float waterRefracitonIndex = 1.333;
 
 // Toggling effects
+uniform int showEffects;
 uniform bool showToonShading;
 uniform bool showCaustics;
 uniform bool showWobbling;
-uniform int showEdges;
-uniform int smoothLevel;
+uniform bool showEdges;
+uniform bool showNormalSmoothing;
 
 // Light
 // TODO: Consider adding multiple light sources.
@@ -231,7 +232,7 @@ void main()
     }
     
     vec3 normal;
-    if (smoothLevel != 0)
+    if (showNormalSmoothing)
         // normal = normalSmoothing();
         normal = texture(gSmooth, texCoords).rgb;
     else 
@@ -254,10 +255,10 @@ void main()
 
     // Show regular image
     vec3 col;
-    if (showEdges == 0) {
-        col = litColor;
-    } else {
+    if (showEdges) {
         col = edgeDetection(litColor, texCoords);
+    } else {
+        col = litColor;
     }
 
     col = mix(col, col * texture(turbulentFlow, pos.xz / 15.0).rgb, 0.8);

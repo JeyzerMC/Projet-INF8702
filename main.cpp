@@ -33,14 +33,10 @@ double lastFrame = 0.0f;
 
 // Options
 bool debug = true;
-bool showToonShading = true;
-bool showCaustics = true;
-bool showWobbling = true;
-bool reloadShadersNextFrame = false;
-int showEdges = 1;
-int normalSmoothingLevel = 1;
 
 glm::vec3 lightPosition(10.0, 50.0, 10.0);
+
+std::unique_ptr<Scene> underwater_scene;
 
 int main()
 {
@@ -91,7 +87,7 @@ int main()
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
-    Scene underwater_scene(Constants::SCR_WIDTH, Constants::SCR_HEIGHT);
+    underwater_scene = make_unique<Scene>(Constants::SCR_WIDTH, Constants::SCR_HEIGHT);
 
     // render loop
     // -----------
@@ -106,18 +102,12 @@ int main()
         // input
         // -----
         processInput(window);
-        underwater_scene.render(&camera, showToonShading, showCaustics, showWobbling, showEdges, normalSmoothingLevel, currentFrame);
+        underwater_scene->render(&camera, currentFrame);
         
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
-
-        // Hot reload shaders
-        if (reloadShadersNextFrame) {
-            reloadShadersNextFrame = false;
-            underwater_scene.reload_shaders();
-        }
     }
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
@@ -133,6 +123,7 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
+    // Movement inputs - continuous
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -149,18 +140,9 @@ void processInput(GLFWwindow *window)
 
 void key_callback(GLFWwindow* window, int key, int, int action, int)
 {
-    if (key == GLFW_KEY_V && action == GLFW_PRESS)
-        showToonShading = !showToonShading;
-    if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
-        showCaustics = !showCaustics;
-    if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
-        showEdges = (showEdges + 1) % 2;
-    if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
-        normalSmoothingLevel = (normalSmoothingLevel + 1) % 2;
-    if (key == GLFW_KEY_M && action == GLFW_PRESS)
-        showWobbling = !showWobbling;
-    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
-        reloadShadersNextFrame = true;
+    if (underwater_scene && action == GLFW_PRESS) {
+        underwater_scene->processInputs(key);
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
