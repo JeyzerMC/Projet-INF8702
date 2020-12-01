@@ -43,7 +43,9 @@ private:
     // std::shared_ptr<Model> big_shell;
     // std::shared_ptr<Model> star_fish;
     std::shared_ptr<Model> fish;
-    // std::shared_ptr<Model> coral;
+    std::shared_ptr<Model> coral_red;
+    std::shared_ptr<Model> coral_pink;
+    std::shared_ptr<Model> coral_green;
 
     std::vector<SceneObject> objects;
 

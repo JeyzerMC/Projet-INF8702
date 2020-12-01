@@ -17,6 +17,9 @@ Scene::Scene(int w, int h)
     pot(make_shared<Model>("models/Pot/Pot.obj")),
     fish(make_shared<Model>("models/Fishes/ClownFish.obj")),
     sand(make_shared<Model>("models/Sand/Sand.obj")),
+    coral_red(make_shared<Model>("models/Coral/CoralRed.obj")),
+    coral_pink(make_shared<Model>("models/Coral/CoralPink.obj")),
+    coral_green(make_shared<Model>("models/Coral/CoralGreen.obj")),
     objects(),
     post_process(w, h),
     shadowmap(1024, 1024),
@@ -46,6 +49,66 @@ Scene::Scene(int w, int h)
     objects.push_back(SceneObject{
             Transform(glm::vec3(0, 0.01, 0), glm::quat(glm::vec3(0, 0, 0)), 1),
             sand,
+    });
+
+    objects.push_back(SceneObject{
+            Transform(glm::vec3(-3.5, 0, 3), glm::quat(glm::vec3(0, 45, 0)), 3),
+            coral_red,
+    });
+
+    objects.push_back(SceneObject{
+            Transform(glm::vec3(3, 0, -1), glm::quat(glm::vec3(0, 0, 0)), 3),
+            coral_red,
+    });
+
+    objects.push_back(SceneObject{
+            Transform(glm::vec3(2, 0, -3), glm::quat(glm::vec3(0, -55, 0)), 3),
+            coral_pink,
+    });
+
+    objects.push_back(SceneObject{
+            Transform(glm::vec3(-3, 0, -0.5), glm::quat(glm::vec3(0, 0, 0)), 5),
+            coral_pink,
+    });
+
+    objects.push_back(SceneObject{
+            Transform(glm::vec3(0.5, 0, 1.5), glm::quat(glm::vec3(0, 39, 0)), 4),
+            coral_pink,
+    });
+
+    objects.push_back(SceneObject{
+            Transform(glm::vec3(4.2, 0, -3.7), glm::quat(glm::vec3(0, 70, 0)), 3),
+            coral_green,
+    });
+
+    objects.push_back(SceneObject{
+            Transform(glm::vec3(-2, 0, 4.5), glm::quat(glm::vec3(0, -37, 0)), 2),
+            coral_green,
+    });
+
+    objects.push_back(SceneObject{
+            Transform(glm::vec3(-3, 0, 1), glm::quat(glm::vec3(0, 14, 0)), 5),
+            coral_green,
+    });
+
+    objects.push_back(SceneObject{
+            Transform(glm::vec3(0, 0, -3), glm::quat(glm::vec3(0, -25, 0)), 5),
+            coral_green,
+    });
+
+    objects.push_back(SceneObject{
+            Transform(glm::vec3(-1, 0, -1), glm::quat(glm::vec3(0, 69, 0)), 3),
+            coral_green,
+    });
+
+    objects.push_back(SceneObject{
+            Transform(glm::vec3(3, 0, 1.5), glm::quat(glm::vec3(0, 35, 0)), 4),
+            coral_green,
+    });
+
+    objects.push_back(SceneObject{
+            Transform(glm::vec3(0.5, 0, 4.5), glm::quat(glm::vec3(0, 84, 0)), 3),
+            coral_green,
     });
 
 //    water_normals.loop_mode = LoopMode::PingPong;
