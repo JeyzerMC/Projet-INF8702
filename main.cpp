@@ -87,7 +87,7 @@ int main()
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
-    underwater_scene = make_unique<Scene>(Constants::SCR_WIDTH, Constants::SCR_HEIGHT);
+    underwater_scene = make_unique<Scene>();
 
     // render loop
     // -----------

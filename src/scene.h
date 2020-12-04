@@ -21,7 +21,7 @@ struct SceneObject {
 
 class Scene {
 public:
-    Scene(int scr_width, int scr_height);
+    Scene();
 
     void processInputs(int key);
 
@@ -34,8 +34,6 @@ private:
 
     // Shaders
     Shader rend_shader;
-    // Scene dimensions
-    int scr_width, scr_height;
 
     // Models
     std::shared_ptr<Model> ground;

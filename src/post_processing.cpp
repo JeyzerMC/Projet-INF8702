@@ -3,21 +3,11 @@
 #include <spdlog/spdlog.h>
 #include "../utils/constants.h"
 
-// vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
-float quadVertices[] = { 
-    // positions        // texture Coords
-    -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-    -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-     1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-     1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-};
-
 std::vector<arno::Texture> load_water_textures();
 
-PostProcessing::PostProcessing(int scrWidth, int scrHeight)
+PostProcessing::PostProcessing()
     : pp_shader("shaders/post_processing.vs", "shaders/post_processing.fs")
     , pp2_shader("shaders/underwater.vs", "shaders/underwater.fs")
-    , scr_width(scrWidth), scr_height(scrHeight)
     , caustics(1024, 1024)
     , t_turbulent_flow(arno::Texture::load_from_file("textures/perlin_noise.jpg"))
     , t_pigment_dispersion(arno::Texture::load_from_file("textures/gaussian_noise.jpg"))
@@ -30,7 +20,7 @@ PostProcessing::PostProcessing(int scrWidth, int scrHeight)
     glGenBuffers(1, &VBO);
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Constants::QUAD_VERTICES), &Constants::QUAD_VERTICES, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
@@ -43,17 +33,6 @@ PostProcessing::PostProcessing(int scrWidth, int scrHeight)
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);  
-
-    // Normal smoothing offsets
-    n_offsets.push_back(-scr_width - 1);   // top-left
-    n_offsets.push_back(-scr_width);     // top-center
-    n_offsets.push_back(-scr_width + 1);   // top-right
-    n_offsets.push_back(-1);       // center-left
-    n_offsets.push_back(0);         // center-center
-    n_offsets.push_back(+1);       // center-right
-    n_offsets.push_back(scr_width - 1);   // bottom-left
-    n_offsets.push_back(scr_width);     // bottom-center
-    n_offsets.push_back(scr_width + 1);   // bottom-right
 }
 
 PostProcessing::~PostProcessing()
@@ -82,7 +61,7 @@ void PostProcessing::bindFBO()
 void PostProcessing::renderFBO(const Options& options, double time, const Shadowmap& shadow_map, const glm::vec3& camPos)
 {
     this->caustics.render(time);
-    glViewport(0, 0, scr_width, scr_height);
+    glViewport(0, 0, Constants::SCR_WIDTH, Constants::SCR_HEIGHT);
     glBindFramebuffer(GL_FRAMEBUFFER, g_buffer2);
     // glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
 
@@ -138,7 +117,7 @@ void PostProcessing::renderFBO(const Options& options, double time, const Shadow
     glBindVertexArray(0); // TODO: CHECK IF SHOULD KEEP
 
     // POST PROCESSING PASS 2
-    glViewport(0, 0, scr_width, scr_height);
+    glViewport(0, 0, Constants::SCR_WIDTH, Constants::SCR_HEIGHT);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClearColor(0.0f, 0.16f, 0.41f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -169,7 +148,7 @@ void PostProcessing::initBuffers()
     // position color buffer
     glGenTextures(1, &g_position);
     glBindTexture(GL_TEXTURE_2D, g_position);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, scr_width, scr_height, 0, GL_RGB, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, Constants::SCR_WIDTH, Constants::SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -179,7 +158,7 @@ void PostProcessing::initBuffers()
     // normal color buffer
     glGenTextures(1, &g_normal);
     glBindTexture(GL_TEXTURE_2D, g_normal);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, scr_width, scr_height, 0, GL_RGB, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, Constants::SCR_WIDTH, Constants::SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -189,7 +168,7 @@ void PostProcessing::initBuffers()
     // pixel color buffer
     glGenTextures(1, &g_color);
     glBindTexture(GL_TEXTURE_2D, g_color);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scr_width, scr_height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Constants::SCR_WIDTH, Constants::SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -199,7 +178,7 @@ void PostProcessing::initBuffers()
     // smooth normal buffer
     glGenTextures(1, &g_smooth);
     glBindTexture(GL_TEXTURE_2D, g_smooth); // TODO: CHANGE THE RGBA TO RGB ?
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, scr_width, scr_height, 0, GL_RGB, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, Constants::SCR_WIDTH, Constants::SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -214,7 +193,7 @@ void PostProcessing::initBuffers()
     unsigned int rboDepth;
     glGenRenderbuffers(1, &rboDepth);
     glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, scr_width, scr_height);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, Constants::SCR_WIDTH, Constants::SCR_HEIGHT);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
 }
 
@@ -226,7 +205,7 @@ void PostProcessing::initP2Buffers()
     // position color buffer
     glGenTextures(1, &g_position2);
     glBindTexture(GL_TEXTURE_2D, g_position2);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, scr_width, scr_height, 0, GL_RGB, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, Constants::SCR_WIDTH, Constants::SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -236,7 +215,7 @@ void PostProcessing::initP2Buffers()
     // pixel color buffer
     glGenTextures(1, &g_color2);
     glBindTexture(GL_TEXTURE_2D, g_color2);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scr_width, scr_height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Constants::SCR_WIDTH, Constants::SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -250,7 +229,7 @@ void PostProcessing::initP2Buffers()
     unsigned int rboDepth;
     glGenRenderbuffers(1, &rboDepth);
     glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, scr_width, scr_height);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, Constants::SCR_WIDTH, Constants::SCR_HEIGHT);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
 }
 
@@ -264,8 +243,8 @@ void PostProcessing::reload_shaders() {
 void PostProcessing::init_shader() {
     pp_shader.use();
     pp_shader.setInt("screenTexture", 0);
-    pp_shader.setInt("scr_width", scr_width);
-    pp_shader.setInt("scr_height", scr_height);
+    pp_shader.setInt("scr_width", Constants::SCR_WIDTH);
+    pp_shader.setInt("scr_height", Constants::SCR_HEIGHT);
 
     pp_shader.setInt("gPosition", 0);
     pp_shader.setInt("gNormal", 1);
@@ -285,6 +264,6 @@ void PostProcessing::init_shader() {
     pp2_shader.setInt("oPosition", 0);
     pp2_shader.setInt("oColor", 1);
 
-    pp2_shader.setInt("scr_width", scr_width);
-    pp2_shader.setInt("scr_height", scr_height);
+    pp2_shader.setInt("scr_width", Constants::SCR_WIDTH);
+    pp2_shader.setInt("scr_height", Constants::SCR_HEIGHT);
 }

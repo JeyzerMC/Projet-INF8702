@@ -20,9 +20,8 @@ SceneObject::SceneObject(Transform t, std::shared_ptr<Model> m)
 
 
 
-Scene::Scene(int w, int h)
+Scene::Scene()
   : rend_shader("shaders/camera.vs", "shaders/camera.fs"),
-    scr_width(w), scr_height(h),
     ground(make_shared<Model>("models/Ground/Ground.obj", false)),
     pot(make_shared<Model>("models/Pot/Pot.obj")),
     sand(make_shared<Model>("models/Sand/Sand.obj")),
@@ -34,7 +33,7 @@ Scene::Scene(int w, int h)
     coral_pink(make_shared<Model>("models/Coral/CoralPink.obj")),
     coral_green(make_shared<Model>("models/Coral/CoralGreen.obj")),
     objects(),
-    post_process(w, h),
+    post_process(),
     shadowmap(1024, 1024),
     light_pos(10.0, 50.0, 10.0)
 {
@@ -162,7 +161,9 @@ void Scene::render(Camera* camera, double time)
     // activate shader
     rend_shader.use();
 
-    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)scr_width / (float)scr_height, 0.1f, 100.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), 
+                                            (float)Constants::SCR_WIDTH / (float)Constants::SCR_HEIGHT, 
+                                            0.1f, 100.0f);
     rend_shader.setMat4("projection", projection);
 
     // camera/view transformation
@@ -175,7 +176,7 @@ void Scene::render(Camera* camera, double time)
 
     draw_models(rend_shader, time);
     shadowmap.draw_in_map([this, time] (Shader& s) { draw_models(s, time); });
-    glViewport(0, 0, scr_width, scr_height);
+    glViewport(0, 0, Constants::SCR_WIDTH, Constants::SCR_HEIGHT);
 
     // After drawing the scene, add the post processing effects
     post_process.renderFBO(options, time, shadowmap, camera->Position);

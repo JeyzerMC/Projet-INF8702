@@ -18,9 +18,13 @@ set(HEADER_FILES
         src/shadowmap.h
         src/caustics.h
         src/transform.h
+        src/underwater.h
+        src/morph_smoothing.h
 )
 set(SOURCE_FILES
         main.cpp
+        utils/shader.cpp
+        utils/options.cpp
         src/texture.cpp
         src/stb_impl.cpp
         src/post_processing.cpp
@@ -28,8 +32,8 @@ set(SOURCE_FILES
         src/shadowmap.cpp
         src/caustics.cpp
         src/transform.cpp
-        utils/shader.cpp
-        utils/options.cpp
+        src/underwater.cpp
+        src/morph_smoothing.cpp
 )
 
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
