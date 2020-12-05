@@ -7,13 +7,13 @@ std::vector<arno::Texture> load_water_textures();
 
 PostProcessing::PostProcessing()
     : pp_shader("shaders/post_processing.vs", "shaders/post_processing.fs")
-    , pp2_shader("shaders/underwater.vs", "shaders/underwater.fs")
     , caustics(1024, 1024)
     , t_turbulent_flow(arno::Texture::load_from_file("textures/perlin_noise.jpg"))
     , t_pigment_dispersion(arno::Texture::load_from_file("textures/gaussian_noise.jpg"))
     , t_paper_layer(arno::Texture::load_from_file("textures/cotton_paper_2.jpg"))
     , t_abstract_colors(arno::Texture::load_from_file("textures/abstract_colors.jpg"))
     , light_pos(0)
+    , uw_pass()
 {
     // Screen quad
     glGenVertexArrays(1, &VAO);
@@ -61,13 +61,8 @@ void PostProcessing::bindFBO()
 void PostProcessing::renderFBO(const Options& options, double time, const Shadowmap& shadow_map, const glm::vec3& camPos)
 {
     this->caustics.render(time);
-    glViewport(0, 0, Constants::SCR_WIDTH, Constants::SCR_HEIGHT);
-    glBindFramebuffer(GL_FRAMEBUFFER, g_buffer2);
-    // glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
-
-    // clear all relevant buffers
-    glClearColor(0.0f, 0.16f, 0.41f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    uw_pass.bind(); // TODO: Bind the morph smoothing gbuffer later here and the uw_pass after
 
     pp_shader.use();
     glActiveTexture(GL_TEXTURE0);
@@ -96,7 +91,7 @@ void PostProcessing::renderFBO(const Options& options, double time, const Shadow
     glActiveTexture(GL_TEXTURE7);
     glBindTexture(GL_TEXTURE_2D, t_paper_layer.texture);
 
-    glActiveTexture(GL_TEXTURE8);
+    glActiveTexture(GL_TEXTURE8); // TODO: DELETE
     glBindTexture(GL_TEXTURE_2D, t_abstract_colors.texture);
 
     glActiveTexture(GL_TEXTURE9);
@@ -117,27 +112,7 @@ void PostProcessing::renderFBO(const Options& options, double time, const Shadow
     glBindVertexArray(0); // TODO: CHECK IF SHOULD KEEP
 
     // POST PROCESSING PASS 2
-    glViewport(0, 0, Constants::SCR_WIDTH, Constants::SCR_HEIGHT);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClearColor(0.0f, 0.16f, 0.41f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    pp2_shader.use();
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, g_position2);
-
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, g_color2);
-
-    pp2_shader.setVec3("camPos", camPos);
-    pp2_shader.setInt("showEffects", options.showEffects);
-    pp2_shader.setBool("showBlur", options.showBlur);
-    pp2_shader.setBool("showTint", options.showTint);
-    // pp2_shader.setInt("showBlur", showBlur);
-
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glBindVertexArray(0);
+    uw_pass.render(options, camPos);
 }
 
 void PostProcessing::initBuffers()
@@ -199,43 +174,12 @@ void PostProcessing::initBuffers()
 
 void PostProcessing::initP2Buffers()
 {
-    glGenFramebuffers(1, &g_buffer2);
-    glBindFramebuffer(GL_FRAMEBUFFER, g_buffer2);
-
-    // position color buffer
-    glGenTextures(1, &g_position2);
-    glBindTexture(GL_TEXTURE_2D, g_position2);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, Constants::SCR_WIDTH, Constants::SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_position2, 0);
-
-    // pixel color buffer
-    glGenTextures(1, &g_color2);
-    glBindTexture(GL_TEXTURE_2D, g_color2);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Constants::SCR_WIDTH, Constants::SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, g_color2, 0);
-
-    unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
-    glDrawBuffers(2, attachments);
-
-    // create and attach depth buffer (renderbuffer)
-    unsigned int rboDepth;
-    glGenRenderbuffers(1, &rboDepth);
-    glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, Constants::SCR_WIDTH, Constants::SCR_HEIGHT);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+    // TODO: DELETE
 }
 
 void PostProcessing::reload_shaders() {
     pp_shader.reload();
-    pp2_shader.reload();
+    uw_pass.reload();
     init_shader();
     caustics.reload_shaders();
 }
@@ -259,11 +203,4 @@ void PostProcessing::init_shader() {
 
     pp_shader.setVec3("lightPos", light_pos);
     pp_shader.setVec2("waterNormalsSize", glm::vec2(15, 15));
-
-    pp2_shader.use();
-    pp2_shader.setInt("oPosition", 0);
-    pp2_shader.setInt("oColor", 1);
-
-    pp2_shader.setInt("scr_width", Constants::SCR_WIDTH);
-    pp2_shader.setInt("scr_height", Constants::SCR_HEIGHT);
 }

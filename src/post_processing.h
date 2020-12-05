@@ -11,6 +11,7 @@
 #include "../utils/options.h"
 #include "shadowmap.h"
 #include "caustics.h"
+#include "underwater.h"
 
 class PostProcessing {
 
@@ -29,13 +30,13 @@ private:
     void initP2Buffers();
     void init_shader();
     unsigned int VAO, VBO;
-    unsigned int g_buffer, g_buffer2;
+    unsigned int g_buffer;
     unsigned int g_position, g_normal, g_color, g_smooth;
-    unsigned int g_position2, g_color2;
     Shader pp_shader;
-    Shader pp2_shader;
 
     Caustics caustics;
+    
+    Underwater uw_pass;
 
     arno::Texture t_turbulent_flow;
     arno::Texture t_pigment_dispersion;

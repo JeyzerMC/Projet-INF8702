@@ -18,8 +18,6 @@ SceneObject::SceneObject(Transform t, std::shared_ptr<Model> m)
 {
 }
 
-
-
 Scene::Scene()
   : rend_shader("shaders/camera.vs", "shaders/camera.fs"),
     ground(make_shared<Model>("models/Ground/Ground.obj", false)),
