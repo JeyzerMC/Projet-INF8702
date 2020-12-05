@@ -18,6 +18,7 @@ set(HEADER_FILES
         src/shadowmap.h
         src/caustics.h
         src/transform.h
+        src/screen_pass.h
         src/underwater.h
         src/morph_smoothing.h
 )
@@ -32,6 +33,7 @@ set(SOURCE_FILES
         src/shadowmap.cpp
         src/caustics.cpp
         src/transform.cpp
+        src/screen_pass.cpp
         src/underwater.cpp
         src/morph_smoothing.cpp
 )

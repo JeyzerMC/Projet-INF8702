@@ -5,24 +5,19 @@
 #include "../utils/shader.h"
 #include "../utils/options.h"
 
+#include "screen_pass.h"
+
 #include <vector>
 
-class Underwater {
+class Underwater: public ScreenPass {
 
 public:
     Underwater();
-    ~Underwater();
 
     void render(const Options& options, const glm::vec3& camPos);
-    void bind();
     void reload();
 
 private:
-    void initBuffers();
-    void initShaders();
-    unsigned int VAO, VBO;
-    unsigned int g_buffer;
-    unsigned int g_position, g_color;
     Shader uw_shader;
 };
 #endif //UNDERWATER_H
