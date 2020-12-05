@@ -20,7 +20,8 @@ set(HEADER_FILES
         src/transform.h
         src/screen_pass.h
         src/underwater.h
-        src/morph_smoothing.h
+        src/erosion.h
+        src/dilation.h
 )
 set(SOURCE_FILES
         main.cpp
@@ -35,7 +36,8 @@ set(SOURCE_FILES
         src/transform.cpp
         src/screen_pass.cpp
         src/underwater.cpp
-        src/morph_smoothing.cpp
+        src/erosion.cpp
+        src/dilation.cpp
 )
 
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})

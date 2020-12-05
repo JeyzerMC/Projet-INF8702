@@ -4,7 +4,7 @@
 class Options {
 public:
     void inputReceived(int key);
-    int showEffects = 1; // Show all effects by default
+    int showEffects = 2; // Show no effects by default
 
     bool reloadShadersNextFrame = false;
     bool showToonShading = false;

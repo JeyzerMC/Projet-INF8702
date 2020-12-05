@@ -12,6 +12,8 @@
 #include "shadowmap.h"
 #include "caustics.h"
 #include "underwater.h"
+#include "erosion.h"
+#include "dilation.h"
 
 class PostProcessing {
 
@@ -36,6 +38,8 @@ private:
 
     Caustics caustics;
     
+    Erosion erosion_pass;
+    Dilation dilation_pass;
     Underwater uw_pass;
 
     arno::Texture t_turbulent_flow;

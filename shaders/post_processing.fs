@@ -1,5 +1,4 @@
 #version 460 core
-// out vec4 fragColor;
 layout (location = 0) out vec3 oPosition;
 layout (location = 1) out vec4 oColor;
 

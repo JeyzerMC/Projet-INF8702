@@ -13,6 +13,8 @@ PostProcessing::PostProcessing()
     , t_paper_layer(arno::Texture::load_from_file("textures/cotton_paper_2.jpg"))
     , t_abstract_colors(arno::Texture::load_from_file("textures/abstract_colors.jpg"))
     , light_pos(0)
+    , erosion_pass()
+    , dilation_pass()
     , uw_pass()
 {
     // Screen quad
@@ -62,7 +64,7 @@ void PostProcessing::renderFBO(const Options& options, double time, const Shadow
 {
     this->caustics.render(time);
     
-    uw_pass.bind(); // TODO: Bind the morph smoothing gbuffer later here and the uw_pass after
+    erosion_pass.bind();
 
     pp_shader.use();
     glActiveTexture(GL_TEXTURE0);
@@ -109,9 +111,19 @@ void PostProcessing::renderFBO(const Options& options, double time, const Shadow
 
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glBindVertexArray(0); // TODO: CHECK IF SHOULD KEEP
+    glBindVertexArray(0);
 
-    // POST PROCESSING PASS 2
+    // Morphological smoothing pass
+    dilation_pass.bind();
+    erosion_pass.render(options, camPos);
+
+    erosion_pass.bind();
+    dilation_pass.render(options, camPos);
+
+    uw_pass.bind();
+    erosion_pass.render(options, camPos);
+
+    // Final underwater pass
     uw_pass.render(options, camPos);
 }
 
@@ -179,6 +191,8 @@ void PostProcessing::initP2Buffers()
 
 void PostProcessing::reload_shaders() {
     pp_shader.reload();
+    erosion_pass.reload();
+    dilation_pass.reload();
     uw_pass.reload();
     init_shader();
     caustics.reload_shaders();
