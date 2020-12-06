@@ -11,7 +11,6 @@ PostProcessing::PostProcessing()
     , t_turbulent_flow(arno::Texture::load_from_file("textures/perlin_noise.jpg"))
     , t_pigment_dispersion(arno::Texture::load_from_file("textures/gaussian_noise.jpg"))
     , t_paper_layer(arno::Texture::load_from_file("textures/cotton_paper_2.jpg"))
-    , t_abstract_colors(arno::Texture::load_from_file("textures/abstract_colors.jpg"))
     , light_pos(0)
     , erosion_pass()
     , opening_dilation_pass()
@@ -93,9 +92,6 @@ void PostProcessing::renderFBO(const Options& options, double time, const Shadow
 
     glActiveTexture(GL_TEXTURE7);
     glBindTexture(GL_TEXTURE_2D, t_paper_layer.texture);
-
-    glActiveTexture(GL_TEXTURE8); // TODO: DELETE
-    glBindTexture(GL_TEXTURE_2D, t_abstract_colors.texture);
 
     glActiveTexture(GL_TEXTURE9);
     glBindTexture(GL_TEXTURE_2D, shadow_map.texture.texture);
@@ -217,7 +213,6 @@ void PostProcessing::init_shader() {
     pp_shader.setInt("turbulentFlow", 5);
     pp_shader.setInt("pigmentDispersion", 6);
     pp_shader.setInt("paperLayer", 7);
-    pp_shader.setInt("abstractColor", 8);
     pp_shader.setInt("shadowMap", 9);
 
     pp_shader.setVec3("lightPos", light_pos);

@@ -13,7 +13,6 @@ uniform sampler2D caustics;
 uniform sampler2D turbulentFlow;
 uniform sampler2D pigmentDispersion;
 uniform sampler2D paperLayer;
-uniform sampler2D abstractColor;
 uniform sampler2D shadowMap;
 
 uniform int scr_width;

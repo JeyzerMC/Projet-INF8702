@@ -46,7 +46,6 @@ private:
     arno::Texture t_turbulent_flow;
     arno::Texture t_pigment_dispersion;
     arno::Texture t_paper_layer;
-    arno::Texture t_abstract_colors;
     glm::vec3 light_pos;
 };
 #endif //POST_PROCESSING_H
