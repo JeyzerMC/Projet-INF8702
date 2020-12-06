@@ -169,48 +169,6 @@ vec3 getEffects(vec3 pos, vec3 normal)
     return effects;
 }
 
-bool nearWhite(vec3 color)
-{
-    float threshold = 0.5;
-    return length(color) > threshold;
-}
-
-vec3 edgeDetection(vec3 litColor, vec2 texCoords)
-{
-    vec2 offsets[9] = vec2[](
-        vec2(-w_offset,  h_offset), // top-left
-        vec2( 0.0f,    h_offset), // top-center
-        vec2( w_offset,  h_offset), // top-right
-        vec2(-w_offset,  0.0f),   // center-left
-        vec2( 0.0f,    0.0f),   // center-center
-        vec2( w_offset,  0.0f),   // center-right
-        vec2(-w_offset, -h_offset), // bottom-left
-        vec2( 0.0f,   -h_offset), // bottom-center
-        vec2( w_offset, -h_offset)  // bottom-right    
-    );
-
-    float kernel[9] = float[](
-        1, 1, 1,
-        1, -8, 1,
-        1, 1, 1
-    );
-
-    vec3 sampleTex[9];
-    for(int i = 0; i < 9; i++)
-    {
-        sampleTex[i] = vec3(texture(gColor, texCoords.st + offsets[i]));
-    }
-    vec3 col = vec3(0.0);
-    for(int i = 0; i < 9; i++)
-        col += sampleTex[i] * kernel[i];
-    
-    if (nearWhite(col)) 
-        col = vec3(0.0); // Change to make color darker rather than black.
-    else
-        col = litColor;
-    return col;
-}
-
 void main()
 {
     vec2 texCoords = vertTexCoord;
@@ -235,14 +193,6 @@ void main()
 
     vec3 litColor = getEffects(pos, normal) * color;
 
-    // Show regular image
-    vec3 col;
-    if (showEffects == 1 || (showEffects == 0 && showEdges)) {
-        col = edgeDetection(litColor, texCoords);
-    } else {
-        col = litColor;
-    }
-
-    oColor = vec4(col, 1.0);
+    oColor = vec4(litColor, 1.0);
     oPosition = pos;
 }
