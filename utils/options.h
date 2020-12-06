@@ -14,6 +14,8 @@ public:
     bool showBlur = false;
     bool showTint = false;
     bool showEdges = false;
+    bool showErosion = false;
+    bool showDilation = false;
     bool normalSmoothing = false;
 };
 

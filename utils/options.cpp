@@ -37,6 +37,14 @@ void Options::inputReceived(int key)
         showWatercolorTextures = !showWatercolorTextures;
         showEffects = 0;
     }
+    if (key == 79) { // O
+        showErosion = !showErosion;
+        showEffects = 0;
+    }
+    if (key == 80) { // P
+        showDilation = !showDilation;
+        showEffects = 0;
+    }
     if (key == 49) // 1
         showEffects = 0; // Selected Effects 
     if (key == 50) // 2

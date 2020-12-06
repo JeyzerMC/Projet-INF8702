@@ -14,8 +14,6 @@ Dilation::Dilation()
 
 void Dilation::render(const Options& options, const glm::vec3& camPos)
 {
-    // clear();
-
     dilate_shader.use();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, g_position);
@@ -23,10 +21,8 @@ void Dilation::render(const Options& options, const glm::vec3& camPos)
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, g_color);
 
-    // dilate_shader.setVec3("camPos", camPos);
-    // dilate_shader.setInt("showEffects", options.showEffects);
-    // dilate_shader.setBool("showBlur", options.showBlur);
-    // dilate_shader.setBool("showTint", options.showTint);
+    dilate_shader.setInt("showEffects", options.showEffects);
+    dilate_shader.setBool("showDilation", options.showDilation);
 
     draw();
 }

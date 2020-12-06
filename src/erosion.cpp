@@ -14,8 +14,6 @@ Erosion::Erosion()
 
 void Erosion::render(const Options& options, const glm::vec3& camPos)
 {
-    // clear();
-
     erode_shader.use();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, g_position);
@@ -23,10 +21,8 @@ void Erosion::render(const Options& options, const glm::vec3& camPos)
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, g_color);
 
-    // erode_shader.setVec3("camPos", camPos);
-    // erode_shader.setInt("showEffects", options.showEffects);
-    // erode_shader.setBool("showBlur", options.showBlur);
-    // erode_shader.setBool("showTint", options.showTint);
+    erode_shader.setInt("showEffects", options.showEffects);
+    erode_shader.setBool("showErosion", options.showErosion);
 
     draw();
 }

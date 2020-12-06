@@ -39,7 +39,8 @@ private:
     Caustics caustics;
     
     Erosion erosion_pass;
-    Dilation dilation_pass;
+    Dilation opening_dilation_pass;
+    Dilation closing_dilation_pass;
     Underwater uw_pass;
 
     arno::Texture t_turbulent_flow;

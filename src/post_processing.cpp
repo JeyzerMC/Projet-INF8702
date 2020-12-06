@@ -14,7 +14,8 @@ PostProcessing::PostProcessing()
     , t_abstract_colors(arno::Texture::load_from_file("textures/abstract_colors.jpg"))
     , light_pos(0)
     , erosion_pass()
-    , dilation_pass()
+    , opening_dilation_pass()
+    , closing_dilation_pass()
     , uw_pass()
 {
     // Screen quad
@@ -114,11 +115,14 @@ void PostProcessing::renderFBO(const Options& options, double time, const Shadow
     glBindVertexArray(0);
 
     // Morphological smoothing pass
-    dilation_pass.bind();
+    opening_dilation_pass.bind();
     erosion_pass.render(options, camPos);
 
+    closing_dilation_pass.bind();
+    opening_dilation_pass.render(options, camPos);
+
     erosion_pass.bind();
-    dilation_pass.render(options, camPos);
+    closing_dilation_pass.render(options, camPos);
 
     uw_pass.bind();
     erosion_pass.render(options, camPos);
@@ -192,7 +196,8 @@ void PostProcessing::initP2Buffers()
 void PostProcessing::reload_shaders() {
     pp_shader.reload();
     erosion_pass.reload();
-    dilation_pass.reload();
+    opening_dilation_pass.reload();
+    closing_dilation_pass.reload();
     uw_pass.reload();
     init_shader();
     caustics.reload_shaders();

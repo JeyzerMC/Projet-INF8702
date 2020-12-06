@@ -209,7 +209,7 @@ vec3 edgeDetection(vec3 litColor, vec2 texCoords)
         col += sampleTex[i] * kernel[i];
     
     if (nearWhite(col)) 
-        col = vec3(0.0);
+        col = vec3(0.0); // Change to make color darker rather than black.
     else
         col = litColor;
     return col;
