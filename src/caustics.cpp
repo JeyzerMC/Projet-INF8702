@@ -6,19 +6,19 @@
 #include "caustics.h"
 
 namespace {
-    arno::Texture gen_fbo_texture(unsigned int width, unsigned int height) {
-        auto texture_data = arno::TextureData{
+    Texture gen_fbo_texture(unsigned int width, unsigned int height) {
+        auto texture_data = TextureData{
                 nullptr,
                 GL_RGB,
                 GL_FLOAT,
         };
-        auto parameters = arno::TextureParameters::get_default();
+        auto parameters = TextureParameters::get_default();
         parameters.texture_format = GL_RGB; // TODO: Memory optimisation - use only R component
         parameters.min_filter = GL_LINEAR;
         parameters.max_filter = GL_LINEAR;
         parameters.wrap_mode_s = GL_REPEAT;
         parameters.wrap_mode_t = GL_REPEAT;
-        return arno::Texture(texture_data, width, height, parameters);
+        return Texture(texture_data, width, height, parameters);
     }
 }
 

@@ -6,6 +6,7 @@
 #include "../utils/options.h"
 
 #include "screen_pass.h"
+#include "texture.h"
 
 #include <vector>
 
@@ -19,5 +20,9 @@ public:
 
 private:
     Shader uw_shader;
+
+    Texture t_turbulent_flow;
+    Texture t_pigment_dispersion;
+    Texture t_paper_layer;
 };
 #endif //UNDERWATER_H

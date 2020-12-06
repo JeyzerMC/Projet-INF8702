@@ -8,7 +8,6 @@
 #include <string>
 
 #include <glad/glad.h>
-namespace arno {
 struct TextureParameters {
     GLint wrap_mode_s;
     GLint wrap_mode_t;
@@ -37,7 +36,6 @@ public:
 
     GLuint texture;
 };
-}
 
 
 #endif //TEXTURE_H

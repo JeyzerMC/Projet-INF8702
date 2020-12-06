@@ -5,20 +5,20 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "shadowmap.h"
 
-arno::Texture gen_fbo_texture(unsigned int width, unsigned int height) {
-    auto texture_data = arno::TextureData {
+Texture gen_fbo_texture(unsigned int width, unsigned int height) {
+    auto texture_data = TextureData {
         nullptr,
         GL_DEPTH_COMPONENT,
         GL_FLOAT,
     };
-    auto parameters = arno::TextureParameters::get_default();
+    auto parameters = TextureParameters::get_default();
     parameters.texture_format = GL_DEPTH_COMPONENT;
     parameters.min_filter = GL_NEAREST;
     parameters.max_filter = GL_NEAREST;
     // TODO: We probably don't want repeat here :/
     parameters.wrap_mode_s = GL_REPEAT;
     parameters.wrap_mode_t = GL_REPEAT;
-    return arno::Texture(texture_data, width, height, parameters);
+    return Texture(texture_data, width, height, parameters);
 }
 
 Shadowmap::Shadowmap(unsigned int width, unsigned int height)

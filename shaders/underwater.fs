@@ -6,6 +6,9 @@ in vec2 vertTexCoord;
 // Textures
 uniform sampler2D oPosition;
 uniform sampler2D oColor;
+uniform sampler2D turbulentFlow;
+uniform sampler2D pigmentDispersion;
+uniform sampler2D paperLayer;
 
 uniform int scr_width;
 uniform int scr_height;
@@ -15,6 +18,9 @@ uniform vec3 camPos;
 uniform int showEffects;
 uniform bool showBlur;
 uniform bool showTint;
+uniform bool showEdges;
+uniform bool showWobbling;
+uniform bool showWatercolorTextures;
 
 float w_offset = 1.0 / scr_width;
 float h_offset = 1.0 / scr_height;
@@ -98,22 +104,43 @@ vec3 getBlur(vec2 tex, vec3 color, vec3 pos)
     return col;
 }
 
+vec2 getPaperGradient() {
+    float wobFactor = 0.05;
+    float dx = texture(paperLayer, vertTexCoord + vec2(wobFactor, 0)).r - texture(paperLayer, vertTexCoord - vec2(wobFactor, 0)).r;
+    float dy = texture(paperLayer, vertTexCoord + vec2(0, wobFactor)).r - texture(paperLayer, vertTexCoord - vec2(0, wobFactor)).r;
+    return vec2(dx, dy);
+}
+
 void main()
 {
-    vec3 color = texture(oColor, vertTexCoord).rgb;
-    vec3 pos = texture(oPosition, vertTexCoord).rgb;
+    vec2 texCoords = vertTexCoord;
+
+    if (showEffects == 1 || (showEffects == 0 && showWobbling)) {
+        texCoords += getPaperGradient() * 0.015;
+        // For some reason, 1 still resulted in wrapping, but 0.9999 is fine :/
+        texCoords = clamp(texCoords, 0, 0.9999);
+    }
+
+    vec3 color = texture(oColor, texCoords).rgb;
+    vec3 pos = texture(oPosition, texCoords).rgb;
 
     if (showEffects == 1 || (showEffects == 0 && showBlur))
-        color = getBlur(vertTexCoord, color, pos);
+        color = getBlur(texCoords, color, pos);
 
     // Blue tint effect
     if (showEffects == 1 || (showEffects == 0 && showTint))
     color = mix(color, vec3(0.0, 0.07, 0.1), 0.25); 
 
     // Darken edge effect
-    float vpDist = length(vertTexCoord - 0.5);
+    float vpDist = length(texCoords - 0.5);
     if (vpDist > 0.45){
        color *= 1 - remap(vpDist, 0.45, sqrt(0.5), 0, 0.7);
+    }
+
+    if (showEffects == 1 || (showEffects == 0 && showWatercolorTextures)) {
+        color = mix(color, color * texture(turbulentFlow, pos.xz / 15.0).rgb, 0.8);
+        color = mix(color, color * texture(pigmentDispersion, pos.xz).rgb, 0.3);
+        color = mix(color, color * texture(paperLayer, pos.xz / 5.0).rgb, 0.9);
     }
 
     fragColor = vec4(color, 1.0);

@@ -43,9 +43,6 @@ private:
     Dilation closing_dilation_pass;
     Underwater uw_pass;
 
-    arno::Texture t_turbulent_flow;
-    arno::Texture t_pigment_dispersion;
-    arno::Texture t_paper_layer;
     glm::vec3 light_pos;
 };
 #endif //POST_PROCESSING_H

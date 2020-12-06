@@ -3,19 +3,16 @@
 #include <spdlog/spdlog.h>
 #include "../utils/constants.h"
 
-std::vector<arno::Texture> load_water_textures();
+std::vector<Texture> load_water_textures();
 
 PostProcessing::PostProcessing()
-    : pp_shader("shaders/post_processing.vs", "shaders/post_processing.fs")
-    , caustics(1024, 1024)
-    , t_turbulent_flow(arno::Texture::load_from_file("textures/perlin_noise.jpg"))
-    , t_pigment_dispersion(arno::Texture::load_from_file("textures/gaussian_noise.jpg"))
-    , t_paper_layer(arno::Texture::load_from_file("textures/cotton_paper_2.jpg"))
-    , light_pos(0)
-    , erosion_pass()
-    , opening_dilation_pass()
-    , closing_dilation_pass()
-    , uw_pass()
+: pp_shader("shaders/post_processing.vs", "shaders/post_processing.fs")
+, caustics(1024, 1024)
+, light_pos(0)
+, erosion_pass()
+, opening_dilation_pass()
+, closing_dilation_pass()
+, uw_pass()
 {
     // Screen quad
     glGenVertexArrays(1, &VAO);
@@ -83,17 +80,7 @@ void PostProcessing::renderFBO(const Options& options, double time, const Shadow
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, this->caustics.caustics_texture.texture);
 
-    // Watercolor effects textures
     glActiveTexture(GL_TEXTURE5);
-    glBindTexture(GL_TEXTURE_2D, t_turbulent_flow.texture);
-
-    glActiveTexture(GL_TEXTURE6);
-    glBindTexture(GL_TEXTURE_2D, t_pigment_dispersion.texture);
-
-    glActiveTexture(GL_TEXTURE7);
-    glBindTexture(GL_TEXTURE_2D, t_paper_layer.texture);
-
-    glActiveTexture(GL_TEXTURE9);
     glBindTexture(GL_TEXTURE_2D, shadow_map.texture.texture);
 
     pp_shader.setVec3("camPos", camPos);
@@ -102,10 +89,9 @@ void PostProcessing::renderFBO(const Options& options, double time, const Shadow
     pp_shader.setBool("showToonShading", options.showToonShading);
     pp_shader.setBool("showCaustics", options.showCaustics);
     pp_shader.setBool("showWobbling", options.showWobbling);
-    pp_shader.setBool("showEdges", options.showEdges);
+    pp_shader.setBool("showEdges", options.showEdges); // TODO: Remove
     pp_shader.setBool("showNormalSmoothing", options.normalSmoothing);
-    pp_shader.setBool("showWatercolorTextures", options.showWatercolorTextures);
-
+    
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glBindVertexArray(0);
@@ -210,10 +196,7 @@ void PostProcessing::init_shader() {
     pp_shader.setInt("gColor", 2);
     pp_shader.setInt("gSmooth", 3);
     pp_shader.setInt("caustics", 4);
-    pp_shader.setInt("turbulentFlow", 5);
-    pp_shader.setInt("pigmentDispersion", 6);
-    pp_shader.setInt("paperLayer", 7);
-    pp_shader.setInt("shadowMap", 9);
+    pp_shader.setInt("shadowMap", 5);
 
     pp_shader.setVec3("lightPos", light_pos);
     pp_shader.setVec2("waterNormalsSize", glm::vec2(15, 15));

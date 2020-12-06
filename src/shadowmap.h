@@ -26,7 +26,7 @@ public:
     unsigned width, height;
 
     GLuint fbo;
-    arno::Texture texture;
+    Texture texture;
 
     Shader shadow_shader;
 

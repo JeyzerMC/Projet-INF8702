@@ -20,7 +20,7 @@ public:
     unsigned height;
 
     GLuint fbo;
-    arno::Texture caustics_texture;
+    Texture caustics_texture;
 
     Shader shader;
 

@@ -10,9 +10,6 @@ uniform sampler2D gNormal;
 uniform sampler2D gColor;
 uniform sampler2D gSmooth;
 uniform sampler2D caustics;
-uniform sampler2D turbulentFlow;
-uniform sampler2D pigmentDispersion;
-uniform sampler2D paperLayer;
 uniform sampler2D shadowMap;
 
 uniform int scr_width;
@@ -214,21 +211,9 @@ vec3 edgeDetection(vec3 litColor, vec2 texCoords)
     return col;
 }
 
-vec2 getPaperGradient() {
-    float wobFactor = 0.05;
-    float dx = texture(paperLayer, vertTexCoord + vec2(wobFactor, 0)).r - texture(paperLayer, vertTexCoord - vec2(wobFactor, 0)).r;
-    float dy = texture(paperLayer, vertTexCoord + vec2(0, wobFactor)).r - texture(paperLayer, vertTexCoord - vec2(0, wobFactor)).r;
-    return vec2(dx, dy);
-}
-
 void main()
 {
     vec2 texCoords = vertTexCoord;
-    if (showEffects == 1 || (showEffects == 0 && showWobbling)) {
-        texCoords += getPaperGradient() * 0.015;
-        // For some reason, 1 still resulted in wrapping, but 0.9999 is fine :/
-        texCoords = clamp(texCoords, 0, 0.9999);
-    }
     
     vec3 normal;
     if (showEffects == 1 || (showEffects == 0 && showNormalSmoothing))
@@ -256,12 +241,6 @@ void main()
         col = edgeDetection(litColor, texCoords);
     } else {
         col = litColor;
-    }
-
-    if (showEffects == 1 || (showEffects == 0 && showWatercolorTextures)) {
-        col = mix(col, col * texture(turbulentFlow, pos.xz / 15.0).rgb, 0.8);
-        col = mix(col, col * texture(pigmentDispersion, pos.xz).rgb, 0.3);
-        col = mix(col, col * texture(paperLayer, pos.xz / 5.0).rgb, 0.9);
     }
 
     oColor = vec4(col, 1.0);
