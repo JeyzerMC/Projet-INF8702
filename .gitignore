@@ -4,3 +4,13 @@ out
 .vs
 .idea
 cmake-build-debug
+
+**/*.bbl
+**/*.aux
+**/*.blg
+**/*.fdb_latexmk
+**/*.fls
+**/*.log
+**/*.out
+**/*.pdf
+**/*.synctex.gz
