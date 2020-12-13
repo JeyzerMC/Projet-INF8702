@@ -52,7 +52,7 @@ Texture Texture::load_from_file(const std::string &file_path, TextureParameters 
             stbi_image_free);
 
     if (image_data == nullptr) {
-        spdlog::error("image load failed: {}", stbi_failure_reason());
+        spdlog::error("image '{}' load failed: {}", file_path, stbi_failure_reason());
         throw std::runtime_error("Failed to load image.");
     }
 

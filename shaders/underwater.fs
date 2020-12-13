@@ -201,7 +201,7 @@ void main()
     if (showEffects == 1 || (showEffects == 0 && showWobbling)) {
         texCoords += getPaperGradient() * 0.015;
         // For some reason, 1 still resulted in wrapping, but 0.9999 is fine :/
-        texCoords = clamp(texCoords, 0, 0.9999);
+        texCoords = clamp(texCoords, 0.0, 0.9999);
     }
 
     vec3 color = texture(oColor, texCoords).rgb;
