@@ -528,10 +528,13 @@ No that the squares of the grid are still visible by looking closely at the imag
 of the grid being high. However, once the toon shading has run, these are no longer perceptible.
 
 \begin{figure}[h]
- \includegraphics[width=\columnwidth]{imgs/caustics_texture.png}
- \caption{Caustic texture generated from our implementation.}
- \label{fig:caustics_texture}
+    \centering
+    \includegraphics[width=.6\columnwidth]{imgs/caustics_texture.png}
+    \caption{Caustic texture generated from our implementation.}
+    \label{fig:caustics_texture}
 \end{figure}
+
+\vspace{-1em}
 
 \subsection{Water height}
 In order to generate the caustic texture, the algorithm must refract and project on the ground 
@@ -553,10 +556,12 @@ impression that the scene is illuminated by the caustics. This is an approximati
 since we assume that all light rays in the water travel vertically, but the result is good enough. 
 Figure \ref{fig:scene_with_caustics} shows the scene with the caustics projected on it.
 
+\vspace{-0.5em}
 \begin{figure}[h]
- \includegraphics[width=\columnwidth]{imgs/scene_with_caustics.png}
- \caption{Scene with the projected caustic texture.}
- \label{fig:scene_with_caustics}
+    \centering
+    \includegraphics[width=\columnwidth]{imgs/scene_with_caustics.png}
+    \caption{Scene with the projected caustic texture.}
+    \label{fig:scene_with_caustics}
 \end{figure}
 
 \section{Underwater effects}
@@ -573,11 +578,13 @@ In order to implement the blur underwater, a $5\times5$ 2d Gaussian kernel was u
 
 \medskip \par
 \noindent
-In order to have blur that augments fast passed a certain distance, before being used to mix the colors, the depth of the fragment is raised to the third power ($factor = depth^3$). This gives a better effect for the distance blur, as when the camera is close to an object (distance below 1), the blur is almost non-existent, and one the threshold is passed, the blur increases rapidly.
-
-\medskip \par
-\noindent
+In order to have blur that augments fast passed a certain distance, before being used to mix the colors, 
+the depth of the fragment is raised to the third power ($factor = depth^3$). 
+This gives a better effect for the distance blur, as when the camera is close to an object (distance below 1), 
+the blur is almost non-existent, and one the threshold is passed, the blur increases rapidly.
 Figure \ref{fig:scene_with_blur} shows the scene with and without any blur.
+
+\vspace{-1em}
 
 \begin{figure}[h]
 	\centering
@@ -588,6 +595,7 @@ Figure \ref{fig:scene_with_blur} shows the scene with and without any blur.
 	\label{fig:scene_with_blur}
 \end{figure}
 
+\vspace{-1em}
 
 \subsection{Radial darkening}
 The second effect is a radial darkening. This means that fragments on the edge and corners of the screen are darker. This darkening was added in order to make the end image more attractive. This is a fairly common effect, and is easy to implement. The code for the effect is shown below:
