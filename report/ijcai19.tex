@@ -28,6 +28,9 @@
 \usepackage{float}
 \urlstyle{same}
 
+\usepackage{tikz}
+\usetikzlibrary{calc}
+
 % the following package is optional:
 %\usepackage{latexsym}
 
@@ -180,10 +183,61 @@ Figure \ref{fig:scene_content} shows the models of the underwater scene without 
 
 \subsection{Pipeline}
 
-TODO: Talk about the shader pass pipeline here.
+In order to draw an underwater scene, multiple effects must be combined together. This section provides an overview of the rendering pipeline of the project, and explains how each effect has been integrated in the pipeline. For more information about a specific effect, refer to one of the sections below.
+
+Three main effects are added to the scene, and in addition, a very simple shadow map adds some realism. The main effects are enumerated below.
+\begin{enumerate}
+	\item Caustics
+	\item Shadow map
+	\item Watercolor rendering
+	\item Underwater effects
+\end{enumerate}
+
+The ordering of all render passes is shown in figure~\ref{fig:render_passes}. Note that a render pass is defined by a series of draw calls that render to a given target. In our case, all render passes except the last one render to framebuffers. The correspondence between render passes and the corresponding effects is described below.
+
+
+\begin{figure}[h]
+	\begin{tikzpicture}[
+	renderpass/.style={rectangle, draw=black, fill=black!10, thick, minimum height=2.5em, minimum width=7em, text height=height{"A"},text depth=depth{"g"}},
+	]
+	\node[renderpass] at (0, 0) (caustics) {Caustics};
+	\node[renderpass] at (8em, 0) (shadowmap) {Shadowmap};
+	\node[renderpass] at (16em, 0) (scene) {Scene};
+	
+	\node[renderpass] at (8em, -1 * 4.5em) (light) {Light};
+	\node[renderpass] at (8em, -2 * 4.5em) (erode) {Erosion};
+	\node[renderpass] at (8em, -3 * 4.5em) (dilate) {Dilation};
+	\node[renderpass] at (8em, -4 * 4.5em) (dilate2) {Dilation};
+	\node[renderpass] at (8em, -5 * 4.5em) (erode2) {Erosion};
+	\node[renderpass] at (8em, -6 * 4.5em) (underwater) {Underwater};
+	
+	\draw[->] (caustics) to (light);
+	\draw[->] (shadowmap) to (light);
+	\draw[->] (scene) to (light);
+	\draw[->] (light) to (erode);
+	\draw[->] (erode) to (dilate);
+	\draw[->] (dilate) to (dilate2);
+	\draw[->] (dilate2) to (erode2);
+	\draw[->] (erode2) to (underwater);
+	\end{tikzpicture}
+	\caption{schema of all the render passes in the program}
+	\label{fig:render_passes}
+\end{figure}
+
+The caustic effect (further described in section~\ref{sec:caustics}) works as follows: it renders a caustic texture on a framebuffer and then projects the texture on the scene. This effect therefore requires a separate pass and a dedicated framebuffer for the texture to be rendered in.
+
+The shadowmap works in much the same way, it renders a depth buffer in the point of view of the light, and then a check is made when drawing the light (note that the caustics are part of the light) to see if a given fragment is illuminated or not. Our shadow map implementation is very simple, and does not do a lot of work to obtain good-looking shadows. In practice, the watercolor effect is very prominent, so the irregularities are not very visible.
+
+The caustic texture and the shadow map are applied on the scene in a separate pass, the "Light" pass. We use deferred rendering to calculate the illumination of the scene, so the light pass requires the position, normals and base colors for every fragment of the scene. The "Scene" pass is responsible for drawing all objects of the scene in order to retrieve the position, normal and color information per pixel and send it to the light pass.
+
+The watercolor effect (further described in section~\ref{sec:watercolor}) is a bit more complicated. In order to be able to correctly apply the effect, we need to be able to sample neighbouring pixels. In order to do this, the effect is split in multiple passes. Stating from the light pass, 4 passes perform erosion and dilation effects. Then, the rest of the watercolor effect is applied at the same time as the underwater effects, in the underwater pass.
+
+Finally, the underwater effect (further described in section~\ref{sec:underwater}) is applied at the end of the pipeline, in the underwater pass. The underwater effect is therfore computed in the same shader as the end of the watercolor effect. The result is rendered directly on the screen and completes the render pipeline.
+
 
 \newpage
 \section{Watercolor rendering}
+\label{sec:watercolor}
 
 TODO: Talk about the watercolor rendering pipeline here.
 
@@ -213,6 +267,7 @@ TODO: Talk about pigment density variation here.
 
 \newpage
 \section{Caustics}
+\label{sec:caustics}
 
 In order to render caustics, we use a method called Periodic Caustic Textures \cite{periodic_caustic_textures}. This method is relatively simple. First, a grid with a certain resolution is generated. The grid is then rendered on a framebuffer. The vertex shader used in the rendering changes the x and y coordinates of the grid vertex by refracting the vertex as if it was a ray of light coming from above. The distorted mesh is then drawn in the fragment shader, using the ratio of the new area of a triangle over the original area of a triangle to calculate the color. This way, if the vertices are sent close together, the caustic color approaches white, while if the vertices are sent apart, the caustic color approaches black.
 
@@ -235,6 +290,7 @@ Once the caustic texture is generated, we project the texture on the scene to gi
 \end{figure}
 
 \section{Underwater effects}
+\label{sec:underwater}
 
 TODO: Talk about underwater effects here.
 
