@@ -26,6 +26,7 @@
 % \usepackage{epstopdf}
 \usepackage{makecell}
 \usepackage{float}
+\usepackage{listings}
 \urlstyle{same}
 
 \usepackage{tikz}
@@ -71,6 +72,7 @@ mehdi.chaid@polymtl.ca
 }
 
 \begin{document}
+\lstset{language=C++}
 \makeatletter
 \g@addto@macro\@maketitle{
   \begin{figure}[H]
@@ -268,14 +270,15 @@ normal and color information per pixel and send it to the light pass.
 \noindent
 The watercolor effect (further described in section~\ref{sec:watercolor}) is a bit more complicated. 
 In order to be able to correctly apply the effect, we need to be able to sample neighbouring pixels. 
-In order to do this, the effect is split in multiple passes. Stating from the light pass, 
-4 passes perform erosion and dilation effects. Then, the rest of the watercolor effect is applied 
-at the same time as the underwater effects, in the underwater pass.
+In order to achieve this, the effect is split over multiple passes. Following the light pass, 
+4 passes perform alternating erosion and dilation effects. 
+Then, the rest of the watercolor effect is applied at the same time as the underwater effects, 
+in the underwater pass.
 
 \medskip \par
 \noindent
 Finally, the underwater effect (further described in section~\ref{sec:underwater}) is applied at 
-the end of the pipeline, in the underwater pass. The underwater effect is therfore computed in 
+the end of the pipeline, in the underwater pass. The underwater effect is therefore computed in 
 the same shader as the end of the watercolor effect. The result is rendered directly on the screen 
 and completes the render pipeline.
 
@@ -295,11 +298,51 @@ was conflicting with the desired underwater effect.
 
 \subsection{Cel shading}
 
-The first modification needed for a watercolor effect is to lower the amount of details in the image by 
+The first modification needed for a watercolor effect is to lower the amount of details available 
+in the image by reducing the color variations. On a static image, a color segmentation step, through the use
+of a mean shift algorithm, would be required to obtain the desired density. In this case however, using the 
+light position and fragment normals, we can achieve good results with a simple cel shader combined with 
+normal smoothing.
+
+\medskip \par
+\noindent
+For the cel shading, we compute the color of each fragment using a simple diffuse model. 
+We can then transform that rgb color to hsv space in order to access its color intensity value. 
+Through its hsv representation, the color intensity can be clamped to a chosen level using the following formula. 
+Doing so clamps the intensity value to 4 different levels, while preserving the overall color.
+
+\lstinputlisting{code/celshading.cpp}
+
+\vspace{-1.5em}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.8\columnwidth]{imgs/celshading_levels.png}
+    \caption{Cel shading color transitions for the green color.}
+    \label{fig:celshading_levels}
+\end{figure}
+
+\vspace{-1.5em}
+
+\begin{figure}[h]
+    \centering
+    \subfloat[Diffuse shading.]{\includegraphics[width=0.47\columnwidth]{imgs/diffuse_shading.jpg}\label{fig:dshading}}
+    \hspace{1em}
+    \subfloat[Cel shading.]{\includegraphics[width=0.47\columnwidth]{imgs/cel_shading.jpg}\label{fig:cshading}}
+    \caption{Diffuse vs cel shading with low poly models.}
+    \label{fig:celshading_result}
+\end{figure}
+
 
 \subsection{Normal smoothing}
 
-TODO: Talk about normal smoothing here.
+As can be seen in Figure \ref{fig:celshading_result}, when used on low poly models with curved surface,
+such as the clay pot, it results in aliasing in the transitions between the levels. To fix that, as well as
+reduce some additionnal detail in the shape, we use a process called normal smoothing.
+
+\medskip \par
+\noindent
+Normal smoothing consists of average every vertex normal with the normals of its neighbors.
 
 \subsection{Morphological smoothing}
 
