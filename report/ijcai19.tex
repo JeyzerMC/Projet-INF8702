@@ -97,8 +97,8 @@ mehdi.chaid@polymtl.ca
 Watercolor rendering is a unique non-photorealistic rendering (NRP) technique, 
 used to simulate hand painting art on a 3D scene. In this paper, we attempt to
 combine the effects of watercolor rendering with additional caustics and underwater
-effects in order to produce an abstract scene with a swimming fish. 
-Figure \ref{fig:project_results} shows the base scene with different levels of effects applied.
+effects in order to produce an abstract scene with a swimming fish in OpenGL. 
+Figure \ref{fig:project_results} shows the resulting scene with various levels of effects applied.
 
 \end{abstract}
 
@@ -110,46 +110,72 @@ on the other hand, allows for some interesting variations of saturation and brig
 eye-catching colors that no other medium can match. Creating pleasant watercolor results requires 
 careful planning, as well as a great deal of artistic understanding and experience. \medskip \par
 
+\noindent
 When used properly, this mix of bright, dancing colors and textured brush strokes creates images that appear 
 simple at first glance, while retaining a surprising amount of details. As such, this style is often used in
-architectural visualisation to produce rich images that allow for a quick understanding of the scenery, as can 
-be seen in the example below.
+architectural visualisation to produce rich images that allow for a quick understanding of the content, as can 
+be seen in Figure \ref{fig:watercolor_architecture}.
 
-\begin{figure}
+\begin{figure}[h]
     \centering
-    \subfloat[Flower one.]{\includegraphics[width=0.4\columnwidth]{imgs/watercolor_architecture.jpg}\label{fig:f1}}
+    \subfloat[Dark, narrow street in \centering London.]{\includegraphics[width=0.4\columnwidth]{imgs/watercolor_architecture.jpg}\label{fig:f1}}
     \hfill
-    \subfloat[Flower two.]{\includegraphics[width=0.4\columnwidth]{imgs/watercolor_architecture_2.jpg}\label{fig:f2}}
+    \subfloat[Ponte San Angelo \centering ©Gerald Fritzler.]{\includegraphics[width=0.4\columnwidth]{imgs/watercolor_architecture_2.jpg}\label{fig:f2}}
     \caption{Watercolor style for architectural visualisation}
+    \label{fig:watercolor_architecture}
+\end{figure}
+
+\noindent
+Please note, however, that these examples were produced in a watercolor style that differs from the one 
+presented in this paper.
+
+\medskip \par
+\noindent
+Our main inspiration for this work comes from our wish to experiment with cel shading in an underwater 
+scenery. While looking for reference material, we stumbled upon a relevant video that implement
+this effect using Blender \cite{caustics_video}. We decided to push the idea further by mixing in a watercolor
+effect as additional passes on top using a paper from \cite{watercolor_paper}.
+
+\begin{figure}[h]
+    \centering
+    \subfloat[]{\includegraphics[width=0.45\columnwidth]{imgs/wp_result_1.jpg}\label{fig:wp1}}
+    \hfill
+    \subfloat[]{\includegraphics[width=0.45\columnwidth]{imgs/wp_result_2.jpg}\label{fig:wp2}}
+    \caption{Some results from the reference watercolor paper.}
     \label{fig:watercolor_architecture}
 \end{figure}
 
 \medskip \par
 \noindent
-TODO: Talk about inspirations here. \medskip \par 
+In this paper, we present a brief overview of the scene content, and project framework. 
+We then go over the general pipeline used to produce the results in Figure \ref{fig:project_results}, before
+diving into the implementation details of each step in their specific section. Lastly, some interesting 
+results and research discussion will be mentionned, before concluding.
 
-\noindent
-TODO: Talk about the watercolor and caustics papers here.
-
-% EXAMPLE HOW TO CITE HERE
-% The first proof that shapes are fundamental in computer vision came from a very influential study on cognition, 
-% by \cite{hubel1959receptive}, who described how biological neurons could extract features from images,
-% amongst which certain types of neurons were activated specifically by edges. \medskip \par 
-
-\newpage
 \section{Scene}
 
 \subsection{Framework}
 
-TODO: Talk about learnopengl.com and the base framework here.
+The source code for the project can be found on Github \cite{watercolor_underwater}. 
+The code was written in C++ with OpenGL 4.6 core. We've used the LearnOpenGL \cite{learnopengl} 
+online resource to bootstrap some of the initial work (camera class, shader class, model loading).
 
 \subsection{Content}
-The scene models an underwater environment. The floor is made of a square patch of sand, and multiple static low polygon meshes are scattered on it. In addition, an animated low polygon fish is placed in the water above. Only the sand model is textured, all other models use a constant color per face. Figure \ref{fig:scene_content} shows the models of the underwater scene without any effect applied on them.
+The scene models an underwater environment with multiple static low polygon meshes scattered around. 
+The floor is made of a square displaced patch produced in Blender, with a sand texture on top. 
+All objects used in this project were not modeled by us, and are available for free on CgTrader \cite{cgtrader}.
+
+\medskip \par
+\noindent
+In addition, an animated low polygon fish is placed in the water above. 
+Only the sand plane model is textured, all other models use a constant color per face. 
+Figure \ref{fig:scene_content} shows the models of the underwater scene without any effect applied on them.
 
 \begin{figure}[h]
- \includegraphics[width=\columnwidth]{imgs/scene_contents.png}
- \caption{content of the scene}
- \label{fig:scene_content}
+    \centering
+    \includegraphics[width=.9\columnwidth]{imgs/scene_contents.png}
+    \caption{Content of the scene with diffuse light.}
+    \label{fig:scene_content}
 \end{figure}
 
 \subsection{Pipeline}
