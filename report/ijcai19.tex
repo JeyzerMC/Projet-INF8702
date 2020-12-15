@@ -103,6 +103,7 @@ Figure \ref{fig:project_results} shows the resulting scene with various levels o
 \end{abstract}
 
 \section{Introduction}
+\label{section:introduction}
 
 The use of watercolor in the 3D industry is rare and usually limited to static images. 
 It  goes again the general trend to make environments more realistic and detailed. This unique style, 
@@ -182,14 +183,30 @@ Figure \ref{fig:scene_content} shows the models of the underwater scene without 
 
 TODO: Talk about the shader pass pipeline here.
 
+\begin{figure*}[h]
+    \centering
+    \includegraphics[width=\linewidth]{imgs/watercolor_pipeline.png}
+    \caption{Simplified watercolor pipeline.}
+    \label{fig:watercolor_pipeline}
+\end{figure*}
+
 \newpage
 \section{Watercolor rendering}
 
-TODO: Talk about the watercolor rendering pipeline here.
+As mentionned in Section~\ref{section:introduction}, we have based our watercolor implementation on a paper by 
+\cite{watercolor_paper}, with a few modifications to accomodate for the underwater scene context. 
+In this section,we will present the pipeline proposed by the authors to produce the desired effect, 
+as well as the areas where our implementation deviates from the original paper. 
+
+\medskip \par
+\noindent
+Figure \ref{fig:watercolor_pipeline} shows a simplified version of the pipeline, with only a 3D scene as input, 
+as opposed to a 3D scene or static image used by the authors. We also got rid of the dry brush effect, as it 
+was conflicting with the desired underwater effect.
 
 \subsection{Cel shading}
 
-TODO: Talk about cel shading here.
+The first modification needed for a watercolor effect is to lower the amount of details in the image by 
 
 \subsection{Normal smoothing}
 
@@ -199,7 +216,7 @@ TODO: Talk about normal smoothing here.
 
 TODO: Talk about morphological smoothing here.
 
-\subsection{Paper effects}
+\subsection{Wobbling effect}
 
 TODO: Talk about paper effects here.
 
