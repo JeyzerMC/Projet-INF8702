@@ -308,7 +308,8 @@ normal smoothing.
 \noindent
 For the cel shading, we compute the color of each fragment using a simple diffuse model. 
 We can then transform that rgb color to hsv space in order to access its color intensity value. 
-Through its hsv representation, the color intensity can be clamped to a chosen level using the following formula. 
+Through its hsv representation, the color intensity can be clamped to a chosen level using the formula
+presented in Figure \ref{fig:celshading_levels}. 
 Doing so clamps the intensity value to 4 different levels, while preserving the overall color.
 
 \lstinputlisting{code/celshading.cpp}
@@ -333,7 +334,6 @@ Doing so clamps the intensity value to 4 different levels, while preserving the 
     \label{fig:celshading_result}
 \end{figure}
 
-
 \subsection{Normal smoothing}
 
 As can be seen in Figure \ref{fig:celshading_result}, when used on low poly models with curved surface,
@@ -342,7 +342,44 @@ reduce some additionnal detail in the shape, we use a process called normal smoo
 
 \medskip \par
 \noindent
-Normal smoothing consists of average every vertex normal with the normals of its neighbors.
+Normal smoothing consists of average every vertex normal with its neighbors' normals. Each pass reduce 
+the amount of details in the model, while preserving the overall silhouette intact.
+The process can be repeated multiple time in order to obtain the desired level of details, 
+or lack of, in this case.
+
+\begin{figure}[h]
+    \centering
+    \subfloat[No normal smoothing.]{\includegraphics[width=0.47\columnwidth]{imgs/normal_smoothing_0.jpg}\label{fig:nsmoothing0}}
+    \hspace{1em}
+    \subfloat[1 pass of smoothing.]{\includegraphics[width=0.47\columnwidth]{imgs/normal_smoothing_1.jpg}\label{fig:nsmoothing4}} \\
+    \subfloat[7 passes of smoothing.]{\includegraphics[width=0.47\columnwidth]{imgs/normal_smoothing_7.jpg}\label{fig:nsmoothing7}}
+    \hspace{1em}
+    \subfloat[20 passes of smoothing.]{\includegraphics[width=0.47\columnwidth]{imgs/normal_smoothing_20.jpg}\label{fig:nsmoothing20}}
+    \caption{Effect of normal smoothing on the cel shading.}
+    \label{fig:normal_smoothing_results}
+\end{figure}
+
+\noindent
+Figure \ref{fig:normal_smoothing_results} shows various level of normal smoothing applied to the pot. 
+We have found that repeating the process a total of 7 times gives the best results across a variety of models,
+and have kept that for the rest of the experiment.
+
+\medskip \par
+\noindent
+The initial implementation was done in a fragment shader, using a deferred rendering technique to query the 
+neighboring fragment normals using a post process normal map. The issue with this approach was that we could 
+only do one pass per fragment shader, and that was repeated every frame. To get 7 passes using this technique, 
+we would have to write the normals to a texture and do a pass with the post process shader multiple times every 
+frame.
+
+\medskip \par
+\noindent
+As a tradeof, in order to save rendering time, we've instead decided compute the normal smoothing on a per vertex basis, on
+the CPU at load time. This only happens at the beginning of the program once, and can easily be repeated any 
+number of time necessary. The issue however, is that it is done on the CPU, and can slow down considerably the 
+program if a large number of detailed models is used. For this experiment however, this was not an issue with 
+the low poly models used.
+
 
 \subsection{Morphological smoothing}
 
