@@ -470,7 +470,72 @@ Figure \ref{fig:scene_with_caustics} shows the scene with the caustics projected
 \section{Underwater effects}
 \label{sec:underwater}
 
-TODO: Talk about underwater effects here.
+In order to make the scene look like an underwater scene and make the final result more attractive, three additional effects have been implemented. These effects are not based on a physical model, but are purely cosmetic. 
+
+\subsection{Blur}
+The first effect is a blur. This simulates the blur that is seen underwater with a human eye. The blur we added is dependent on two factors, the distance of a fragment to the camera (fragments further away are blurrier), and the distance of the fragment to the center of the viewport (fragments on the side and in the corners of the viewport will be blurrier). This effect is not realistic, but still gives the feeling of an underwater scene.
+
+\medskip \par
+\noindent
+In order to implement the blur underwater, a $5\times5$ 2d Gaussian kernel was used. The kernel is scaled on the image using a range parameter in order to have different blur intensities without changing the speed of the algorithm. This kernel is convolved twice, once using a range of 3 and once using a range of 10. The result of both of these blurs is then mixed with the non-blurred color, using two factors, one dependent on the depth of the fragment and one dependent on the distance to the center of the viewport.
+
+\medskip \par
+\noindent
+In order to have blur that augments fast passed a certain distance, before being used to mix the colors, the depth of the fragment is raised to the third power ($factor = depth^3$). This gives a better effect for the distance blur, as when the camera is close to an object (distance below 1), the blur is almost non-existent, and one the threshold is passed, the blur increases rapidly.
+
+\medskip \par
+\noindent
+Figure \ref{fig:scene_with_blur} shows the scene with and without any blur.
+
+\begin{figure}[h]
+	\centering
+	\subfloat[Without blur.]{\includegraphics[width=0.47\columnwidth]{imgs/blur_off.png}}
+	\hspace{1em}
+	\subfloat[With blur.]{\includegraphics[width=0.47\columnwidth]{imgs/blur_on.png}}
+	\caption{The effect of blur on the scene.}
+	\label{fig:scene_with_blur}
+\end{figure}
+
+
+\subsection{Radial darkening}
+The second effect is a radial darkening. This means that fragments on the edge and corners of the screen are darker. This darkening was added in order to make the end image more attractive. This is a fairly common effect, and is easy to implement. The code for the effect is shown below:
+\lstinputlisting{code/radial-darkening.glsl}
+
+\medskip \par
+\noindent
+Figure \ref{fig:scene_with_radial_darkening} shows the results of radial darkening on a scene. Notice the corners of the image. The effect is minimal, and can be hard to notice if it is not pointed out, but adds to the overall image attractiveness.
+
+\begin{figure}[h]
+	\centering
+	\subfloat[Without radius darkening.]{\includegraphics[width=0.47\columnwidth]{imgs/bright_sides.png}}
+	\hspace{1em}
+	\subfloat[With radius darkening.]{\includegraphics[width=0.47\columnwidth]{imgs/blur_off.png}}
+	\caption{The effect of radial darkening on the scene.}
+	\label{fig:scene_with_radial_darkening}
+\end{figure}
+
+\subsection{Color tint}
+Water absorbs certain light wavelengths faster than others. In particular, red and green light are absorbed by water, so often underwater scenes take a blue tint. In order to create a similar effect, but without making it physically accurate, we tint the entire scene with a blue color.
+All fragments of the scene are mixed with a color according to the following formula:
+\[ color = \text{mix}\left(color, tint, 0.75\right)\]
+Where tint is the tint color, defined with the rgb values $(0.0, 0.07, 0.1)$.
+
+\medskip \par
+\noindent
+Figure \ref{fig:scene_with_tint} shows the effect of adding the color tint on the scene.
+
+\begin{figure}[h]
+	\centering
+	\subfloat[Without tint.]{\includegraphics[width=0.47\columnwidth]{imgs/blur_off.png}}
+	\hspace{1em}
+	\subfloat[With tint.]{\includegraphics[width=0.47\columnwidth]{imgs/tinted.png}}
+	\caption{The effect of color tint on the scene.}
+	\label{fig:scene_with_tint}
+\end{figure}
+
+
+\medskip \par
+\noindent
 
 \section{Results}
 
