@@ -349,7 +349,7 @@ or lack of, in this case.
 
 \begin{figure}[h]
     \centering
-    \subfloat[No normal smoothing.]{\includegraphics[width=0.47\columnwidth]{imgs/normal_smoothing_0.jpg}\label{fig:nsmoothing0}}
+    \subfloat[Cel shading, no smoothing.]{\includegraphics[width=0.47\columnwidth]{imgs/normal_smoothing_0.jpg}\label{fig:nsmoothing0}}
     \hspace{1em}
     \subfloat[1 pass of smoothing.]{\includegraphics[width=0.47\columnwidth]{imgs/normal_smoothing_1.jpg}\label{fig:nsmoothing4}} \\
     \subfloat[7 passes of smoothing.]{\includegraphics[width=0.47\columnwidth]{imgs/normal_smoothing_7.jpg}\label{fig:nsmoothing7}}
@@ -377,13 +377,105 @@ frame.
 As a tradeof, in order to save rendering time, we've instead decided compute the normal smoothing on a per vertex basis, on
 the CPU at load time. This only happens at the beginning of the program once, and can easily be repeated any 
 number of time necessary. The issue however, is that it is done on the CPU, and can slow down considerably the 
-program if a large number of detailed models is used. For this experiment however, this was not an issue with 
-the low poly models used.
+program if a large number of detailed models is used. 
 
+\medskip \par
+\noindent
+In the context of this experiment, the additional load time at the opening of the program was not an issue 
+given the small amound of low poly models used.
 
 \subsection{Morphological smoothing}
 
-TODO: Talk about morphological smoothing here.
+An additionnal morphological smoothing pass can be applied on the resulting image to further reduce the level
+of details in the scene. Just like most of the other watercolor steps, they are applied on a post-process basis.
+We've decided to apply it in this case as it helps reducing the sharp noise introduced by the wobbling to an
+acceptable range, as the reminder of the noise is necessary to obtain the desired watercolor effect.
+
+\medskip \par
+\noindent
+The smoothing we've applied is composed of an initial opening sequence (Erosion - Dilation) followed by a closing sequence
+(Dilation - Erosion). Erosion consists of applying a kernel over a black and white image, and setting the target
+fragment to 1 if every fragment in the kernel is also 1 (white). Dilation is the opposite operation, it sets a fragment
+to 1 if at least one fragment in the kernel is 1. 
+
+\begin{figure}[h]
+    \centering
+    \subfloat[Opening sequence.]{\includegraphics[width=0.47\columnwidth]{imgs/opening.png}\label{fig:opening}}
+    \hspace{1em}
+    \subfloat[Closing sequence.]{\includegraphics[width=0.47\columnwidth]{imgs/closing.png}\label{fig:closing}}
+    \caption{OpenCV documentation on morphological operations.}
+    \label{fig:opencv-morph}
+\end{figure}
+
+\noindent
+A difficulty arise when dealing with colored images: What do we define as 0 and 1 respectively? 
+Since images are not black and white, each pixel queried by the kernel is likely to be slightly different, 
+and both operations cannot be applied as is. Another consideration is that the morphological operation 
+should not introduce new colors to the image, as the goal is to reduce the amount of details, not increase it.
+
+\medskip \par
+\noindent
+A possible solution for that is to use a gray-scaled approach to the morphological smoothing, and process each
+r, g and b channels individually. Alternatively, the smoothing could be applied to the value part on the HSV 
+space of the image. Both of those approach break the color preservation criterion. 
+\cite{morph_colors_1} perform more advanced operations on the chromatic scale, by mixing the reduced 
+and conditional ordering of the underlying image. 
+\cite{morph_colors_2} construct a specific color ordering for each particular image and perform morphological 
+operations using this ordering.
+
+\medskip \par
+\noindent
+Such extended approaches were not needed in the scope of this experiment, as the morphological smoothing serves
+as an additional polish between the normal smoothing and the wobbling effect. For this reason, we've settled on 
+a simple, straightforward solution. 
+
+\medskip \par
+\noindent
+A 3x3 kernel is applied over the image, with each r, g and b channel being processed independently. For the 
+erosion operation, the lowest channel value in kernel is taken as the fragment's channel value. 
+For the dilation, it's the opposite, the highest channel value is kept.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\columnwidth]{imgs/no_smoothing_2.jpg}
+    \caption{No morphological smoothing.}
+    \label{fig:no_ms}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\columnwidth]{imgs/erosion.jpg}
+    \caption{Single pass erosion effect.}
+    \label{fig:erosion_ms}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\columnwidth]{imgs/opening_closing.jpg}
+    \caption{Full opening-closing sequence.}
+    \label{fig:opening_closing_ms}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\columnwidth]{imgs/dilation.jpg}
+    \caption{Single pass dilation effect.}
+    \label{fig:dilation_ms}
+\end{figure}
+
+\newpage
+\noindent
+Figures \ref{fig:no_ms} and \ref{fig:opening_closing_ms} show an overview of the scene, before and after 
+applying the morphological sequence. Due to the small sequence that was used, only a little bit of the 
+details around some edges were smoothed out. Using a bigger kernel, and possibly a different approach to 
+the smoothing could yield better results. 
+
+\medskip \par
+\noindent
+Figures \ref{fig:erosion_ms} and \ref{fig:dilation_ms} show the result of each operation. 
+Erosion expand and darken the edges around the objects. It can be used in conjonction with the edge darkening 
+effect used later on in the pipeline. Dilation, on the other hand, 
+lighten the edges and make the objects thinner.
 
 \subsection{Wobbling effect}
 
