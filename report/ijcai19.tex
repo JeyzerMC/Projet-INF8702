@@ -17,6 +17,7 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage[utf8]{inputenc}
 \usepackage[small]{caption}
+\usepackage{subfig}
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{booktabs}
@@ -67,15 +68,64 @@ mehdi.chaid@polymtl.ca
 }
 
 \begin{document}
-
+\makeatletter
+\g@addto@macro\@maketitle{
+  \begin{figure}[H]
+  \setlength{\linewidth}{\textwidth}
+  \setlength{\hsize}{\textwidth}
+  \centering
+  \centering
+  \subfloat[Scene with simple diffuse light.]{
+      \includegraphics[width=0.32\linewidth]{imgs/base_scene.jpg}\label{fig:base_scene}
+  }
+  \hfill
+  \subfloat[Scene with watercolor effects.]{
+      \includegraphics[width=0.32\linewidth]{imgs/watercolor_scene.jpg}\label{fig:watercolor_scene}
+  }
+  \hfill
+  \subfloat[Final scene with all effects.]{
+      \includegraphics[width=0.32\linewidth]{imgs/all_scene.jpg}\label{fig:all_scene}
+  }
+  \caption{Final underwater scene with multiple levels of effects.}
+  \label{fig:project_results}
+  \end{figure}
+}
+\makeatother
 \maketitle
 
 \begin{abstract}
-TODO: Short summary about the project here.
+Watercolor rendering is a unique non-photorealistic rendering (NRP) technique, 
+used to simulate hand painting art on a 3D scene. In this paper, we attempt to
+combine the effects of watercolor rendering with additional caustics and underwater
+effects in order to produce an abstract scene with a swimming fish. 
+Figure \ref{fig:project_results} shows the base scene with different levels of effects applied.
+
 \end{abstract}
 
 \section{Introduction}
 
+The use of watercolor in the 3D industry is rare and usually limited to static images. 
+It  goes again the general trend to make environments more realistic and detailed. This unique style, 
+on the other hand, allows for some interesting variations of saturation and brightness, as well as vibrant, 
+eye-catching colors that no other medium can match. Creating pleasant watercolor results requires 
+careful planning, as well as a great deal of artistic understanding and experience. \medskip \par
+
+When used properly, this mix of bright, dancing colors and textured brush strokes creates images that appear 
+simple at first glance, while retaining a surprising amount of details. As such, this style is often used in
+architectural visualisation to produce rich images that allow for a quick understanding of the scenery, as can 
+be seen in the example below.
+
+\begin{figure}
+    \centering
+    \subfloat[Flower one.]{\includegraphics[width=0.4\columnwidth]{imgs/watercolor_architecture.jpg}\label{fig:f1}}
+    \hfill
+    \subfloat[Flower two.]{\includegraphics[width=0.4\columnwidth]{imgs/watercolor_architecture_2.jpg}\label{fig:f2}}
+    \caption{Watercolor style for architectural visualisation}
+    \label{fig:watercolor_architecture}
+\end{figure}
+
+\medskip \par
+\noindent
 TODO: Talk about inspirations here. \medskip \par 
 
 \noindent
