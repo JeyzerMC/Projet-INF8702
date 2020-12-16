@@ -2,7 +2,7 @@
 #define SHADER_H
 
 
-// TODO: CITER SOURCE: https://learnopengl.com/code_viewer_gh.php?code=includes/learnopengl/shader.h
+// This class was taken from: https://learnopengl.com/code_viewer_gh.php?code=includes/learnopengl/shader.h
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 

@@ -26,10 +26,7 @@ const float waterRefracitonIndex = 1.333;
 uniform int showEffects;
 uniform bool showToonShading;
 uniform bool showCaustics;
-uniform bool showWobbling;
-uniform bool showEdges;
 uniform bool showNormalSmoothing;
-uniform bool showWatercolorTextures;
 
 // Light
 // TODO: Consider adding multiple light sources.

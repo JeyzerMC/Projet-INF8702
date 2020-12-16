@@ -1,7 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-// TODO: CITER SOURCE: https://learnopengl.com/code_viewer_gh.php?code=includes/learnopengl/camera.h
+// This class was taken from https://learnopengl.com/code_viewer_gh.php?code=includes/learnopengl/camera.h
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

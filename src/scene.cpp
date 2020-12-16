@@ -140,7 +140,6 @@ Scene::Scene()
             star_fish,
     });
 
-//    water_normals.loop_mode = LoopMode::PingPong;
     glEnable(GL_DEPTH_TEST); // TODO: CHECK IF STAYS HERE
     post_process.InitFBO(light_pos); // TODO: Move lights into scene
 }
@@ -152,8 +151,6 @@ void Scene::processInputs(int key)
 
 void Scene::render(Camera* camera, double time)
 {
-    // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
     post_process.bindFBO();
 
     // activate shader
@@ -167,10 +164,6 @@ void Scene::render(Camera* camera, double time)
     // camera/view transformation
     glm::mat4 view = camera->GetViewMatrix();
     rend_shader.setMat4("view", view);
-    // Bind textures // TODO: MOVE THIS TO POST PROCESS
-    // glBindTexture(GL_TEXTURE_2D, water_normals.sampleTexture(glfwGetTime()).texture);
-    // Our water normal map covers a 5 x 5 m area
-    // rend_shader.setVec2("waterNormalsMapSize", 5, 5);
 
     draw_models(rend_shader, time);
     shadowmap.draw_in_map([this, time] (Shader& s) { draw_models(s, time); });

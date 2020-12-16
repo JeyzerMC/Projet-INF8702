@@ -27,10 +27,9 @@ PostProcessing::PostProcessing()
 
     init_shader();
     initBuffers();
-    initP2Buffers();
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+        spdlog::error("FRAMEBUFFER:: Framebuffer is not complete!");
     glBindFramebuffer(GL_FRAMEBUFFER, 0);  
 }
 
@@ -53,8 +52,6 @@ void PostProcessing::bindFBO()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
     glBindFramebuffer(GL_FRAMEBUFFER, g_buffer);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // TODO: CHECK IF NEED DEPTH TEST HERE
-    // glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
 }
 
 void PostProcessing::renderFBO(const Options& options, double time, const Shadowmap& shadow_map, const glm::vec3& camPos)
@@ -76,7 +73,6 @@ void PostProcessing::renderFBO(const Options& options, double time, const Shadow
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, g_smooth);
 
-    // TODO: BIND HERE THE CAUSTICS MAP
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, this->caustics.caustics_texture.texture);
 
@@ -88,8 +84,6 @@ void PostProcessing::renderFBO(const Options& options, double time, const Shadow
     pp_shader.setInt("showEffects", options.showEffects);
     pp_shader.setBool("showToonShading", options.showToonShading);
     pp_shader.setBool("showCaustics", options.showCaustics);
-    pp_shader.setBool("showWobbling", options.showWobbling);
-    pp_shader.setBool("showEdges", options.showEdges); // TODO: Remove
     pp_shader.setBool("showNormalSmoothing", options.normalSmoothing);
     
     glBindVertexArray(VAO);
@@ -168,11 +162,6 @@ void PostProcessing::initBuffers()
     glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, Constants::SCR_WIDTH, Constants::SCR_HEIGHT);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
-}
-
-void PostProcessing::initP2Buffers()
-{
-    // TODO: DELETE
 }
 
 void PostProcessing::reload_shaders() {

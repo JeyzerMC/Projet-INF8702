@@ -15,7 +15,6 @@ public:
     virtual void bind();
     virtual void draw();
     virtual void clear();
-    // virtual void reload() = 0;
 
 protected:
     virtual void initBuffers();

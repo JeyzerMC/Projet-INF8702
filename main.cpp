@@ -17,10 +17,6 @@ void processInput(GLFWwindow *window);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void debug_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam);
 
-// settings
-// const static unsigned int SCR_WIDTH = 1200;
-// const static unsigned int SCR_HEIGHT = 800;
-
 // camera
 Camera camera(glm::vec3(0.0f, 8.0f, 15.0f), glm::vec3(0.0f, 1.0f, 0.0f), /* yaw */ -90.0, /* pitch */ -25.0);
 double lastX = Constants::SCR_WIDTH / 2.0f;

@@ -29,7 +29,6 @@ public:
 
 private:
     void initBuffers();
-    void initP2Buffers();
     void init_shader();
     unsigned int VAO, VBO;
     unsigned int g_buffer;
