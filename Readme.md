@@ -8,7 +8,7 @@
 
 2. Install dependencies
     ```
-   $ ./vcpkg/vcpkg install glew glfw3 glm spdlog tinyobjloader stb glad
+   $ ./vcpkg/vcpkg install glfw3 glm spdlog stb glad assimp
    ```
 
 3. Build the project using `cmake` (or open it in your IDE if it supports cmake)
@@ -18,6 +18,7 @@
    $ cmake ../
    $ make .
    ```
+   Note: if you are on windows, there is a bug with visual studio preventing the generation of the CMake project. You can use cmake separatly to generate the project and open it with visual studio.Note: if you are on windows, there is a bug with visual studio preventing the generation of the CMake project. You can use cmake separatly to generate the project and open it with visual studio.Note: if you are on windows, there is a bug with visual studio preventing the generation of the CMake project. You can use cmake separatly to generate the project and open it with visual studio.
 
 
 # Inputs
@@ -31,8 +32,6 @@ E -> Move Up
 
 Mouse -> Turn camera
 
-R -> Hot-Reload Shader
-
 V -> Toggle Toon Shading
 C -> Toggle Caustics
 B -> Toggle Edges
@@ -41,6 +40,8 @@ M -> Toggle Wobbling
 J -> Toggle Blur
 K -> Toggle Underwater Tint
 L -> Toggle Watercolor Textures
+O -> Toggle Erosion
+P -> Toggle Dilation
 
 1 -> Show Selected Effects
 2 -> Show All Effects

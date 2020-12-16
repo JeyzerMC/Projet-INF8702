@@ -1,3 +1,4 @@
+// This class was taken from https://learnopengl.com/
 #ifndef MESH_H
 #define MESH_H
 
@@ -12,14 +13,6 @@
 #include <vector>
 
 using namespace std;
-
-// struct compareVec
-// {
-//     bool operator() (const glm::vec3& lhs, const glm::vec3& rhs) const
-//     {
-//         return glm::all(glm::lessThan(lhs, rhs));
-//     }
-// };
 
 struct Vertex {
     // position

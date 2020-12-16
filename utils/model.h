@@ -1,3 +1,4 @@
+// This class was taken from https://learnopengl.com/
 #ifndef MODEL_H
 #define MODEL_H
 

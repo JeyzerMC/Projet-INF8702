@@ -15,9 +15,8 @@ Texture gen_fbo_texture(unsigned int width, unsigned int height) {
     parameters.texture_format = GL_DEPTH_COMPONENT;
     parameters.min_filter = GL_NEAREST;
     parameters.max_filter = GL_NEAREST;
-    // TODO: We probably don't want repeat here :/
-    parameters.wrap_mode_s = GL_REPEAT;
-    parameters.wrap_mode_t = GL_REPEAT;
+    parameters.wrap_mode_s = GL_CLAMP;
+    parameters.wrap_mode_t = GL_CLAMP;
     return Texture(texture_data, width, height, parameters);
 }
 
