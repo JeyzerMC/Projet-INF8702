@@ -471,7 +471,7 @@ Figure \ref{fig:wobbling_results} shows the effect of the wobbling on the scene.
 	\subfloat[No effects.]{\includegraphics[width=0.47\columnwidth]{imgs/wob_off.png}\label{fig:wobbling_results0}}
 	\hspace{1em}
 	\subfloat[Wobbling effect.]{\includegraphics[width=0.47\columnwidth]{imgs/wob_on.png}\label{fig:wobbling_results1}} \\
-	\subfloat[Wobbling and morphological smoothing.]{\includegraphics[width=0.47\columnwidth]{imgs/wob_on_smooth.png}\label{fig:wobbling_results2}}
+	\subfloat[Wobbling with morphological smoothing.]{\includegraphics[width=0.47\columnwidth]{imgs/wob_on_smooth.png}\label{fig:wobbling_results2}}
 	\hspace{1em}
 	\caption{Effect of wobbling.}
 	\label{fig:wobbling_results}
@@ -717,21 +717,82 @@ Bigger figures are available in the appendix. Apendix \ref{fig:results_close} sh
 \label{sec:future_work}
 The current implementation has multiple points that could make the results better. This section outlines the major changes that could make our final result better.
 
-\paragraph{Pigment density variation mapping in screen space.} One of the main problem of the pigment density variation effect is that to be accurate, the effect has to be applied in screen space. The problem with applying the effect in screen space is that when the objects or the camera moves, it gives the impression of a "dirty lens," and the illusion of watercolor is completely broken. To counter this effect, \cite{watercolor_paper} suggests two methods that allow applying a texture in screen space, but that allow the texture to be follow the scaling and displacements of objects. These techniques could be implemented to improve our result.
+\subsection{Pigment density in screen space}
+One of the main problem of the pigment density variation effect is that to be accurate, 
+the effect has to be applied in screen space. 
+The problem with applying the effect in screen space is that when the objects or the camera moves, 
+it gives the impression of a "dirty lens," and the illusion of watercolor is completely broken. 
 
-\paragraph{Better Gaussian blurring.} Our current solution uses a $5\times5$ Gaussian kernel, but using a constant size kernel makes a variable blur impossible. In order to have varying degrees of blurring, we use a variable stride when running our convolutions. This technique generates artefacts (see figure \ref{fig:blur_artefacts}), and these artefacts could be avoided by using a more computationally expensive type of blurring. For instance, a $3\times3$, a $5\times5$, a $7\times7$ and a $9\times9$ kernel could be run in parallel, and the resulting blur could interpolate between all these blurs. This might be too slow, but the Gaussian blur could be sped up by decomposing it into a vertical and horizontal pass.
+\medskip \par
+\noindent
+To counter this effect, \cite{watercolor_paper} suggests two methods that allow applying a texture 
+in screen space, but that allow the texture to follow the scaling and displacements of objects. 
+
+\medskip \par
+\noindent
+Our current object space implementation does not suffer from the dirty lens problem, but faces another issue:
+The sampling is so dense in object space that some of the pigment variations, namely the high frequencies and 
+paper grain, appear dirty. Scaling the sampling up spread out the pigments and make the effect barely visible. 
+
+\medskip \par
+\noindent
+As such, a tradeof would be to implement the low and high frequencies in object space, and the paper
+grain in screen space. Better textures could also be generated to mitigate the problem in object space.
+
+\subsection{Improving Gaussian blurring} 
+
+Our current solution uses a $5\times5$ Gaussian kernel, but using a constant size kernel makes a variable blur 
+impossible. In order to have varying degrees of blurring, we use a variable stride 
+when running our convolutions. 
+
+\medskip \par
+\noindent
+This technique generates artefacts (see figure \ref{fig:blur_artefacts}), and these artefacts could be avoided 
+by using a more computationally expensive type of blurring. 
+For instance, a $3\times3$, a $5\times5$, a $7\times7$ and a $9\times9$ kernel could be run in parallel, 
+and the resulting blur could interpolate between all these blurs. 
+
+\medskip \par
+\noindent
+This approach may be a bit slower, but the Gaussian blur is linearly separable and the computation can be greatly 
+sped up by decomposing it into a vertical and horizontal pass.
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.6\columnwidth]{imgs/blur_artefacts.png}
+	\includegraphics[width=0.8\columnwidth]{imgs/blur_artefacts.png}
 	\hspace{1em}
 	\caption{Artefacts observed when blurring.}
 	\label{fig:blur_artefacts}
 \end{figure}
 
-TODO: TALK ABOUT BETTER PIGMENT density
+\newpage
+\subsection{Collision-less edge darkening} 
 
-TODO: TALK ABOUT BETTER EDGE darkening
+The implementation of edge darkening presented here possess one glaring issue: When the darkening factor is high,
+artefacts can be seen around the edges of the cel shading-induced shadows and the caustic lights on the objects, 
+most noticeably on the ground.
+
+\medskip \par
+\noindent
+This is due to moving the edge darkening process to the final pass, and using the resulting render from the light
+pass which contains the cel-shading and caustics as a flatten image. This issue was not present during the early 
+days of the project, before introducing the morphological smoothing which required a separate pass after the caustics
+and cel shading for maximal effect. 
+
+\medskip \par
+\noindent
+A simple, yet effective improvement for that would be to render the scene in two textures during the light pass,
+once with the effects and once without. The edge darkening process during the underwater pass could then simply
+sample from the effect-less texture to apply the Sobel kernel, and return the effect-full texture in case of an
+non-edge fragment.
+
+\medskip \par
+\noindent
+The additionnal cost wouldn't be too constraining either, as it merely consists of adding one additionnal texture to 
+the output gbuffer of the light pass, which already outputs the color, the position and the normal of each fragment.
+
+
+\subsection{Morphological smoothing operations} 
 
 TODO: TALK ABOUT BETTER MORPH SMOOTHING
 
@@ -741,7 +802,7 @@ We have shown that it is possible to create and render an underwater scene with 
 
 
 
-\newpage~\newpage
+\newpage
 \section{Appendix}
 \label{sec:appendix}
 
