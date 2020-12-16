@@ -162,6 +162,7 @@ results and research discussion will be mentionned, before concluding.
 \section{Scene}
 
 \subsection{Framework}
+\label{sec:framework_par}
 
 The source code for the project can be found on Github \cite{watercolor_underwater}. 
 The code was written in C++ with OpenGL 4.6 core. We've used the LearnOpenGL \cite{learnopengl} 
@@ -386,6 +387,7 @@ In the context of this experiment, the additional load time at the opening of th
 given the small amound of low poly models used.
 
 \subsection{Morphological smoothing}
+\label{sec:morph_smoothing_par}
 
 An additionnal morphological smoothing pass can be applied on the resulting image to further reduce the level
 of details in the scene. Just like most of the other watercolor steps, they are applied on a post-process basis.
@@ -687,7 +689,7 @@ All fragments of the scene are mixed with a color according to the following for
 
 \medskip \par
 \noindent
-Where tint is the tint color, defined with the rgb values $(0.0, 0.07, 0.1)$.
+Where the variable tint is the tint color, defined with the rgb values $(0.0, 0.07, 0.1)$.
 Figure \ref{fig:scene_with_tint} shows the effect of adding the color tint on the scene.
 
 \begin{figure}[h]
@@ -710,6 +712,7 @@ Figure \ref{fig:result} shows the scene with all effects applied on it.
 	\label{fig:result}
 \end{figure}
 
+\noindent
 Bigger figures are available in the appendix. Apendix \ref{fig:results_close} shows the scene from a close point of view, Appendix \ref{fig:results_far} shows the scene from a far point of view and Appendix \ref{fig:results_anim} attempts to show the animations of the caustics.
 
 \newpage
@@ -768,7 +771,7 @@ sped up by decomposing it into a vertical and horizontal pass.
 \newpage
 \subsection{Collision-less edge darkening} 
 
-The implementation of edge darkening presented here possess one glaring issue: When the darkening factor is high,
+The implementation of edge darkening presented here possesses one glaring issue: When the darkening factor is high,
 artefacts can be seen around the edges of the cel shading-induced shadows and the caustic lights on the objects, 
 most noticeably on the ground.
 
@@ -794,11 +797,49 @@ the output gbuffer of the light pass, which already outputs the color, the posit
 
 \subsection{Morphological smoothing operations} 
 
-TODO: TALK ABOUT BETTER MORPH SMOOTHING
+As explained in Section \ref{sec:morph_smoothing_par}, the algorithm we have chosen for this feature is quite simple
+and limited, we simply choose the darker value in a 3x3 kernel for each channel, for each fragment during the erosion pass,
+and the lightest value for the dillation pass. 
+
+\medskip \par
+\noindent
+This technique is not realistic, introduces additionnal colors which is a behavior that the morphological 
+smoothing process tries to avoid, and it is applied on a relatively small kernel. For these reasons, there are big 
+rooms for improvement here. 
+
+\medskip \par
+\noindent
+We could, for example, increase the kernel window to sample in a bigger range (5x5 or evene 9x9), this would 
+result in more details being removed from the image. Another approach is to implement one of the algorithms 
+mentionned in the additional papers \cite{morph_colors_1}, \cite{morph_colors_2}. 
+
+\medskip \par
+\noindent
+Doing so would most likely be time and computationally expensive, but would result in a sparking improvement 
+in the resulting image, with an increased watercolor sensation.
+
+
 
 \newpage
 \section{Conclusion}
-We have shown that it is possible to create and render an underwater scene with a watercolor-like effect using the technique described in \cite{watercolor_paper}. In addition, we have shown that implementing caustics and blur effects on watercolor images works well and does not interfere with the watercolor effect.
+
+To conclude, we have shown that it is possible to create and render an underwater scene with the use of a 
+watercolor-like effect, through the technique described in \cite{watercolor_paper}. 
+% In addition, we have shown that implementing caustics and blur effects on watercolor images works 
+% well and does not interfere with the watercolor effect.
+In addition, this effect blends well with other effects, such as caustics and underwater-specific effects, such 
+as a sharp depth blur and edge darkening.
+
+\medskip \par
+\noindent
+Although there are large rooms for improvement in this paper, this experiment has shown promising results 
+in the field of non-realistic rendering, and could be used to induce various projects with a unique style.
+
+\medskip \par
+\noindent
+As mentionned in Section \ref{sec:framework_par}, all the source code produced here by us is available on 
+Github and contain instructions on how to tweak and navigate the scene for those interested in mingling further
+with this experiment.
 
 
 
