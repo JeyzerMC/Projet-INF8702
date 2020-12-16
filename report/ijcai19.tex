@@ -313,7 +313,7 @@ Through its hsv representation, the color intensity can be clamped to a chosen l
 presented in Figure \ref{fig:celshading_levels}. 
 Doing so clamps the intensity value to 4 different levels, while preserving the overall color.
 
-\lstinputlisting{code/celshading.cpp}
+\lstinputlisting{code/celshading.glsl}
 
 \vspace{-1.5em}
 
@@ -561,7 +561,35 @@ A solution to this is mentionned in Section \ref{sec:future_work}.
 \newpage
 \subsection{Pigment density variation}
 
-TODO: Talk about pigment density variation here.
+Variation in the pigment density refers to the various paper effects distinctive of the watercolor style. 
+Such variation usually comes as a result of the lavis, wet on dry, technique when painting. 
+\cite{watercolor_paper} decompose this effect into three parts: Low frequency variations due to the repartion
+of water on the canvas, high frequency variation due to the repartition of the paint on the water, and finally,
+paper grain, due to the canvas' rough surface itself.
+
+\medskip \par
+\noindent
+Additional effects, such as diffusion, could be added to add on to the watercolor effect, but their implementation
+is more complex, as a fluid simulation is needed. They are also often avoided by artists who wish to depict more
+realistic sceneries, such as architects.
+
+\medskip \par
+\noindent
+Representing those three pigment density variations in OpenGL is quite straightforward when skipping the 
+fluid simulation. Instead, each variation is produced per fragment on the fragment shader, using a gray-level
+texture. The turbulent flow (low frequencies) is simulated with a Perlin noise texture, the pigment variation 
+(high frequencies) is simulated with a Gaussian noise texture, and the paper grain is a simple paper texture.
+
+\begin{figure}[h]
+	\centering
+	\subfloat[Low frequency texture.]{\includegraphics[width=0.47\columnwidth]{imgs/perlin_noise.jpg}\label{fig:perlin_variation}}
+	\hspace{1em}
+	\subfloat[High frequency texture.]{\includegraphics[width=0.47\columnwidth]{imgs/gaussian_noise.jpg}\label{fig:pigment_variation}} \\
+	\subfloat[Paper grain texture.]{\includegraphics[width=0.47\columnwidth]{imgs/cotton_paper_2.jpg}\label{fig:paper_grain}}
+	\hspace{1em}
+	\caption{Pigment density variation.}
+	\label{fig:paper_effects}
+\end{figure}
 
 \newpage
 \section{Caustics}
