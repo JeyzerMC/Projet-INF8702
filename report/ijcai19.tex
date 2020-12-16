@@ -710,7 +710,27 @@ TODO: Showcase more results here.
 \label{sec:future_work}
 The current implementation has multiple points that could make the results better. This section outlines the major changes that could make our final result better.
 
-\paragraph{Pigment density variation mapping in screen space.} One of the main problem of the pigment density variation effect is that to be accurate, the effect has to be applied in screen space. The problem with applying the effect in screen space is that when the objects or the camera moves, it gives the impression of a "dirty lens," and the illusion of watercolor is completely broken. To counter this effect, \cite{watercolor_paper} suggests two methods that allow applying a texture in screen space, but that allow the texture to be follow the scaling and displacements of objects. These techniques could be implemented to improve our result.
+\subsection{Pigment density in screen space}
+One of the main problem of the pigment density variation effect is that to be accurate, 
+the effect has to be applied in screen space. 
+The problem with applying the effect in screen space is that when the objects or the camera moves, 
+it gives the impression of a "dirty lens," and the illusion of watercolor is completely broken. 
+
+\medskip \par
+\noindent
+To counter this effect, \cite{watercolor_paper} suggests two methods that allow applying a texture 
+in screen space, but that allow the texture to follow the scaling and displacements of objects. 
+
+\medskip \par
+\noindent
+Our current object space implementation does not suffer from the dirty lens problem, but faces another issue:
+The sampling is so dense in object space that some of the pigment variations, namely the high frequencies and 
+paper grain, appear dirty. Scaling the sampling up spread out the pigments and make the effect barely visible. 
+
+\medskip \par
+\noindent
+As such, a tradeof would be to implement the low and high frequencies in object space, and the paper
+grain in screen space. Better textures could also be generated to mitigate the problem in object space.
 
 \paragraph{Better Gaussian blurring.} Our current solution uses a $5\times5$ Gaussian kernel, but using a constant size kernel makes a variable blur impossible. In order to have varying degrees of blurring, we use a variable stride when running our convolutions. This technique generates artefacts (see figure \ref{fig:blur_artefacts}), and these artefacts could be avoided by using a more computationally expensive type of blurring. For instance, a $3\times3$, a $5\times5$, a $7\times7$ and a $9\times9$ kernel could be run in parallel, and the resulting blur could interpolate between all these blurs. This might be too slow, but the Gaussian blur could be sped up by decomposing it into a vertical and horizontal pass.
 
@@ -721,8 +741,6 @@ The current implementation has multiple points that could make the results bette
 	\caption{Artefacts observed when blurring.}
 	\label{fig:blur_artefacts}
 \end{figure}
-
-TODO: TALK ABOUT BETTER PIGMENT density
 
 TODO: TALK ABOUT BETTER EDGE darkening
 
