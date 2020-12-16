@@ -615,6 +615,17 @@ Figure \ref{fig:scene_with_caustics} shows the scene with the caustics projected
     \label{fig:scene_with_caustics}
 \end{figure}
 
+\begin{figure*}[h]
+	\centering
+	\subfloat[Without blur nor radius.]{\includegraphics[width=0.32\linewidth]{imgs/bright_sides.png}}
+	\hspace{0.5em}
+    \subfloat[With radius darkening.]{\includegraphics[width=0.32\linewidth]{imgs/blur_off.png}\label{fig:radial_darkening}}
+	\hspace{0.5em}
+    \subfloat[With depth blur.]{\includegraphics[width=0.32\linewidth]{imgs/blur_on.png}}
+	\caption{The effect of blur and radius darkening on the scene.}
+	\label{fig:scene_with_blur}
+\end{figure*}
+
 \section{Underwater effects}
 \label{sec:underwater}
 
@@ -635,64 +646,49 @@ This gives a better effect for the distance blur, as when the camera is close to
 the blur is almost non-existent, and one the threshold is passed, the blur increases rapidly.
 Figure \ref{fig:scene_with_blur} shows the scene with and without any blur.
 
-\vspace{-1em}
+% \vspace{-1em}
 
-\begin{figure}[h]
-	\centering
-	\subfloat[Without depth blur.]{\includegraphics[width=0.47\columnwidth]{imgs/blur_off.png}}
-	\hspace{1em}
-	\subfloat[With depth blur.]{\includegraphics[width=0.47\columnwidth]{imgs/blur_on.png}}
-	\caption{The effect of depth blur on the scene.}
-	\label{fig:scene_with_blur}
-\end{figure}
-
-\vspace{-1em}
+% \vspace{-1em}
 
 \subsection{Radial darkening}
-The second effect is a radial darkening. This means that fragments on the edge and corners of the screen are darker. This darkening was added in order to make the end image more attractive. This is a fairly common effect, and is easy to implement. The code for the effect is shown below:
+The second effect is a radial darkening. This means that fragments on the edge and corners of the screen are 
+darker. This darkening was added in order to make the end image more attractive. 
+This is a fairly common effect, and is easy to implement. 
+The code for the effect is shown on the right.
+\medskip
+
 \lstinputlisting{code/radial-darkening.glsl}
 
 \medskip \par
 \noindent
-Figure \ref{fig:scene_with_radial_darkening} shows the results of radial darkening on a scene. Notice the corners of the image. The effect is minimal, and can be hard to notice if it is not pointed out, but adds to the overall image attractiveness.
-
-\begin{figure}[h]
-	\centering
-	\subfloat[Without radius darkening.]{\includegraphics[width=0.47\columnwidth]{imgs/bright_sides.png}}
-	\hspace{1em}
-	\subfloat[With radius darkening.]{\includegraphics[width=0.47\columnwidth]{imgs/blur_off.png}}
-	\caption{The effect of radial darkening on the scene.}
-	\label{fig:scene_with_radial_darkening}
-\end{figure}
+Figure \ref{fig:radial_darkening} shows the results of radial darkening on a scene. Notice the corners of the image. The effect is minimal, and can be hard to notice if it is not pointed out, but adds to the overall image attractiveness.
 
 \subsection{Color tint}
 Water absorbs certain light wavelengths faster than others. In particular, red and green light are absorbed by water, so often underwater scenes take a blue tint. In order to create a similar effect, but without making it physically accurate, we tint the entire scene with a blue color.
 All fragments of the scene are mixed with a color according to the following formula:
 \[ color = \text{mix}\left(color, tint, 0.75\right)\]
-Where tint is the tint color, defined with the rgb values $(0.0, 0.07, 0.1)$.
 
 \medskip \par
 \noindent
+Where tint is the tint color, defined with the rgb values $(0.0, 0.07, 0.1)$.
 Figure \ref{fig:scene_with_tint} shows the effect of adding the color tint on the scene.
 
 \begin{figure}[h]
 	\centering
-	\subfloat[Without tint.]{\includegraphics[width=0.47\columnwidth]{imgs/blur_off.png}}
-	\hspace{1em}
-	\subfloat[With tint.]{\includegraphics[width=0.47\columnwidth]{imgs/tinted.png}}
+	\subfloat[Without tint.]{\includegraphics[width=0.48\columnwidth]{imgs/blur_off.png}}
+	\hspace{0.5em}
+	\subfloat[With tint.]{\includegraphics[width=0.48\columnwidth]{imgs/tinted.png}}
 	\caption{The effect of color tint on the scene.}
 	\label{fig:scene_with_tint}
 \end{figure}
 
 
-\medskip \par
-\noindent
-
+\newpage
 \section{Results}
 
 TODO: Showcase more results here.
 
-% \newpage
+\newpage
 \section{Future Work}
 \label{sec:future_work}
 
@@ -701,6 +697,12 @@ TODO: Talk about possible improvements here.
 \section{Conclusion}
 
 TODO: Conclude here.
+
+\newpage
+\section{Appendix}
+\label{sec:appendix}
+
+TODO: IMAGES HERE.
 
 \newpage
 \appendix
