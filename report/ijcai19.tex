@@ -29,7 +29,7 @@
 \usepackage{float}
 \usepackage{listings}
 \urlstyle{same}
-
+% \usepackage[section]{placeins}
 \usepackage{tikz}
 \usetikzlibrary{calc, snakes}
 
@@ -436,44 +436,16 @@ A 3x3 kernel is applied over the image, with each r, g and b channel being proce
 erosion operation, the lowest channel value in kernel is taken as the fragment's channel value. 
 For the dilation, it's the opposite, the highest channel value is kept.
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\columnwidth]{imgs/no_smoothing_2.jpg}
-    \caption{No morphological smoothing.}
-    \label{fig:no_ms}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\columnwidth]{imgs/erosion.jpg}
-    \caption{Single pass erosion effect.}
-    \label{fig:erosion_ms}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\columnwidth]{imgs/opening_closing.jpg}
-    \caption{Full opening-closing sequence.}
-    \label{fig:opening_closing_ms}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\columnwidth]{imgs/dilation.jpg}
-    \caption{Single pass dilation effect.}
-    \label{fig:dilation_ms}
-\end{figure}
-
 \newpage
 \noindent
-Figures \ref{fig:no_ms} and \ref{fig:opening_closing_ms} show an overview of the scene, before and after 
+Appendix \ref{fig:no_ms} and \ref{fig:opening_closing_ms} show an overview of the scene, before and after 
 applying the morphological sequence. Due to the small sequence that was used, only a little bit of the 
 details around some edges were smoothed out. Using a bigger kernel, and possibly a different approach to 
 the smoothing could yield better results. 
 
 \medskip \par
 \noindent
-Figures \ref{fig:erosion_ms} and \ref{fig:dilation_ms} show the result of each operation. 
+Appendix \ref{fig:erosion_ms} and \ref{fig:dilation_ms} show the result of each operation. 
 Erosion expand and darken the edges around the objects. It can be used in conjonction with the edge darkening 
 effect used later on in the pipeline. Dilation, on the other hand, 
 lighten the edges and make the objects thinner.
@@ -505,10 +477,17 @@ Figure \ref{fig:wobbling_results} shows the effect of the wobbling on the scene.
 	\label{fig:wobbling_results}
 \end{figure}
 
-
 \subsection{Edge darkening}
+% \vspace{-0.5em}
 
-\begin{figure}[h]
+\noindent
+A simple sobel filter (Figure \ref{fig:sobel}) is applied over the image during the underwater pass 
+to detect edges and darken them. We initially set the fragments with a color length, computed as the simple
+vector length of the rgb color, of over 0.9 to black. The effect was however too strong, and while it was quite
+aesthetically pleasant, it did not match the watercolor context.
+% \vspace{-0.5em}
+
+\begin{figure}[!h]
     $$
     \begin{bmatrix}
         1 & 1 & 1\\
@@ -519,14 +498,6 @@ Figure \ref{fig:wobbling_results} shows the effect of the wobbling on the scene.
     \caption{Sobel 3x3 kernel.}
     \label{fig:sobel}
 \end{figure}
-\vspace{-0.5em}
-
-\noindent
-A simple sobel filter (Figure \ref{fig:sobel}) is applied over the image during the underwater pass 
-to detect edges and darken them. We initially set the fragments with a color length, computed as the simple
-vector length of the rgb color, of over 0.9 to black. The effect was however too strong, and while it was quite
-aesthetically pleasant, it did not match the watercolor context.
-\vspace{-0.5em}
 
 \begin{figure}[h]
     \centering
@@ -536,7 +507,7 @@ aesthetically pleasant, it did not match the watercolor context.
     \caption{OpenCV documentation on morphological operations.}
     \label{fig:initial_edge_darkening}
 \end{figure}
-\vspace{-0.5em}
+% \vspace{-0.5em}
 
 \noindent
 Instead, the new approach was to apply a factor of 0.7 to the intensity value of the fragment in the hsv space.
@@ -545,11 +516,11 @@ The darkening factor can also be tweaked depending on the needs.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=.9\columnwidth]{imgs/post_edge_darkening.jpg}
+    \includegraphics[width=.8\columnwidth]{imgs/post_edge_darkening.jpg}
     \caption{Final edge darkening effect.}
     \label{fig:post_edge_darkening}
 \end{figure}
-\vspace{-0.5em}
+\vspace{-1em}
 
 \noindent
 An issue with the current approach is that, since the edge darkening is handled in the underwater pass,
@@ -558,7 +529,6 @@ in the transition between water and light being darkened as well, which is undes
 to the light pass would interfer with the morphological smoothing. 
 A solution to this is mentionned in Section \ref{sec:future_work}.
 
-\newpage
 \subsection{Pigment density variation}
 
 Variation in the pigment density refers to the various paper effects distinctive of the watercolor style. 
@@ -569,24 +539,31 @@ paper grain, due to the canvas' rough surface itself.
 
 \medskip \par
 \noindent
-Additional effects, such as diffusion, could be added to add on to the watercolor effect, but their implementation
-is more complex, as a fluid simulation is needed. They are also often avoided by artists who wish to depict more
-realistic sceneries, such as architects.
+% Additional effects, such as diffusion, could be added to add on to the watercolor effect, but their implementation
+% is more complex, as a fluid simulation is needed. They are also often avoided by artists who wish to depict more
+% realistic sceneries, such as architects.
 
 \medskip \par
 \noindent
-Representing those three pigment density variations in OpenGL is quite straightforward when skipping the 
-fluid simulation. Instead, each variation is produced per fragment on the fragment shader, using a gray-level
+Representing those three pigment density variations in OpenGL is quite straightforward. Each variation is produced per fragment on the fragment shader, using a gray-level
 texture. The turbulent flow (low frequencies) is simulated with a Perlin noise texture, the pigment variation 
-(high frequencies) is simulated with a Gaussian noise texture, and the paper grain is a simple paper texture.
+(high frequencies), with a Gaussian noise texture, and the paper grain is a simple paper texture.
 
+\medskip \par
+\noindent
+These effects are applied during the final rendering pass, using the pixel positions to offset the texture sampling.
+This allows for better space coherence when moving around in the scene while preserving the pigment dispersion at 
+the same location. An alternative to this is shown in Section \ref{sec:future_work}.
+
+\vspace{-1em}
 \begin{figure}[h]
 	\centering
-	\subfloat[Low frequency texture.]{\includegraphics[width=0.47\columnwidth]{imgs/perlin_noise.jpg}\label{fig:perlin_variation}}
-	\hspace{1em}
-	\subfloat[High frequency texture.]{\includegraphics[width=0.47\columnwidth]{imgs/gaussian_noise.jpg}\label{fig:pigment_variation}} \\
-	\subfloat[Paper grain texture.]{\includegraphics[width=0.47\columnwidth]{imgs/cotton_paper_2.jpg}\label{fig:paper_grain}}
-	\hspace{1em}
+	\subfloat[Low frequency.]{\includegraphics[width=0.3\columnwidth]{imgs/perlin_noise.jpg}\label{fig:perlin_variation}}
+	\hspace{0.5em}
+	\subfloat[High frequency.]{\includegraphics[width=0.3\columnwidth]{imgs/gaussian_noise.jpg}\label{fig:pigment_variation}}
+	\hspace{0.5em}
+	\subfloat[Paper grain.]{\includegraphics[width=0.3\columnwidth]{imgs/cotton_paper_2.jpg}\label{fig:paper_grain}}
+	\hspace{0.5em}
 	\caption{Pigment density variation.}
 	\label{fig:paper_effects}
 \end{figure}
@@ -666,17 +643,6 @@ Figure \ref{fig:scene_with_caustics} shows the scene with the caustics projected
     \label{fig:scene_with_caustics}
 \end{figure}
 
-\begin{figure*}[h]
-	\centering
-	\subfloat[Without blur nor radius.]{\includegraphics[width=0.32\linewidth]{imgs/bright_sides.png}}
-	\hspace{0.5em}
-    \subfloat[With radius darkening.]{\includegraphics[width=0.32\linewidth]{imgs/blur_off.png}\label{fig:radial_darkening}}
-	\hspace{0.5em}
-    \subfloat[With depth blur.]{\includegraphics[width=0.32\linewidth]{imgs/blur_on.png}}
-	\caption{The effect of blur and radius darkening on the scene.}
-	\label{fig:scene_with_blur}
-\end{figure*}
-
 \section{Underwater effects}
 \label{sec:underwater}
 
@@ -695,7 +661,7 @@ In order to have blur that augments fast passed a certain distance, before being
 the depth of the fragment is raised to the third power ($factor = depth^3$). 
 This gives a better effect for the distance blur, as when the camera is close to an object (distance below 1), 
 the blur is almost non-existent, and one the threshold is passed, the blur increases rapidly.
-Figure \ref{fig:scene_with_blur} shows the scene with and without any blur.
+Appendix \ref{fig:no_blur} shows the scene with and without any blur.
 
 % \vspace{-1em}
 
@@ -712,7 +678,7 @@ The code for the effect is shown on the right.
 
 \medskip \par
 \noindent
-Figure \ref{fig:radial_darkening} shows the results of radial darkening on a scene. Notice the corners of the image. The effect is minimal, and can be hard to notice if it is not pointed out, but adds to the overall image attractiveness.
+Appendix \ref{fig:radial_darkening} shows the results of radial darkening on a scene. Notice the corners of the image. The effect is minimal, and can be hard to notice if it is not pointed out, but adds to the overall image attractiveness.
 
 \subsection{Color tint}
 Water absorbs certain light wavelengths faster than others. In particular, red and green light are absorbed by water, so often underwater scenes take a blue tint. In order to create a similar effect, but without making it physically accurate, we tint the entire scene with a blue color.
@@ -734,7 +700,7 @@ Figure \ref{fig:scene_with_tint} shows the effect of adding the color tint on th
 \end{figure}
 
 
-\newpage
+% \newpage
 \section{Results}
 
 TODO: Showcase more results here.
@@ -756,17 +722,89 @@ The current implementation has multiple points that could make the results bette
 	\label{fig:blur_artefacts}
 \end{figure}
 
+TODO: TALK ABOUT BETTER PIGMENT density
 
+TODO: TALK ABOUT BETTER EDGE darkening
+
+TODO: TALK ABOUT BETTER MORPH SMOOTHING
+
+\newpage
 \section{Conclusion}
 We have shown that it is possible to create and render an underwater scene with a watercolor-like effect using the technique described in \cite{watercolor_paper}. In addition, we have shown that implementing caustics and blur effects on watercolor images works well and does not interfere with the watercolor effect.
 
-\newpage
+\newpage~\newpage
 \section{Appendix}
 \label{sec:appendix}
 
-TODO: IMAGES HERE.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\columnwidth]{imgs/no_smoothing_2.jpg}
+    \caption{No morphological smoothing.}
+    \label{fig:no_ms}
+\end{figure}
+
+\vspace{5em}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\columnwidth]{imgs/erosion.jpg}
+    \caption{Single pass erosion effect.}
+    \label{fig:erosion_ms}
+\end{figure}
 
 \newpage
+
+\begin{figure}[h]
+    \vspace{1cm}
+    \centering
+    \includegraphics[width=\columnwidth]{imgs/opening_closing.jpg}
+    \caption{Full opening-closing sequence.}
+    \label{fig:opening_closing_ms}
+\end{figure}
+
+\vspace{5em}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\columnwidth]{imgs/dilation.jpg}
+    \caption{Single pass dilation effect.}
+    \label{fig:dilation_ms}
+\end{figure}
+
+\newpage
+% \begin{figure}[h]
+% 	\centering
+% 	\subfloat[Without blur nor radius.]{\includegraphics[width=0.32\linewidth]{imgs/bright_sides.png}}
+% 	\hspace{0.5em}
+%     \subfloat[With radius darkening.]{\includegraphics[width=0.32\linewidth]{imgs/blur_off.png}\label{fig:radial_darkening}}
+% 	\hspace{0.5em}
+%     \subfloat[With depth blur.]{\includegraphics[width=0.32\linewidth]{imgs/blur_on.png}}
+% 	\caption{The effect of blur and radius darkening on the scene.}
+% 	\label{fig:scene_with_blur}
+% \end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\columnwidth]{imgs/bright_sides.png}
+    \caption{Effectless point of view.}
+    \label{fig:no_blur}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\columnwidth]{imgs/blur_off.png}
+    \caption{Radial darkening.}
+    \label{fig:radial_darkening}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\columnwidth]{imgs/blur_on.png}
+    \caption{Depth blur.}
+    \label{fig:blur}
+\end{figure}
+
+\newpage~\newpage
 \appendix
 
 %% The file named.bst is a bibliography style file for BibTeX 0.99c
