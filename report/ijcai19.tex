@@ -701,10 +701,9 @@ Figure \ref{fig:scene_with_tint} shows the effect of adding the color tint on th
 	\label{fig:scene_with_tint}
 \end{figure}
 
-
-% \newpage
 \section{Results}
-Figure \ref{fig:result} shows the scene with all effects applied on it.
+
+Figure \ref{fig:result} shows the resulting image after all mentionned effects have been applied to the scene.
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=\linewidth]{imgs/all_scene.jpg}
@@ -713,7 +712,10 @@ Figure \ref{fig:result} shows the scene with all effects applied on it.
 \end{figure}
 
 \noindent
-Bigger figures are available in the appendix. Apendix \ref{fig:results_close} shows the scene from a close point of view, Appendix \ref{fig:results_far} shows the scene from a far point of view and Appendix \ref{fig:results_anim} attempts to show the animations of the caustics.
+Larger figures are also available in the appendix. Apendix \ref{fig:results_close} shows the scene from a 
+closer point of view, Appendix \ref{fig:results_far} shows the scene from a far point of view and lastly,
+Appendix \ref{fig:results_anim} shows the animations of the caustics through pictures taken at several 
+intervals of time.
 
 \newpage
 \section{Future Work}
@@ -841,7 +843,8 @@ As mentionned in Section \ref{sec:framework_par}, all the source code produced h
 Github and contain instructions on how to tweak and navigate the scene for those interested in mingling further
 with this experiment.
 
-
+\bibliographystyle{named}
+\bibliography{ijcai19}
 
 \newpage
 \section{Appendix}
@@ -897,7 +900,7 @@ with this experiment.
 \begin{figure}[h]
     \centering
     \includegraphics[width=\columnwidth]{imgs/bright_sides.png}
-    \caption{Effectless point of view.}
+    \caption{Effect-less point of view.}
     \label{fig:no_blur}
 \end{figure}
 
@@ -908,41 +911,46 @@ with this experiment.
     \label{fig:radial_darkening}
 \end{figure}
 
+\newpage
+
 \begin{figure}[h]
     \centering
     \includegraphics[width=\columnwidth]{imgs/blur_on.png}
-    \caption{Depth blur.}
+    \caption{Close up view of the depth blur.}
     \label{fig:blur}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\columnwidth]{imgs/distant_blur.jpg}
+    \caption{Depth blur as seen from a distant point.}
+    \label{fig:distant_blur}
 \end{figure}
 
 \begin{figure*}[h]
 	\centering
-	\includegraphics[width=\linewidth]{imgs/results_close.png}
+	\includegraphics[width=.55\linewidth]{imgs/results_close.png}
 	\caption{Scene viewed with a close camera.}
 	\label{fig:results_close}
 \end{figure*}
 
 \begin{figure*}[h]
 	\centering
-	\includegraphics[width=\linewidth]{imgs/results_far.png}
+	\includegraphics[width=.55\linewidth]{imgs/results_far.png}
 	\caption{Scene viewed with a faraway camera.}
 	\label{fig:results_far}
 \end{figure*}
 
 \begin{figure*}[h]
 	\centering
-	\subfloat{\includegraphics[width=0.33\linewidth]{imgs/results_anim 0.png}\label{fig:results_anim0}}
-	\subfloat{\includegraphics[width=0.33\linewidth]{imgs/results_anim 1.png}\label{fig:results_anim1}}
-	\subfloat{\includegraphics[width=0.33\linewidth]{imgs/results_anim 2.png}\label{fig:results_anim2}}
+    \subfloat{\includegraphics[width=0.3\linewidth]{imgs/results_anim 0.png}\label{fig:results_anim0}}
+    \hspace{1em}
+    \subfloat{\includegraphics[width=0.3\linewidth]{imgs/results_anim 1.png}\label{fig:results_anim1}}
+    \hspace{1em}
+	\subfloat{\includegraphics[width=0.3\linewidth]{imgs/results_anim 2.png}\label{fig:results_anim2}}
 	\caption{Animation of caustics at 0, 0.13 and 0.26 seconds.}
 	\label{fig:results_anim}
 \end{figure*}
-
-
-
-\bibliographystyle{named}
-\bibliography{ijcai19}
-
 
 \end{document}
 
