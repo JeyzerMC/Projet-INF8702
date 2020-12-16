@@ -32,8 +32,6 @@ E -> Move Up
 
 Mouse -> Turn camera
 
-R -> Hot-Reload Shader
-
 V -> Toggle Toon Shading
 C -> Toggle Caustics
 B -> Toggle Edges
