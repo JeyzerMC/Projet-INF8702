@@ -481,11 +481,17 @@ lighten the edges and make the objects thinner.
 \subsection{Wobbling effect}
 In order to simulate the displacement of paint due to the paper height, a wobbling effect needs to be added. The wobbling effect consists in displacing fragments along the viewport, based on the paper height.
 
+\medskip \par
+\noindent
 In practice, in order to get the horizontal and verical displacement of the pixel, the gradient of the paper height is used. To compute the gradient, the finite element method is used. The following code listing shows how the gradient of the paper height map:
 \lstinputlisting{code/wobbling-effect.glsl}
 
+\medskip \par
+\noindent
 Here the \verb|paper| texture corresponds to the height of the paper. This was obtained by using pictures of paper. The \verb|wobFactor| variable is a parameter that is adjusted depending on the texture so that it corresponds to the difference between two pixels. Once the paper gradient is computed, the fragments position is changed based on the gradient (multiplied by a parameter to control the intensity of the effect). This is done by adjusting the coordinates at which the fragment is sampled (\verb|vertTexCoord|).
 
+\medskip \par
+\noindent
 Figure \ref{fig:wobbling_results} shows the effect of the wobbling on the scene. Adding the wobbling effect makes the edges of the object in particular sand out, and is not very visible inside the object, since the color is fairly constant. In addition, when the wobbling effect is used along the morphological smoothing, the morphological smoothing effect diminished the intensity of the wobbling effect.
 
 \begin{figure}[h]
