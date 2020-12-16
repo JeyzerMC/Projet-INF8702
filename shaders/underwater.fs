@@ -116,7 +116,6 @@ vec3 getBlur(vec2 tex, vec3 color, vec3 pos)
     
     // Base water blur
     vec3 col = color;
-    // col = mix(color, blur, w);
     
     // Depth blur
     blur = gaussianBlur(tex.x, tex.y, 3);
@@ -148,7 +147,6 @@ vec3 darkenEdge(vec3 color, float factor)
     vec3 hsvColor = rgb2hsv(color);
     hsvColor.z *= factor;
     return hsv2rgb(hsvColor);
-    // return length(color) > threshold;
 }
 
 vec3 edgeDetection(vec3 litColor, vec2 texCoords)
@@ -179,18 +177,9 @@ vec3 edgeDetection(vec3 litColor, vec2 texCoords)
     vec3 col = vec3(0.0);
     for(int i = 0; i < 9; i++)
         col += sampleTex[i] * kernel[i];
-    
-    // if (nearWhite(col)) {
-    //     vec3 hsvCol = rgb2hsv(col);
-    //     hsvCol.z /= 2;
-    //     col = vec3(0.0); // Change to make color darker rather than black.
-    // }
-    // else
-    //     col = litColor;
+
     float dst = length(col);
-    if (dst > 0.5) return darkenEdge(litColor, 0.7);
-    // if (dst > 0.7) return darkenEdge(litColor, 3);
-    // if (dst > 0.9) return darkenEdge(litColor, 4);
+    if (dst > 0.5) return darkenEdge(litColor, 0.5);
     return litColor;
 }
 

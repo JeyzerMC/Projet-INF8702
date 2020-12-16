@@ -19,6 +19,7 @@
 \usepackage[small]{caption}
 \usepackage{subfig}
 \usepackage{graphicx}
+\usepackage[none]{hyphenat}
 \usepackage{amsmath}
 \usepackage{booktabs}
 \usepackage{algorithm}
@@ -245,7 +246,7 @@ This effect therefore requires a separate pass and a dedicated framebuffer for t
 
 \begin{figure*}[h]
     \centering
-    \includegraphics[width=\linewidth]{imgs/watercolor_pipeline.png}
+    \includegraphics[width=.9\linewidth]{imgs/watercolor_pipeline.png}
     \caption{Simplified watercolor pipeline.}
     \label{fig:watercolor_pipeline}
 \end{figure*}
@@ -481,10 +482,60 @@ lighten the edges and make the objects thinner.
 
 TODO: Talk about paper effects here.
 
+\newpage~\newpage
 \subsection{Edge darkening}
 
-TODO: Talk about edge darkening here.
+\begin{figure}[h]
+    $$
+    \begin{bmatrix}
+        1 & 1 & 1\\
+        1 & -8 & 1 \\
+        1 & 1 & 1
+    \end{bmatrix}
+    $$
+    \caption{Sobel 3x3 kernel.}
+    \label{fig:sobel}
+\end{figure}
+\vspace{-0.5em}
 
+\noindent
+A simple sobel filter (Figure \ref{fig:sobel}) is applied over the image during the underwater pass 
+to detect edges and darken them. We initially set the fragments with a color length, computed as the simple
+vector length of the rgb color, of over 0.9 to black. The effect was however too strong, and while it was quite
+aesthetically pleasant, it did not match the watercolor context.
+\vspace{-0.5em}
+
+\begin{figure}[h]
+    \centering
+    \subfloat[No edge darkening.]{\includegraphics[width=0.47\columnwidth]{imgs/no_edges.jpg}\label{fig:no_edges}}
+    \hspace{1em}
+    \subfloat[Initial edge darkening.]{\includegraphics[width=0.47\columnwidth]{imgs/black_edges.jpg}\label{fig:initial_darken}}
+    \caption{OpenCV documentation on morphological operations.}
+    \label{fig:initial_edge_darkening}
+\end{figure}
+\vspace{-0.5em}
+
+\noindent
+Instead, the new approach was to apply a factor of 0.7 to the intensity value of the fragment in the hsv space.
+This results in darkening the edges juste enough for it to be noticeable, without being too strong either. 
+The darkening factor can also be tweaked depending on the needs.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.9\columnwidth]{imgs/post_edge_darkening.jpg}
+    \caption{Final edge darkening effect.}
+    \label{fig:post_edge_darkening}
+\end{figure}
+\vspace{-0.5em}
+
+\noindent
+An issue with the current approach is that, since the edge darkening is handled in the underwater pass,
+the image~already contains the caustics from the light pass. As such, using a strong edge darkening results 
+in the transition between water and light being darkened as well, which is undesirable. Moving that step back 
+to the light pass would interfer with the morphological smoothing. 
+A solution to this is mentionned in Section \ref{sec:future_work}.
+
+\newpage
 \subsection{Pigment density variation}
 
 TODO: Talk about pigment density variation here.
@@ -574,7 +625,7 @@ The first effect is a blur. This simulates the blur that is seen underwater with
 
 \medskip \par
 \noindent
-In order to implement the blur underwater, a $5\times5$ 2d Gaussian kernel was used. The kernel is scaled on the image using a range parameter in order to have different blur intensities without changing the speed of the algorithm. This kernel is convolved twice, once using a range of 3 and once using a range of 10. The result of both of these blurs is then mixed with the non-blurred color, using two factors, one dependent on the depth of the fragment and one dependent on the distance to the center of the viewport.
+In order to implement the blur underwater, a $5\times5$ Gaussian kernel was used. The kernel is scaled on the image using a range parameter in order to have different blur intensities without changing the speed of the algorithm. This kernel is convolved twice, once using a range of 3 and once using a range of 10. The result of both of these blurs is then mixed with the non-blurred color, using two factors, one dependent on the depth of the fragment and one dependent on the distance to the center of the viewport.
 
 \medskip \par
 \noindent
@@ -643,6 +694,7 @@ TODO: Showcase more results here.
 
 % \newpage
 \section{Future Work}
+\label{sec:future_work}
 
 TODO: Talk about possible improvements here.
 
