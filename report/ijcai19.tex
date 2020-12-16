@@ -702,8 +702,15 @@ Figure \ref{fig:scene_with_tint} shows the effect of adding the color tint on th
 
 % \newpage
 \section{Results}
+Figure \ref{fig:result} shows the scene with all effects applied on it.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\linewidth]{imgs/all_scene.jpg}
+	\caption{The scene with all effects.}
+	\label{fig:result}
+\end{figure}
 
-TODO: Showcase more results here.
+In the appendix \ref{sec:appendix}, bigger figures are available. Figure \ref{fig:results_close} shows the scene from a close point of view, figure \ref{fig:results_far} shows the scene from a far point of view and figure \ref{fig:results_anim} attempts to show the animations of the caustics.
 
 \newpage
 \section{Future Work}
@@ -749,6 +756,8 @@ TODO: TALK ABOUT BETTER MORPH SMOOTHING
 \newpage
 \section{Conclusion}
 We have shown that it is possible to create and render an underwater scene with a watercolor-like effect using the technique described in \cite{watercolor_paper}. In addition, we have shown that implementing caustics and blur effects on watercolor images works well and does not interfere with the watercolor effect.
+
+
 
 \newpage~\newpage
 \section{Appendix}
@@ -822,14 +831,34 @@ We have shown that it is possible to create and render an underwater scene with 
     \label{fig:blur}
 \end{figure}
 
-\newpage~\newpage
-\appendix
+\begin{figure*}[h]
+	\centering
+	\includegraphics[width=\linewidth]{imgs/results_close.png}
+	\caption{Scene viewed with a close camera.}
+	\label{fig:results_close}
+\end{figure*}
 
-%% The file named.bst is a bibliography style file for BibTeX 0.99c
+\begin{figure*}[h]
+	\centering
+	\includegraphics[width=\linewidth]{imgs/results_far.png}
+	\caption{Scene viewed with a faraway camera.}
+	\label{fig:results_far}
+\end{figure*}
+
+\begin{figure*}[h]
+	\centering
+	\subfloat{\includegraphics[width=0.33\linewidth]{imgs/results_anim 0.png}\label{fig:results_anim0}}
+	\subfloat{\includegraphics[width=0.33\linewidth]{imgs/results_anim 1.png}\label{fig:results_anim1}}
+	\subfloat{\includegraphics[width=0.33\linewidth]{imgs/results_anim 2.png}\label{fig:results_anim2}}
+	\caption{Animation of caustics at 0, 0.13 and 0.26 seconds.}
+	\label{fig:results_anim}
+\end{figure*}
+
+
+
 \bibliographystyle{named}
 \bibliography{ijcai19}
 
-% The reference section will autofill when we add \cite{} in the report.
 
 \end{document}
 
